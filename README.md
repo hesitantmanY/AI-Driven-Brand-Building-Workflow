@@ -73,7 +73,7 @@ Arora、Chakraborty 与 Nishimura 于 2025 年在《Journal of Marketing》发�
 - **配置与数据**：API 配置存 `server/config.yaml`，API Key 存 `server/.env`（均已 git-ignore）；工作内容存 `server/data/<project>/current.json`，版本快照存同目录 `snapshots/`。
 - **LLM 请求代理**：所有 AI 调用经后端转发，API Key 不会到达浏览器；`providers.js` 维护各提供商 JSON 模式白名单，Gemini 的非 OpenAI 请求体由 `gemini_body.py` 转换。
 - **分析与解析**：LDA 主题建模（jieba + gensim，`lda.py`）、八爪鱼/问卷星表格解析（pandas + openpyxl，`excel_parser.py`）（未测试）、文档文本提取（`doc_extract.py`：txt/md/csv 直接读、docx 用标准库解、pdf 用 pypdf）。
-- **测试**：`tests/` 下 50+ 个 Node 直跑测试（`node tests/<name>.test.js`），另含 `server/test_lda.py`；仓库根执行 `node scripts/run-tests.js` 可顺序跑全部测试并汇总退出码。
+- **测试**：`tests/` 下 50+ 个 Node 直跑测试（`node tests/<name>.test.js`），另含 `server/test_lda.py`；仓库根执行 `node scripts/run-tests.js` 可顺序跑**顶层** `tests/*.test.js` 与 `server/test_*.py` 并汇总退出码。`tests/audit/**` 的嵌套探针用于记录既有缺陷、不纳入该退出码，脚本会在输出里逐个列出 SKIP 的文件名，不做静默跳过。
 - **安全回归**：`server/test_security.py` + `tests/security_frontend.test.js` 覆盖 API Key 不外泄、`project_id`/快照路径穿越、上传大小上限、Markdown/SVG 转义。
 
 ## 运行
@@ -123,6 +123,12 @@ node scripts/run-tests.js
 ```
 
 脚本会先按文件名顺序跑完 `tests/*.test.js`，再跑 `server/test_*.py`（使用 `server/.venv`）；任一失败都会继续跑完其余测试并在最后汇总，退出码非 0。后端依赖未安装时会明确提示而不是静默跳过。
+
+范围仅限这两组：`tests/audit/**` 下的嵌套探针**不会**被执行，也**不计入**退出码。它们用来记录尚未修或未被规格确认的缺陷（当前 23 个文件，21 绿 2 红：`a4_form_truth_export`、`a5_export_structure`），所以脚本把它们逐个列为 `SKIP`，避免「88 passed, 0 failed」被误读成「仓库全部测试通过」。要跑这些探针：
+
+```bash
+for f in $(find tests -mindepth 2 -name '*.test.js'); do node "$f"; done
+```
 
 ## 工作坊
 
@@ -199,7 +205,7 @@ server/
   requirements.txt
 scripts/
   build-cases-bundle.js                # 重新生成 docs/cases/bundle.js
-  run-tests.js                         # 顺序跑全部 JS/Python 测试并汇总退出码
+  run-tests.js                         # 顺序跑顶层 tests/*.test.js 与 server/test_*.py（嵌套 audit 探针只列出不跑）
 tests/                                 # Node 直跑测试（node tests/<name>.test.js）
 ```
 
