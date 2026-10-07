@@ -113,5 +113,19 @@ const Chart = require(path.join(root, 'docs', 'lib', 'matrix_chart.js'));
 delete global.median;
 delete global.esc;
 
+// ---- Workshop1 smile curve (SEC04): node text must be escaped before SVG ----
+{
+  const w1 = fs.readFileSync(path.join(root, 'docs', 'workshop1.js'), 'utf8');
+  const start = w1.indexOf('const buildSvg');
+  const end = w1.indexOf('const wrap', start);
+  const svg = w1.slice(start, end);
+  ok('smile curve found in workshop1.js', start >= 0 && end > start);
+  ok('smile curve escapes label before SVG interpolation',
+     /const lab = esc\(/.test(svg) && !svg.includes('${n.label}'), svg.slice(0, 200));
+  ok('smile curve escapes value and reason/tip',
+     /const val = esc\(/.test(svg) && /esc\(String\(why\)\)/.test(svg) &&
+     !svg.includes('${why}'), svg.slice(0, 200));
+}
+
 console.log(`\n${pass} pass / ${fail} fail`);
 process.exit(fail === 0 ? 0 : 1);
