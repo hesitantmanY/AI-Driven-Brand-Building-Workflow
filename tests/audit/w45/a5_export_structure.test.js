@@ -8,9 +8,17 @@ const sandbox={console,setTimeout,clearTimeout,Date,JSON,Math,Object,Array,Strin
 vm.runInContext(fs.readFileSync(path.join(__dirname,'..','..','..','docs','workshop5.js'),'utf8'),sandbox,{filename:'workshop5.js'});
 const W5=sandbox.Work5;
 sandbox.Work2={allIndicators:()=>[],effectiveWeights:()=>({})};
-sandbox.Work3={computeMatrix:()=>[],effectiveCuts:()=>({xCut:7,yCut:7}),isInSector:()=>false,entrySuggestion:()=>({text:''}),scenarioName:()=>''};
-sandbox.state={meta:{loadedFrom:'测试档案'},settings:{api:{apiKey:''}},work1:{sbu:{name:'测试品牌'}},work2:{decision:{}},work3:{matrix:{showSector:false},candidates:[],mining:{}},work4:{},work5:W5.defaultData()};
+sandbox.Work3={computeMatrix:()=>[{name:'排名卖点|竖线',x:8,y:8,selected:true}],effectiveCuts:()=>({xCut:7,yCut:7}),isInSector:()=>false,entrySuggestion:()=>({text:'建议|带竖线'}),scenarioName:()=>''};
+sandbox.state={meta:{loadedFrom:'测试档案'},settings:{api:{apiKey:''}},work1:{sbu:{name:'测试品牌'}},work2:{decision:{}},work3:{matrix:{showSector:false},candidates:[{}],mining:{}},work4:{},work5:W5.defaultData()};
 sandbox.state.work5.ch2_environment.strengths=['研发|强'];
+// 三张表都要有内容：SWOT / 4P 摘要表 / 排名表。空 pTable 或空矩阵会让四P/排名表不输出，
+// 「≥3 个合法表」这条断言就永远测不到后两张（fixture 自己把它变成不可满足）。
+sandbox.state.work5.ch4_mix=Object.assign({},sandbox.state.work5.ch4_mix,{pTable:{
+  product:{core:'4P核心|竖线',actions:'举措',nums:'数字'},
+  price:{core:'价',actions:'a',nums:'n'},
+  place:{core:'渠',actions:'a',nums:'n'},
+  promotion:{core:'促',actions:'a',nums:'n'}
+}});
 const md=W5.exportMd();
 ok('Work5.exportMd 不输出文档级 H1', !/^#\s+/m.test(md), md.slice(0,80));
 const headings=[...md.matchAll(/^(#{1,6})\s+(.+)$/gm)].map(m=>({level:m[1].length,title:m[2]}));

@@ -1,19 +1,15 @@
-/* One-shot test runner for the top-level suites.
+/* One-shot test runner for the whole repo.
 
-   Runs every tests/*.test.js through the current Node, then every
-   server/test_*.py through the project venv, in deterministic order.
+   Runs every .test.js under tests/ recursively (including nested suites
+   such as tests/audit) through the current Node, then every server/test_*.py
+   through the project venv, in deterministic order.
    No shell is involved: file paths are passed to spawnSync directly, so a
    file name with spaces or special characters cannot inject commands.
 
        node scripts/run-tests.js
 
-   Scope: only the tests/*.test.js glob (non-recursive) plus server/test_*.py.
-   Nested probes under tests/audit/** record known defects and stay out of the
-   exit code, so they are listed explicitly in the output rather than omitted
-   silently. This command is not "every test in the repo".
-
-   All configured tests still run when one fails; the summary and exit code
-   cover those. Exit code 0 only when every configured test passed.
+   All tests run even when one fails; the summary and exit code cover the
+   whole run. Exit code 0 only when every test passed.
 */
 'use strict';
 
@@ -31,32 +27,22 @@ const venvPython = path.join(
   process.platform === 'win32' ? 'python.exe' : 'python'
 );
 
-const jsTests = fs.readdirSync(testsDir)
-  .filter((file) => file.endsWith('.test.js'))
-  .sort()
-  .map((file) => ({
-    label: `tests/${file}`,
-    file: path.join(testsDir, file),
-    cwd: root,
-    command: process.execPath,
-  }));
-
-// Nested probes under tests/audit/** are deliberately outside the exit code: they
-// record known defects (see 4c2882f), so gating on them would leave this command
-// permanently red. They are listed rather than silently skipped — a "0 failed"
-// summary must never imply they were run.
-function findNestedTests(dir) {
+function findTests(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) return findNestedTests(full);
+    if (entry.isDirectory()) return findTests(full);
     return entry.name.endsWith('.test.js') ? [full] : [];
   });
 }
 
-const nestedTests = fs.readdirSync(testsDir, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
-  .flatMap((entry) => findNestedTests(path.join(testsDir, entry.name)))
-  .sort();
+const jsTests = findTests(testsDir)
+  .sort()
+  .map((file) => ({
+    label: path.relative(root, file).split(path.sep).join('/'),
+    file,
+    cwd: root,
+    command: process.execPath,
+  }));
 
 const pythonTests = fs.existsSync(venvPython)
   ? fs.readdirSync(serverDir)
@@ -106,24 +92,5 @@ if (pythonTests) {
   console.log(`SKIP ${venvPython} not found (create server/.venv and install requirements first)`);
 }
 
-function reportNested(tests) {
-  console.log('\n== Nested probes (NOT run) ==');
-  if (!tests.length) {
-    console.log('none');
-    return;
-  }
-  for (const test of tests) console.log(`SKIP ${path.relative(root, test)}`);
-  console.log(
-    `\n${tests.length} file(s) above sit below tests/ and are outside the tests/*.test.js glob,` +
-    '\nso they are absent from the totals below. Run them explicitly with:' +
-    "\n  for f in $(find tests -mindepth 2 -name '*.test.js'); do node \"$f\"; done"
-  );
-}
-
-reportNested(nestedTests);
-
-// The skipped count rides on the totals line too: a consumer that only greps the
-// last line must not read this as "everything ran and passed".
-const skippedNote = nestedTests.length ? ` (${nestedTests.length} nested probes not run)` : '';
-console.log(`\n${passed} passed, ${failed} failed${skippedNote}`);
+console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 || pythonTests === null ? 1 : 0);
