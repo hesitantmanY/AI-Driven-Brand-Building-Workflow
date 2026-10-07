@@ -69,6 +69,25 @@ def api_route(route):
     route.fulfill(status=200, content_type="application/json", body="{}", headers=headers)
 
 
+def launch_options() -> dict:
+    """Playwright launch kwargs: prefer an installed Chrome/Edge, else bundled Chromium.
+
+    Single source for the browser-search order, shared by this smoke scan, the
+    interaction audit, and the acceptance harness — so none of them carries its
+    own copy of the macOS app-bundle paths.
+    """
+    options: dict = {"headless": True}
+    for candidate in (
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+        "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    ):
+        if Path(candidate).exists():
+            options["executable_path"] = candidate
+            break
+    return options
+
+
 def main() -> None:
     handler = functools.partial(QuietHandler, directory=str(DOCS))
     socketserver.TCPServer.allow_reuse_address = True
@@ -78,16 +97,7 @@ def main() -> None:
     failures: list[str] = []
     console_errors: list[str] = []
     with sync_playwright() as p:
-        launch = {"headless": True}
-        for candidate in (
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-            "/Applications/Chromium.app/Contents/MacOS/Chromium",
-        ):
-            if Path(candidate).exists():
-                launch["executable_path"] = candidate
-                break
-        browser = p.chromium.launch(**launch)
+        browser = p.chromium.launch(**launch_options())
         page = browser.new_page()
         page.route("**/api/**", api_route)
         page.on("console", lambda msg: console_errors.append(f"console {msg.text}") if msg.type == "error" else None)

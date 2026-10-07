@@ -81,5 +81,8 @@
 - `node scripts/run-tests.js`：79 passed, 0 failed。此脚本只扫描tests根目录，不能代表所有嵌套audit测试。
 - `server/.venv/bin/python scripts/ui_smoke.py`：UI SMOKE PASS: 23 workshop steps + representative fill/create interactions。
 - 三个专项测试：`tests/audit/w345/w3_mining_crud.test.js` 9/9；`history_rename_delete.test.js` 9/9；`w3_chosen_pointer.test.js` 11/11。
-- 新诊断：`server/.venv/bin/python scripts/ui_interaction_audit.py`。隔离接口，可无人值守；输出每项判断及实测证据，当前包含预期红项，exit 1表示上述问题仍存在。重命名失焦为UX检查判据，不能替代已确认的产品决策。
+- 新诊断：`server/.venv/bin/python scripts/ui_interaction_audit.py`。隔离接口，可无人值守；输出每项判断及实测证据。判据已改为交互规格确认后的行为，**exit 0 表示该脚本覆盖的那几项均已修复，exit 1 表示至少一项回归**。
+  - 覆盖范围有限，不代表上面全部 8 项：已覆盖 #2（清空范围，改为按来源分入口）、#3（重命名失焦）、#4（窄屏）、#5（伙伴删除热区），以及 **#6 的可及名部分**（六步扫描「无名 ×」按钮 + 删除入口改名后惰性刷新可及名）；**#1（历史加载文案与自动备份承诺）、#7（同名冲突取消仍保存）、#8（W5 证据可写）没有对应检查**——回归这三项时本脚本仍会 exit 0。
+  - #5 只测 W4 伙伴删除控件（原发现的位置），不扫描站内所有删除入口；热区尺寸的全面覆盖在 `scripts/ui_interaction_acceptance.py` 的 A18/A22。
+  - （2026-10-07：脚本改为跟随决策——重命名失焦保留草稿不提交、390px 提示并保留桌面横滚、清空按来源分入口；此前它硬编码单一 Chrome 路径，在非 macOS 机器上直接崩。）
 - 浏览器使用本机Chrome。截图和诊断不能覆盖真实AI生成、所有导入文件、真实服务持久化、全部触屏或辅助技术行为。

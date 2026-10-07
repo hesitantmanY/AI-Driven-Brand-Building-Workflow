@@ -21,6 +21,8 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
+import ui_smoke
+
 ROOT = Path(__file__).resolve().parent.parent
 EVIDENCE = ROOT / "issues/2026-10-06-interaction-implementation/evidence"
 
@@ -77,16 +79,7 @@ class Harness:
                     raise RuntimeError("Isolated server failed to start: " + log)
                 time.sleep(0.15)
         self._playwright = sync_playwright().start()
-        launch = {"headless": True}
-        for candidate in (
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-            "/Applications/Chromium.app/Contents/MacOS/Chromium",
-        ):
-            if Path(candidate).exists():
-                launch["executable_path"] = candidate
-                break
-        self.browser = self._playwright.chromium.launch(**launch)
+        self.browser = self._playwright.chromium.launch(**ui_smoke.launch_options())
         self.page = self.new_page(viewport={"width": 1440, "height": 900})
         self.page.goto(self.base + "/docs/global-brand-building.html?w=1&s=sbu",
                        wait_until="domcontentloaded")
@@ -165,8 +158,10 @@ class Harness:
 
     def seed(self, js="", *, work=1, step="sbu"):
         # Reload resets transient tasks, injected failures and undo timers.
+        # 导航给 20s：set_default_timeout(8000) 是给元素查询用的，机器满载时整页重载
+        # 可能超过 8s，会把 A18 之类的用例打成假红（2026-10-07 实测一次）。
         self.page.goto(self.base + "/docs/global-brand-building.html?w=1&s=sbu",
-                       wait_until="domcontentloaded")
+                       wait_until="domcontentloaded", timeout=20000)
         self.wait_ready()
         self.page.evaluate("""async fixture => {
             state = defaultState();
