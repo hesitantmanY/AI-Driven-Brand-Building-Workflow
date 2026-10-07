@@ -153,23 +153,6 @@
     "channelIncentives": "KOC 免单+佣金 10%；MCN 坑位费 + GMV 提成 5%",
     "structure": [
       {
-        "name": "线下",
-        "children": [
-          {
-            "name": "广州本店",
-            "share": 60
-          },
-          {
-            "name": "深圳新店",
-            "share": 25
-          },
-          {
-            "name": "上海新店",
-            "share": 15
-          }
-        ]
-      },
-      {
         "name": "线上",
         "children": [
           {
@@ -183,6 +166,23 @@
           {
             "name": "抖音同城",
             "share": 20
+          }
+        ]
+      },
+      {
+        "name": "线下",
+        "children": [
+          {
+            "name": "广州本店",
+            "share": 60
+          },
+          {
+            "name": "深圳新店",
+            "share": 25
+          },
+          {
+            "name": "上海新店",
+            "share": 15
           }
         ]
       }

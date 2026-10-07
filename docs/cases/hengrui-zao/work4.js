@@ -156,23 +156,6 @@
     "channelIncentives": "渠道商佣金 10%+年返 2%；直销奖金按 GMV 5%",
     "structure": [
       {
-        "name": "线下",
-        "children": [
-          {
-            "name": "直销团队",
-            "share": 50
-          },
-          {
-            "name": "专精特新渠道商",
-            "share": 25
-          },
-          {
-            "name": "行业展会",
-            "share": 25
-          }
-        ]
-      },
-      {
         "name": "线上",
         "children": [
           {
@@ -186,6 +169,23 @@
           {
             "name": "京东工业/中国制造",
             "share": 20
+          }
+        ]
+      },
+      {
+        "name": "线下",
+        "children": [
+          {
+            "name": "直销团队",
+            "share": 50
+          },
+          {
+            "name": "专精特新渠道商",
+            "share": 25
+          },
+          {
+            "name": "行业展会",
+            "share": 25
           }
         ]
       }

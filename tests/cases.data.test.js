@@ -53,6 +53,13 @@ for(const brand of BRANDS){
     Array.isArray(w4.place.structure) && w4.place.structure.length > 0,
     JSON.stringify(w4.place && w4.place.structure));
 
+  // 一级分组契约：两组、线上在前。界面按索引取组（structure[0] 挂在「+ 线上二级」上），
+  // 案例源数据必须自己写对——运行期 Work4.migrateKeyPartners 会归位，但本测试的 fake
+  // Work4 没有 migrations，走的正是源数据顺序。契约见 docs/cases/SCHEMA.md。
+  assert(brand + ': work4 place.structure 为 [线上,线下]',
+    w4.place.structure.map(g => g && g.name).join(',') === '线上,线下',
+    JSON.stringify((w4.place.structure || []).map(g => g && g.name)));
+
   assert(brand + ': work4 营销组合 5 段齐全',
     ['route','product','price','place','promotion'].every(k => w4[k]),
     JSON.stringify(Object.keys(w4)));
@@ -78,11 +85,14 @@ for(const brand of BRANDS){
 
 // 回归：本次修好的 toggleDemo 主路径 — load() 不带 works → work4 为案例值而非默认占位
 const x = Cases.load('xiaohuo-ji');
+// 组序不再是「案例 vs 默认」的判据：位置契约固定 [线上,线下]，默认种子同样是线上在前，
+// 且浏览器里 migrateKeyPartners 会统一归位。用案例独有的二级渠道名来证明是案例值。
 assert('xiaohuo-ji: work4 渠道数据为案例值（整体替换语义）',
   x.work4.place && x.work4.place.onlineSelf.length === 2 &&
   x.work4.place.onlineSelf[0] === '小镬记小程序' &&
-  x.work4.place.structure[0].name === '线下',
-  JSON.stringify(x.work4.place && x.work4.place.onlineSelf));
+  x.work4.place.structure.map(g => g.name).join(',') === '线上,线下' &&
+  x.work4.place.structure[0].children[0].name === '小程序',
+  JSON.stringify(x.work4.place && x.work4.place.structure));
 
 console.log(`\n${pass} pass / ${fail} fail`);
 process.exit(fail === 0? 0: 1);

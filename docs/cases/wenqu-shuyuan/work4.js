@@ -154,23 +154,6 @@
     "channelIncentives": "KOC 试听课免费+佣金 10%；MCN 坑位费 + GMV 提成 5%",
     "structure": [
       {
-        "name": "线下",
-        "children": [
-          {
-            "name": "杭州校区",
-            "share": 45
-          },
-          {
-            "name": "宁波校区",
-            "share": 30
-          },
-          {
-            "name": "绍兴校区",
-            "share": 25
-          }
-        ]
-      },
-      {
         "name": "线上",
         "children": [
           {
@@ -183,6 +166,23 @@
           },
           {
             "name": "抖音/小红书",
+            "share": 25
+          }
+        ]
+      },
+      {
+        "name": "线下",
+        "children": [
+          {
+            "name": "杭州校区",
+            "share": 45
+          },
+          {
+            "name": "宁波校区",
+            "share": 30
+          },
+          {
+            "name": "绍兴校区",
             "share": 25
           }
         ]

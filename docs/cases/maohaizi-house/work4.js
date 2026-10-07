@@ -161,23 +161,6 @@
     "channelIncentives": "KOC 体验券+佣金 10%；MCN 坑位费 + GMV 提成 5%；异业互换优惠券",
     "structure": [
       {
-        "name": "线下",
-        "children": [
-          {
-            "name": "成都门店",
-            "share": 75
-          },
-          {
-            "name": "重庆门店",
-            "share": 20
-          },
-          {
-            "name": "其他川渝",
-            "share": 5
-          }
-        ]
-      },
-      {
         "name": "线上",
         "children": [
           {
@@ -191,6 +174,23 @@
           {
             "name": "抖音/小红书",
             "share": 20
+          }
+        ]
+      },
+      {
+        "name": "线下",
+        "children": [
+          {
+            "name": "成都门店",
+            "share": 75
+          },
+          {
+            "name": "重庆门店",
+            "share": 20
+          },
+          {
+            "name": "其他川渝",
+            "share": 5
           }
         ]
       }

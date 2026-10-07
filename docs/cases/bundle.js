@@ -3702,23 +3702,6 @@
     "channelIncentives": "KOC 免单+佣金 10%；MCN 坑位费 + GMV 提成 5%",
     "structure": [
       {
-        "name": "线下",
-        "children": [
-          {
-            "name": "广州本店",
-            "share": 60
-          },
-          {
-            "name": "深圳新店",
-            "share": 25
-          },
-          {
-            "name": "上海新店",
-            "share": 15
-          }
-        ]
-      },
-      {
         "name": "线上",
         "children": [
           {
@@ -3732,6 +3715,23 @@
           {
             "name": "抖音同城",
             "share": 20
+          }
+        ]
+      },
+      {
+        "name": "线下",
+        "children": [
+          {
+            "name": "广州本店",
+            "share": 60
+          },
+          {
+            "name": "深圳新店",
+            "share": 25
+          },
+          {
+            "name": "上海新店",
+            "share": 15
           }
         ]
       }
@@ -5643,23 +5643,6 @@
     "channelIncentives": "KOC 试听课免费+佣金 10%；MCN 坑位费 + GMV 提成 5%",
     "structure": [
       {
-        "name": "线下",
-        "children": [
-          {
-            "name": "杭州校区",
-            "share": 45
-          },
-          {
-            "name": "宁波校区",
-            "share": 30
-          },
-          {
-            "name": "绍兴校区",
-            "share": 25
-          }
-        ]
-      },
-      {
         "name": "线上",
         "children": [
           {
@@ -5672,6 +5655,23 @@
           },
           {
             "name": "抖音/小红书",
+            "share": 25
+          }
+        ]
+      },
+      {
+        "name": "线下",
+        "children": [
+          {
+            "name": "杭州校区",
+            "share": 45
+          },
+          {
+            "name": "宁波校区",
+            "share": 30
+          },
+          {
+            "name": "绍兴校区",
             "share": 25
           }
         ]
@@ -7590,23 +7590,6 @@
     "channelIncentives": "渠道商佣金 10%+年返 2%；直销奖金按 GMV 5%",
     "structure": [
       {
-        "name": "线下",
-        "children": [
-          {
-            "name": "直销团队",
-            "share": 50
-          },
-          {
-            "name": "专精特新渠道商",
-            "share": 25
-          },
-          {
-            "name": "行业展会",
-            "share": 25
-          }
-        ]
-      },
-      {
         "name": "线上",
         "children": [
           {
@@ -7620,6 +7603,23 @@
           {
             "name": "京东工业/中国制造",
             "share": 20
+          }
+        ]
+      },
+      {
+        "name": "线下",
+        "children": [
+          {
+            "name": "直销团队",
+            "share": 50
+          },
+          {
+            "name": "专精特新渠道商",
+            "share": 25
+          },
+          {
+            "name": "行业展会",
+            "share": 25
           }
         ]
       }
@@ -9539,23 +9539,6 @@
     "channelIncentives": "KOC 体验券+佣金 10%；MCN 坑位费 + GMV 提成 5%；异业互换优惠券",
     "structure": [
       {
-        "name": "线下",
-        "children": [
-          {
-            "name": "成都门店",
-            "share": 75
-          },
-          {
-            "name": "重庆门店",
-            "share": 20
-          },
-          {
-            "name": "其他川渝",
-            "share": 5
-          }
-        ]
-      },
-      {
         "name": "线上",
         "children": [
           {
@@ -9569,6 +9552,23 @@
           {
             "name": "抖音/小红书",
             "share": 20
+          }
+        ]
+      },
+      {
+        "name": "线下",
+        "children": [
+          {
+            "name": "成都门店",
+            "share": 75
+          },
+          {
+            "name": "重庆门店",
+            "share": 20
+          },
+          {
+            "name": "其他川渝",
+            "share": 5
           }
         ]
       }

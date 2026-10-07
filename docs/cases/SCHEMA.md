@@ -96,6 +96,9 @@ one sub-field filled). The exact list per work:
 - `price`: `{strategy, strategyNote, tiers[], channelPricing[], promotions[], competitorPrices, ppp, pricingNumbers, fxSensitivity}`
 - `place`: `{onlineSelf[], onlineThird[], onlineNotes, offlineDirect[], offlineDistrib[], offlineRetail[], offlineNotes, keyPartners[{name, side}], channelIncentives, structure[], localChannelRelations}`
   （2026-09-07 起 `keyPartners` 为对象数组，`side` 枚举 线上/线下；案例源数据必须写死 side）
+  （2026-10-07 起 `structure` 的位置契约固定为**两个一级分组、线上在前**：`[{name:'线上',children:[…]},{name:'线下',children:[…]}]`。
+  界面按索引取组（`structure[0]` 挂在「+ 线上二级」上），运行期 `Work4.migrateKeyPartners` 会归位反序数据，
+  但**案例源数据本身也必须写对**——`tests/audit/w45/ac_case_channel_contract.test.js` 直接读源文件，不走迁移。）
 - `promotion`: `{advertising[], pr[], salesPromotion[], crm{tool,membership,repurchase,notes}, contentStrategy, theme, context, taboos, kolTiers, language}`
 
 ### work5 (策划书) — 2026-09-01 契约（封面/摘要/参考文献已删除）
