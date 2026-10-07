@@ -1643,6 +1643,8 @@ Work5.exportMd = function(){
   const s3=w.ch3_strategy||{};
   const mix=w.ch4_mix||{};
   const part=(...xs)=>xs.filter(x=>x!=null&&String(x).trim()!=='').join('\n\n');
+  // 表格单元转义：竖线会截断列、换行会截断行（与 fourPTableMd/rankingTableMd 同规）
+  const escCell=s=>String(s==null?'':s).replace(/\|/g,'\\|').replace(/\r?\n/g,'；');
   return part(
     '## V. 策划书正文',
     // BIZ07：正文不再输出一级标题——文件级 H1 由档案名驱动（markdown_exchange）
@@ -1660,9 +1662,9 @@ Work5.exportMd = function(){
          '- 技术：'+(env.technological||'（待完成）')].join('\n')),
       part('### 2.2 SWOT',
         ['| 优势 S | 劣势 W |','|---|---|',
-         '| '+((env.strengths||[]).join('；')||'—')+' | '+((env.weaknesses||[]).join('；')||'—')+' |',
+         '| '+((env.strengths||[]).map(escCell).join('；')||'—')+' | '+((env.weaknesses||[]).map(escCell).join('；')||'—')+' |',
          '| **机会 O** | **威胁 T** |',
-         '| '+((env.opportunities||[]).join('；')||'—')+' | '+((env.threats||[]).join('；')||'—')+' |'].join('\n'))),
+         '| '+((env.opportunities||[]).map(escCell).join('；')||'—')+' | '+((env.threats||[]).map(escCell).join('；')||'—')+' |'].join('\n'))),
     part('## 3 市场选择与定位（来自 Work 2 / Work 3）',
       part('### 3.1 市场吸引力 × 竞争力矩阵','（矩阵图见应用内视图；评分与切分由 Work 2 驱动）'),
       part('### 3.2 三档决策卡', d3||'（Work 2 尚未完成三档决策）', w2),
@@ -1675,9 +1677,9 @@ Work5.exportMd = function(){
     part('## 4 营销组合（来自 Work 4）',
       part('### 4.1 渠道路径', mix.route||'（待完成）'),
       part('### 4.2 营销组合 4P',
-        part('### 4.2.1 4P 摘要表', tblMd||'（未生成：在 4.2.1 节点“AI 总结 4P 表”）'),
-        part('### 4.2.2 渠道结构', c4||'（Work 4 尚未完成渠道结构）'),
-        part('### 4.2.3 媒介预算构成', m4||'（Work 4 尚未完成媒介预算组合）'),
+        part('#### 4.2.1 4P 摘要表', tblMd||'（未生成：在 4.2.1 节点“AI 总结 4P 表”）'),
+        part('#### 4.2.2 渠道结构', c4||'（Work 4 尚未完成渠道结构）'),
+        part('#### 4.2.3 媒介预算构成', m4||'（Work 4 尚未完成媒介预算组合）'),
         part('### 4P 详述',
           '#### 产品\n'+(mix.product||'（待完成）'),
           '#### 价格\n'+(mix.price||'（待完成）'),
