@@ -20,6 +20,16 @@ Work4.steps = [
 // 每步的下游步骤；末步（promotion）无下游，出口走跨坊 CTA（2026-08-28 统一步间 CTA）
 Work4.NEXT_STEPS = { route:'product', product:'price', price:'place', place:'promotion' };
 
+// BIZ15：示例渠道结构在 defaultData/迁移层落位（加载期随迁移落盘、不置脏），
+// 渲染路径不再写数据。每次返回新副本。
+Work4.SEED_STRUCTURE = () => [
+  {name:'线上', children:[{name:'自营',share:20},{name:'第三方平台',share:80}]},
+  {name:'线下', children:[{name:'直营',share:30},{name:'经销商',share:50},{name:'KA',share:20}]}
+];
+Work4.isSeedStructure = function(s){
+  try{ return JSON.stringify(s||[]) === JSON.stringify(Work4.SEED_STRUCTURE()); }catch(_){ return false; }
+};
+
 Work4.defaultData = () => ({
   _meta: {},
   route: {
@@ -50,7 +60,7 @@ Work4.defaultData = () => ({
     onlineSelf:[], onlineThird:[], onlineNotes:'',
     offlineDirect:[], offlineDistrib:[], offlineRetail:[], offlineNotes:'',
     keyPartners:[], channelIncentives:'',
-    structure:[],
+    structure: Work4.SEED_STRUCTURE(),
     aiResult:'', _aiGenerated:false,
     localChannelRelations:'',
     adoptedSegments: {}
@@ -1116,17 +1126,12 @@ Work4.render.place = function(sec){
 
   // 渠道结构
   plate.appendChild(el('h4',{},'渠道结构（销售占比）'));
-  // 首次进入且 structure 为空时，填入种子 + 显示告知（不再静默）
-  const isFirstTimeSeed = !p.structure.length && !p._seedNoticeShown;
-  if(!p.structure.length){
-    p.structure=[
-      {name:'线上', children:[{name:'自营',share:20},{name:'第三方平台',share:80}]},
-      {name:'线下', children:[{name:'直营',share:30},{name:'经销商',share:50},{name:'KA',share:20}]}
-    ];
-    p._seedNoticeShown = true;
-    autosave();
-  }
+  // BIZ15：示例结构由 defaultData/migrateSeedStructure 在加载期落位并落盘，
+  // 渲染路径不写数据、不 autosave（否则全新工作区首渲染即置脏）。
+  // 仅对仍是示例数据的结构显示一次告知（不再静默）。
+  const isFirstTimeSeed = !p._seedNoticeShown && Work4.isSeedStructure(p.structure);
   if(isFirstTimeSeed){
+    p._seedNoticeShown = true;
     plate.appendChild(el('div',{class:'callout', style:{background:'#fff8e1',borderLeft:'3px solid #d4a017',padding:'10px 14px',margin:'6px 0 12px',fontSize:'13px'}},
       el('strong',{},'已为你填入示例渠道结构'),
       el('span',{style:{color:'var(--color-ink-2)'}}, ' — 这只是起点，请按实际修改或点上方 AI 起草重抽。')
@@ -1693,5 +1698,15 @@ Work4.migrateKeyPartners=function(w4){
   }
   return w4;
 };
+// BIZ15：加载期把空的渠道结构补成示例种子（幂等；迁移随加载落盘、不置脏）。
+// 必须排在 migrateKeyPartners 之前——它会把空数组归位成两个空组，届时就看不出「空」了。
+Work4.migrateSeedStructure = function(w4){
+  const p = w4 && w4.place;
+  if(p && (!Array.isArray(p.structure) || !p.structure.length)){
+    p.structure = Work4.SEED_STRUCTURE();
+    return true;
+  }
+  return false;
+};
 Work4.workKey = 'work4';
-Work4.migrations = [Work4.migrateKeyPartners];
+Work4.migrations = [Work4.migrateSeedStructure, Work4.migrateKeyPartners];

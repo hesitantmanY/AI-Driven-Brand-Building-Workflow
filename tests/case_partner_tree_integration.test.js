@@ -45,7 +45,7 @@ const w4Sandbox = {
 w4Sandbox.window = w4Sandbox;
 vm.createContext(w4Sandbox);
 vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'docs', 'workshop4.js'), 'utf8'), w4Sandbox, {filename:'workshop4.js'});
-const migrate = w4Sandbox.Work4.migrations[0];
+const migrate = w4Sandbox.Work4.migrateKeyPartners; // 具名引用：migrations 顺序非契约（种子迁移需排在其前）
 
 // 3. 加载 Work5（channelMd / channelTreeSvg）
 function makeNode(tag){

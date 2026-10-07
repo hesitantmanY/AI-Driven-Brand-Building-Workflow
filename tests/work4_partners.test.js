@@ -78,7 +78,7 @@ function stateWithPlace(place){
       ]
     }
   };
-  W4.migrations[0](old);
+  W4.migrateKeyPartners(old);
   ok('迁移后为对象数组且不丢数据', old.place.keyPartners.length === 5
     && old.place.keyPartners.every(p => p && typeof p === 'object' && p.name));
   const sideOf = n => (old.place.keyPartners.find(p => p.name === n) || {}).side;
@@ -88,11 +88,11 @@ function stateWithPlace(place){
   ok('未命中归未分类', sideOf('儿科医生顾问') === '' && sideOf('任意伙伴') === '');
   ok('结构 [线下,线上] 归位为 [线上,线下]', old.place.structure[0].name === '线上' && old.place.structure[1].name === '线下');
   const before = JSON.stringify(old);
-  W4.migrations[0](old);
+  W4.migrateKeyPartners(old);
   ok('二次跑幂等', JSON.stringify(old) === before);
 
   const single = { place:{ keyPartners:[{name:'儿科医生顾问',side:'线下'}], structure:[{name:'线上',children:[{name:'淘宝',share:100}]}] } };
-  W4.migrations[0](single);
+  W4.migrateKeyPartners(single);
   ok('单组结构自动补缺失位置桶', single.place.structure.length === 2
     && single.place.structure[0].name === '线上' && single.place.structure[1].name === '线下'
     && single.place.structure[1].children.length === 0, JSON.stringify(single.place.structure));
