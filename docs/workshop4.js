@@ -1281,23 +1281,32 @@ Work4.summaryText = function(key){
     p.coreDifferentiators.length?`核心差异化：${p.coreDifferentiators.join('、')}`:'',
     p.physicalFeatures?`物理特征：${p.physicalFeatures}`:'',
     p.serviceOffering?`服务：${p.serviceOffering}`:'',
-    p.technologyMoat?`技术护城河：${p.technologyMoat}`:''
+    p.technologyMoat?`技术护城河：${p.technologyMoat}`:'',
+    p.certifications?`市场准入认证：${p.certifications}`:'',
+    p.localization?`本地化适配：${p.localization}`:'',
+    p.serviceLocalization?`服务本地化：${p.serviceLocalization}`:'',
+    p.people?`People 人员：${p.people}`:'',
+    p.process?`Process 流程：${p.process}`:'',
+    p.physicalEvidence?`Physical Evidence 有形展示：${p.physicalEvidence}`:''
   ].filter(Boolean).join('\n');
   if(key==='price') return [
     p.strategy?`策略：${p.strategy}（${p.strategyNote||''}）`:'',
-    p.tiers.length?`档位：\n${p.tiers.map(t=>`- ${t.name} ${t.price}${t.unit||''}${t.hero?' ★':''}（${t.targetSegment||''}）`).join('\n')}`:'',
+    p.tiers.length?`档位：\n${p.tiers.map(t=>`- ${t.name} ${t.price}${t.unit||''}${t.hero?' ★':''}（${[t.targetSegment||'',t.notes||''].filter(Boolean).join(' · ')}）`).join('\n')}`:'',
     p.channelPricing.length?`渠道差异化：\n${p.channelPricing.map(c=>`- ${c.channel}：${c.priceAdjustment}（${c.rationale||''}）`).join('\n')}`:'',
     p.promotions.length?`促销节奏：\n${p.promotions.map(x=>`- ${x.occasion}：${x.discount}（${x.period||''}）`).join('\n')}`:'',
     p.ppp?`PPP 校准：${p.ppp}`:'',
     p.pricingNumbers?`数字与尾数：${p.pricingNumbers}`:'',
-    p.fxSensitivity?`汇率敏感度：${p.fxSensitivity}`:''
+    p.fxSensitivity?`汇率敏感度：${p.fxSensitivity}`:'',
+    p.competitorPrices?`竞品价格信息：${p.competitorPrices}`:''
   ].filter(Boolean).join('\n');
   if(key==='place') return [
     p.onlineSelf.length?`线上自营：${p.onlineSelf.join('、')}`:'',
     p.onlineThird.length?`第三方平台：${p.onlineThird.join('、')}`:'',
+    p.onlineNotes?`线上备注：${p.onlineNotes}`:'',
     p.offlineDirect.length?`线下直营：${p.offlineDirect.join('、')}`:'',
     p.offlineDistrib.length?`经销商：${p.offlineDistrib.join('、')}`:'',
     p.offlineRetail.length?`KA：${p.offlineRetail.join('、')}`:'',
+    p.offlineNotes?`线下备注：${p.offlineNotes}`:'',
     p.keyPartners.length?`关键伙伴：${p.keyPartners.map(x=>(x&&typeof x==='object'&&!Array.isArray(x)?x.name:x)).join('、')}`:'',
     p.localChannelRelations?`本地渠道关系：${p.localChannelRelations}`:'',
     p.channelIncentives?`渠道激励：${p.channelIncentives}`:'',
@@ -1313,7 +1322,9 @@ Work4.summaryText = function(key){
     p.taboos?`禁忌与节日：${p.taboos}`:'',
     p.kolTiers?`KOL/KOC 分层：${p.kolTiers}`:'',
     p.language?`语言/翻译：${p.language}`:'',
-    p.crm.membership?`CRM：${p.crm.tool} / ${p.crm.membership} / ${p.crm.repurchase}`:''
+    // CRM 任意字段有值即输出（旧版只看 membership，导致只有工具/复购/备注时整行丢失）
+    (p.crm.tool||p.crm.membership||p.crm.repurchase||p.crm.notes)?
+      `CRM：${[p.crm.tool&&`工具 ${p.crm.tool}`,p.crm.membership&&`会员体系 ${p.crm.membership}`,p.crm.repurchase&&`复购激励 ${p.crm.repurchase}`,p.crm.notes&&`备注 ${p.crm.notes}`].filter(Boolean).join(' / ')}`:''
   ].filter(Boolean).join('\n');
   return '';
 };
