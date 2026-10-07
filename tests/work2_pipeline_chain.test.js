@@ -54,6 +54,12 @@ function ok(name, cond, detail){
 // 启动流水线（此刻 candidates/criteria 为空）
 W2.runFrameworkPipeline({addEventListener(){}}, {}, {});
 ok('pipeline captured 5 units', Array.isArray(capturedUnits) && capturedUnits.length === 5);
+// 空结果不能被流水线标成完成：候选单元必须抛错交给手动箱/断点续跑。
+{
+  let threw=false;
+  try{ capturedUnits[0].onResult(null); }catch(e){ threw=true; }
+  ok('候选单元收到 null 直接抛错（不静默完成）', threw);
+}
 ok('指标拆成两轴单元', capturedUnits[3].key==='fw:indicators:attractiveness'
   && capturedUnits[4].key==='fw:indicators:competitiveness');
 

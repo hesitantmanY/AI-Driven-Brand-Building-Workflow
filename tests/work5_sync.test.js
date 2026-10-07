@@ -27,7 +27,7 @@ const sandbox = {
   autosave(){ counters.autosave++; },
   showToast(){}, confirm: () => true,
   saveNow: async () => { counters.saveNow++; return true; },
-  Archive: { create: async () => { counters.archive++; return {}; } },
+  Archive: { create: async () => { counters.archive++; return {id:'time_'+counters.archive,name:'合成'+counters.archive}; } },
   state: null,
   Work1: {}, Work2: {}, Work3: {}, Work4: {}, Work5: {}, App: {}, Runner: {}, API: {}, UI: { mountMvo(){}, mountMark(){}, mountGuard(){ return true; }, demoNote(){ return null; } },
   AiContext: { buildPrompt: () => [] },
@@ -35,6 +35,7 @@ const sandbox = {
 };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(root, 'lib/interaction.js'), 'utf8'), sandbox);
 vm.runInContext(fs.readFileSync(path.join(root, 'workshop5.js'), 'utf8'), sandbox, {filename:'workshop5.js'});
 const W5 = sandbox.Work5;
 W5.rerender = function(){};
@@ -122,12 +123,12 @@ async function main(){
   sandbox.Archive.create = async () => {
     s3state.work5.ch3_strategy.targeting = '用户在存档期间手打的文字';
     counters.archive++;
-    return {};
+    return {id:'time_'+counters.archive,name:'合成'+counters.archive};
   };
   const archiveBefore2 = counters.archive;
   await W5.autoSync();
   ok('存档期间用户输入不被覆盖', s3state.work5.ch3_strategy.targeting === '用户在存档期间手打的文字');
-  ok('该次仍触发存档', counters.archive === archiveBefore2 + 1);
+  ok('存档期间新增输入重新存档后才覆盖', counters.archive === archiveBefore2 + 2);
   sandbox.Archive.create = userArchive;
 
   // 6. 决策 2026-09-01 二次：SWOT 改回手动按键；4C 仍空态自动；进入清洗垃圾与残留 **

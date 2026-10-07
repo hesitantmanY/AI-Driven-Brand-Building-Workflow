@@ -5,18 +5,33 @@
  调用方不碰 URL、project_id 与响应形状；失败 throw Error(服务端 detail)。
  浏览器与 node 测试跨同一接缝（真实 fetch / 测试假 fetch）。
 
- baseUrl 惰性读取 window.state.settings.api.backendUrl，与壳内 apiUrl
- 同源；settings 变更后无需重新配置。
+ baseUrl 惰性读取当前 state.settings.api.backendUrl，与壳内 apiUrl
+ 同源；浏览器顶层 let state 不挂 window.state，Node 测试/DEFAULT_SETTINGS
+ 也按同一回退顺序兼容。
  ============================================================ */
 (function(){
   'use strict';
 
-  function baseUrl(){
-    if(typeof window !== 'undefined' && window.state && window.state.settings && window.state.settings.api &&
-       window.state.settings.api.backendUrl){
-      return window.state.settings.api.backendUrl.replace(/\/+$/, '');
-    }
+  function currentState(){
+    try{
+      if(typeof state !== 'undefined' && state) return state;
+    }catch(_){}
+    return (typeof window !== 'undefined' && window.state) || null;
+  }
+
+  function defaultBaseUrl(){
+    try{
+      if(typeof DEFAULT_SETTINGS !== 'undefined' && DEFAULT_SETTINGS && DEFAULT_SETTINGS.backendUrl){
+        return DEFAULT_SETTINGS.backendUrl;
+      }
+    }catch(_){}
     return 'http://localhost:8765';
+  }
+
+  function baseUrl(){
+    const st = currentState();
+    const url = st && st.settings && st.settings.api && st.settings.api.backendUrl;
+    return String(url || defaultBaseUrl()).replace(/\/+$/, '');
   }
 
   async function _req(method, path, body){
@@ -27,46 +42,75 @@
     });
     const data = await res.json().catch(() => null);
     if(!res.ok){
-      throw new Error((data && data.detail) ? data.detail : ('HTTP ' + res.status));
+      const detail=Array.isArray(data?.detail)? data.detail.map(item=>item.msg).filter(Boolean).join('；') : data?.detail;
+      throw new Error(detail || ('HTTP ' + res.status));
     }
     return data;
   }
 
+  function snapshotMeta(data){
+    if(!data || typeof data!=='object' || Array.isArray(data) ||
+       typeof data.id!=='string' || !data.id.trim() ||
+       typeof data.name!=='string' || !data.name.trim()){
+      throw new Error('服务端未返回有效版本信息');
+    }
+    return data;
+  }
+
+  // 只用于同名检测；最终名称始终采用服务端返回值。
+  function normalizeName(name){
+    const clean=String(name || '').replace(/[\x00-\x1f\x7f]/g, '').trim();
+    return Array.from(clean).slice(0,60).join('').replace(/[<>:"/\\|?*]/g, '_').trim();
+  }
+
   const Archive = {
+    normalizeName,
     // GET /api/snapshots?project_id=default → [{id,name,type,created_at}]
-    list(){
-      return _req('GET', '/api/snapshots?project_id=default');
+    async list(){
+      const data=await _req('GET', '/api/snapshots?project_id=default');
+      if(!Array.isArray(data)) throw new Error('服务端未返回有效版本列表');
+      return data.map(snapshotMeta);
     },
     // POST /api/snapshots {project_id, name, overwrite} → snapshot meta
-    create({name, overwrite=false} = {}){
-      return _req('POST', '/api/snapshots', {
+    async create({name, overwrite=false} = {}){
+      return snapshotMeta(await _req('POST', '/api/snapshots', {
         project_id: 'default',
         name: name || null,
         overwrite: !!overwrite
-      });
+      }));
     },
     // POST /api/snapshots/{id}/rename?project_id=default → snapshot meta
-    rename(id, name, {overwrite=false} = {}){
-      return _req('POST', '/api/snapshots/' + encodeURIComponent(id) + '/rename?project_id=default', {
+    async rename(id, name, {overwrite=false, copy=false} = {}){
+      return snapshotMeta(await _req('POST', '/api/snapshots/' + encodeURIComponent(id) + '/rename?project_id=default', {
         name: String(name || ''),
-        overwrite: !!overwrite
-      });
+        overwrite: !!overwrite,
+        copy: !!copy
+      }));
     },
     // DELETE /api/snapshots/{id}?project_id=default → true
     async remove(id){
-      await _req('DELETE', '/api/snapshots/' + encodeURIComponent(id) + '?project_id=default');
+      const data=await _req('DELETE', '/api/snapshots/' + encodeURIComponent(id) + '?project_id=default');
+      if(!data || data.ok!==true) throw new Error('服务端未确认版本已删除');
       return true;
     },
     // POST /api/snapshots/{id}/restore?project_id=default → restored state
-    async restore(id){
+    async restore(id, {withMeta=false} = {}){
       const data = await _req('POST', '/api/snapshots/' + encodeURIComponent(id) + '/restore?project_id=default');
+      if(!data || data.ok!==true || !data.state || typeof data.state!=='object' || Array.isArray(data.state)){
+        throw new Error('服务端未返回有效工作区内容');
+      }
+      if(withMeta){
+        snapshotMeta(data.snapshot);
+        return {state:data.state, snapshot:data.snapshot};
+      }
       return data.state;
     }
   };
 
   // BIZ02：案例浏览（只读）时禁止一切档案版本写操作——读列表仍可用。
   function _locked(){
-    return !!(typeof window !== 'undefined' && window.state && window.state.meta && window.state.meta.isDemo);
+    const st = currentState();
+    return !!(st && st.meta && (st.meta.isDemo || st.meta.demoCase));
   }
   ['create','rename','remove','restore'].forEach(k=>{
     const fn=Archive[k];

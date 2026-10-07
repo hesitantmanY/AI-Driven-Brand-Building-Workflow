@@ -48,7 +48,7 @@ const document = {
   querySelector: () => null
 };
 const sandbox = {
-  console, setTimeout, clearTimeout, Date, JSON, Math, Object, Array, String, Number, Boolean,
+  console, setTimeout, clearTimeout, setInterval, clearInterval, Date, JSON, Math, Object, Array, String, Number, Boolean,
   document,
   el: function(tag, attrs = {}, ...children){
     const e = document.createElement(tag);
@@ -88,6 +88,8 @@ const sandbox = {
 };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(root, 'lib', 'interaction.js'), 'utf8'), sandbox, {filename:'lib/interaction.js'});
+sandbox.Interaction.confirm=async()=>true;
 vm.runInContext(fs.readFileSync(path.join(root, 'workshop3.js'), 'utf8'), sandbox, { filename:'workshop3.js' });
 const W3 = sandbox.Work3;
 sandbox.API = {
@@ -114,6 +116,7 @@ function renderStep(step, state){
   return plate;
 }
 
+(async function(){
 /* ---- A/B. 价值主张候选：删除 / 改名后 chosenValueText 悬空 ---- */
 {
   const st = { work1:{ sbu:{ name:'品牌' } }, work3: W3.defaultData() };
@@ -127,7 +130,7 @@ function renderStep(step, state){
   const plate = renderStep('proposition', st);
   const delBtns = buttons(plate, '删除');
   ok('A0 渲染出候选删除按钮', delBtns.length >= 2, 'got ' + delBtns.length);
-  delBtns[0]._listeners.click[0]();       // 删掉「已选定」的那条
+  await delBtns[0]._listeners.click[0]({currentTarget:delBtns[0]}); // 删掉「已选定」的那条
   ok('A1 选定项被删后 chosenValueText 不再指向候选池外的文案',
      !p.chosenValueText || p.alternatives.some(a => a.text === p.chosenValueText),
      'chosenValueText="' + p.chosenValueText + '"，候选池=' + JSON.stringify(p.alternatives.map(a => a.text)));
@@ -155,10 +158,45 @@ function renderStep(step, state){
   const plate = renderStep('identity', st);
   const delBtns = buttons(plate, '删除');
   ok('C0 渲染出 Slogan 删除按钮', delBtns.length >= 2, 'got ' + delBtns.length);
-  delBtns[0]._listeners.click[0]();
+  await delBtns[0]._listeners.click[0]({currentTarget:delBtns[0]});
   ok('C1 删掉已选定 Slogan 后 chosenSlogan 清空',
      !id.chosenSlogan, 'chosenSlogan="' + id.chosenSlogan + '"，候选=' + JSON.stringify(id.sloganOptions));
 }
 
+/* ---- D. Slogan：改名已选定项后 chosenSlogan 跟随 ---- */
+{
+  const st = { work1:{ sbu:{ name:'品牌' } }, work3: W3.defaultData() };
+  const id = st.work3.identity;
+  id.sloganOptions = ['看得见的安心', '省心的选择'];
+  id.chosenSlogan = '看得见的安心';
+  const plate = renderStep('identity', st);
+  const ins = walk(plate).filter(n => n.tagName === 'INPUT' && n.attrs && n.attrs.value === '看得见的安心');
+  ok('D0 找到已选定 Slogan 的编辑框', ins.length === 1 && !!ins[0]._listeners.input, 'got ' + ins.length);
+  if(ins.length){ ins[0]._listeners.input[0]({ target:{ value:'看得见的安心（改）' } }); }
+  ok('D1 改名已选定 Slogan 后 chosenSlogan 同步或清空',
+     !id.chosenSlogan || id.sloganOptions.includes(id.chosenSlogan),
+     'chosenSlogan="' + id.chosenSlogan + '"，候选=' + JSON.stringify(id.sloganOptions));
+}
+
+/* ---- E. Slogan：改名未选定项后再点「选定」，不得按旧文案悬空 ---- */
+{
+  const st = { work1:{ sbu:{ name:'品牌' } }, work3: W3.defaultData() };
+  const id = st.work3.identity;
+  id.sloganOptions = ['A', 'B'];
+  id.chosenSlogan = '';
+  const plate = renderStep('identity', st);
+  const ins = walk(plate).filter(n => n.tagName === 'INPUT' && n.attrs && n.attrs.value === 'B');
+  ok('E0 找到未选定 Slogan 的编辑框', ins.length === 1 && !!ins[0]._listeners.input, 'got ' + ins.length);
+  if(ins.length){ ins[0]._listeners.input[0]({ target:{ value:'B改' } }); }
+  const choose = buttons(plate, '选定');
+  ok('E1 渲染出 Slogan 选定按钮', choose.length >= 2, 'got ' + choose.length);
+  if(choose.length >= 2){ choose[1]._listeners.click[0](); }
+  ok('E2 改名后点「选定」，chosenSlogan 必须指向候选池内文案',
+     !!id.chosenSlogan && id.sloganOptions.includes(id.chosenSlogan),
+     'chosenSlogan="' + id.chosenSlogan + '"，候选=' + JSON.stringify(id.sloganOptions));
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
+sandbox.Interaction.invalidateUndo();
 process.exit(fail ? 1 : 0);
+})().catch(error=>{console.error(error);process.exit(1);});

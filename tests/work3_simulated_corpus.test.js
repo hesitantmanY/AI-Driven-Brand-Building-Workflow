@@ -169,7 +169,7 @@ function freshState(){
     st.work3.mining._simulated = false;
     st.work3.mining.corpusComposition = {real:3, simulated:3, total:6};
     const md = W3.exportMd();
-    ok('exportMd: 含语料构成 真实 3 + 模拟 3', md.includes('语料构成：真实 3 + 模拟 3（画像生成）'));
+    ok('exportMd: 含实际语料数量与占比', md.includes('实际建模语料构成：真实 3 条（50.0%）+ 模拟 3 条（50.0%），共 6 条'));
     ok('exportMd: 无模拟建模标注（真实 LDA）', !md.includes('建模方式：LLM 模拟'));
     st.work3.mining._simulated = true;
     ok('exportMd: 模拟建模时标注 LLM 模拟', W3.exportMd().includes('建模方式：LLM 模拟'));

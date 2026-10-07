@@ -51,17 +51,22 @@
 
  // Deep-merge: case values win, but missing fields fall back to default.
  // Arrays are replaced (not concatenated) — case arrays are intentional.
+ function cloneValue(value){
+ if(Array.isArray(value)) return value.map(cloneValue);
+ if(value && typeof value === 'object') return deepMerge({}, value);
+ return value;
+ }
  function deepMerge(defaults, override){
- if(override == null) return defaults;
- if(defaults == null) return override;
+ if(override == null) return cloneValue(defaults);
+ if(defaults == null) return cloneValue(override);
  if(typeof defaults!== 'object' || Array.isArray(defaults)!== Array.isArray(override) ||
- typeof defaults!== typeof override) return override;
- if(Array.isArray(defaults)) return override;
+ typeof defaults!== typeof override) return cloneValue(override);
+ if(Array.isArray(defaults)) return cloneValue(override);
  const out = {};
  const keys = new Set([...Object.keys(defaults),...Object.keys(override)]);
  for(const k of keys){
  if(k in override) out[k] = deepMerge(defaults[k], override[k]);
- else out[k] = defaults[k];
+ else out[k] = cloneValue(defaults[k]);
  }
  return out;
  }
@@ -82,11 +87,15 @@
  const m = CASES[brand].module;
  const full = m.getState();
  const allWorks = ['work1','work2','work3','work4','work5'];
- const wanted = opts.works && opts.works.length? opts.works: allWorks;
+ const wanted = Array.isArray(opts.works) ? opts.works : allWorks;
  const out = {};
  for(const wk of allWorks){
  const fallback = defaultsFor(wk);
  out[wk] = wanted.includes(wk)? deepMerge(fallback, full[wk]): fallback;
+ }
+ // 案例源数据也必须满足当前 Work4 结构契约（线上/线下两组、伙伴 side 标准化）。
+ if(out.work4 && typeof window !== 'undefined' && window.Work4 && Array.isArray(window.Work4.migrations)){
+ window.Work4.migrations.forEach(migrate => { try{ migrate(out); }catch(_){} });
  }
  return out;
  }

@@ -95,11 +95,14 @@ const sandbox = {
 };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'docs', 'lib', 'interaction.js'), 'utf8'), sandbox, {filename:'interaction.js'});
+sandbox.Interaction.confirm=async ({message})=>{confirmMsgs.push(message);return confirmAnswer;};
 vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'docs', 'workshop2.js'), 'utf8'), sandbox, {filename:'workshop2.js'});
 const W2 = sandbox.Work2;
 W2.rerender = () => {};   // 无真实 DOM 挂载，重绘入口打桩
 
-/* ---- state：默认 4×2 + 3 个保留市场 + 每格都有分（删一级会连带孤儿化评分）---- */
+(async()=>{
+/* ---- state：默认 4×2 + 3 个保留市场 + 每格都有分（删除会清理其评分引用）---- */
 sandbox.state = { work1: { sbu: { name: '智能温控器' } }, work2: W2.defaultData() };
 const w2 = sandbox.state.work2;
 w2.retained = [{id:'m1',name:'德国'}, {id:'m2',name:'荷兰'}, {id:'m3',name:'瑞典'}];
@@ -166,21 +169,22 @@ ok('catImpact 数出二级指标数与已评分格数（2 × 3 市场 = 6）',
   impact.indCount === 2 && impact.scored === 6, JSON.stringify(impact));
 const riskBtn = buttons(plate, '删除整个一级')[3];
 confirmAnswer = false; confirmMsgs.length = 0;
-riskBtn.handlers.click();
+await riskBtn.handlers.click({currentTarget:riskBtn});
 ok('取消 → 一级维度不被删', w2.attractiveness.categories.length === 4 && w2.attractiveness.categories.some(c => c.name === '风险'));
 ok('确认框写清连带删除的二级指标数', /连带删除 2 个二级指标/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
-ok('确认框写清失去关联的评分格数', /已打的 6 格评分会失去关联/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
+ok('确认框写清会删除的评分格数', /已打的 6 格评分会删除/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
 ok('确认框写明不可撤销且模板救不回锚点', /不可撤销/.test(confirmMsgs[0] || '') && /锚点与评分不会回来/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
 confirmAnswer = true;
-riskBtn.handlers.click();
+await riskBtn.handlers.click({currentTarget:riskBtn});
 ok('确认 → 「风险」被删', w2.attractiveness.categories.length === 3 && !w2.attractiveness.categories.some(c => c.name === '风险'));
+ok('确认 → 评分及 persona 的被删指标引用实际清理', riskCat.indicators.every(i=>!w2.scoring.m1[i.id]&&!w2.delphi.personas[0].ratings.attractiveness[i.id]));
 ok('删最后一个一级 → 提示本轴将空', /本轴最后一个一级维度/.test(W2.catDeleteMsg({name:'经济', indicators:[{id:'x'}]}, '市场吸引力', 0)));
 
 /* ---- 恢复默认 4×2 模板：只动本轴，Delphi 重置 ---- */
 w2.attractiveness.categories = [];   // 模拟一级被删光（mergeWithDefaults 不会补回空数组）
 w2.delphi.personas = [{id:'p1', ratings:{}}];
 confirmAnswer = true; confirmMsgs.length = 0; toasts.length = 0;
-W2.restoreAxisTemplate('attractiveness');
+await W2.restoreAxisTemplate('attractiveness');
 const restored = w2.attractiveness.categories;
 ok('空轴恢复出 4 个默认一级维度',
   restored.length === 4 && restored.map(c => c.name).join(',') === '经济,政治法律,社会文化,风险',
@@ -195,13 +199,13 @@ ok('恢复后给了 toast', /已恢复「市场吸引力」默认 4×2 模板/.t
 
 restored[0].indicators[0].rubric.high = '市场规模 > 5 亿';
 confirmMsgs.length = 0;
-W2.restoreAxisTemplate('attractiveness');
+await W2.restoreAxisTemplate('attractiveness');
 ok('有内容时恢复 → 警告锚点/权重/评分不回', /不会回来/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
 ok('确认恢复 → 写过的锚点被模板覆盖', w2.attractiveness.categories[0].indicators[0].rubric.high === '');
 confirmAnswer = false; confirmMsgs.length = 0;
 const kept = w2.attractiveness.categories;
 kept[0].indicators[0].rubric.high = '市场规模 > 5 亿';
-W2.restoreAxisTemplate('attractiveness');
+await W2.restoreAxisTemplate('attractiveness');
 ok('取消恢复 → 一级维度与刚写的锚点原样保留',
   w2.attractiveness.categories === kept && kept[0].indicators[0].rubric.high === '市场规模 > 5 亿');
 
@@ -426,3 +430,4 @@ ok('合法 tier id 不被误删', W2.pruneStaleTiers() === false &&
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
+})().catch(e=>{console.error(e);process.exit(1);});

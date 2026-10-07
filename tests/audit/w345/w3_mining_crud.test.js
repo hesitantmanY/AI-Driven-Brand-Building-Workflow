@@ -30,6 +30,7 @@ function makeNode(tag){
     setAttribute(k, v){ this.attrs[k] = String(v); },
     removeAttribute(k){ delete this.attrs[k]; },
     querySelector(s){ return s === 'input' ? (this.children.find(c => c.tagName === 'INPUT') || null) : null; },
+    closest(){return null;},
     focus(){}, select(){}
   };
   Object.defineProperty(node, 'textContent', {
@@ -53,7 +54,7 @@ const document = {
   querySelector: () => null
 };
 const sandbox = {
-  console, setTimeout, clearTimeout, Date, JSON, Math, Object, Array, String, Number, Boolean,
+  console, setTimeout, clearTimeout, setInterval, clearInterval, Date, JSON, Math, Object, Array, String, Number, Boolean,
   document,
   el: function(tag, attrs = {}, ...children){
     const e = document.createElement(tag);
@@ -89,6 +90,8 @@ const sandbox = {
 };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(docs, 'lib', 'interaction.js'), 'utf8'), sandbox, {filename:'lib/interaction.js'});
+sandbox.Interaction.confirm=async()=>true;
 vm.runInContext(fs.readFileSync(path.join(docs, 'lib', 'ui.js'), 'utf8'), sandbox, { filename:'ui.js' });
 sandbox.API = {
   aiCtxBox: cfg => { const box = sandbox.el('div'); box.appendChild(sandbox.el('button', {}, cfg.label || '')); return { box }; },
@@ -135,6 +138,7 @@ function miningState(){
   return st;
 }
 
+(async function(){
 /* ---- D. 删模拟语料 → LDA 结果不失效 ---- */
 {
   const st = miningState();
@@ -144,29 +148,31 @@ function miningState(){
   const m = st.work3.mining;
   // × 按钮顺序：真实语料 3 条 → 模拟语料 3 条，第 4 个 = 模拟 #1
   ok('D0b 找到模拟语料删除按钮', btns.length >= 6, 'got ' + btns.length);
-  btns[3]._listeners.click[0]();
+  await btns[3]._listeners.click[0]({currentTarget:btns[3]});
   ok('D1 模拟语料确实少了一条', m.simulatedDocuments.length === 2, JSON.stringify(m.simulatedDocuments));
   plate = renderMining(st);
   const txt = textOf(plate);
   ok('D2 删语料后 LDA 结果区不把旧构成当现状（应更新或标过期）',
      !txt.includes('含模拟语料 3 条') || /过期|重新运行|已失效/.test(txt),
-     '仍显示「含模拟语料 3 条」而实际只剩 2 条；raw_count 仍是 ' + m.stats.raw_count);
+     '仍显示「含模拟语料 3 条」而实际只剩 2 条；raw_count 仍是 ' + m.stats?.raw_count);
 }
 
 /* ---- D3. 删真实语料 → 原始文档数仍是旧值 ---- */
 {
   const st = miningState();
   let plate = renderMining(st);
-  xButtons(plate)[0]._listeners.click[0]();
-  xButtons(plate)[0]._listeners.click[0]();
-  xButtons(plate)[0]._listeners.click[0]();
+  for(let n=0;n<3;n++){
+    const button=xButtons(plate)[0];
+    await button._listeners.click[0]({currentTarget:button});
+    plate=renderMining(st);
+  }
   const m = st.work3.mining;
   ok('D3a 真实语料被清空', m.documents.length === 0, JSON.stringify(m.documents));
   plate = renderMining(st);
   const txt = textOf(plate);
   ok('D3b 语料清空后 LDA 结果区不把旧 6 条文档当现状（应更新或标过期）',
      !txt.includes('6') || /过期|重新运行|已失效/.test(txt),
-     'stats.raw_count=' + m.stats.raw_count + '，topics=' + m.topics.length + ' 个仍在');
+     'stats.raw_count=' + m.stats?.raw_count + '，topics=' + m.topics.length + ' 个仍在');
 }
 
 /* ---- F. 痛点标签：点 × 删除后重渲染又回来 ---- */
@@ -177,7 +183,7 @@ function miningState(){
   ok('F0 找到「安静」标签 chip', chips.length === 1, 'got ' + chips.length);
   const rm = walk(chips[0]).find(n => n.tagName === 'BUTTON' && textOf(n) === '×');
   ok('F0b 找到 chip 的删除按钮', !!rm);
-  rm._listeners.click[0]();
+  await rm._listeners.click[0]({currentTarget:rm});
   plate = renderMining(st);   // 任何重渲染（切步/其它控件触发）
   const back = walk(plate).some(n => n.className === 'chip' && textOf(n).startsWith('安静'));
   ok('F1 删除的标签不会在重渲染后复活',
@@ -186,4 +192,6 @@ function miningState(){
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
+sandbox.Interaction.invalidateUndo();
 process.exit(fail ? 1 : 0);
+})().catch(error=>{console.error(error);process.exit(1);});

@@ -89,6 +89,35 @@ def _time_display(ts_str: str) -> str | None:
         return None
 
 
+def _snapshot_metadata(f: Path) -> dict[str, Any]:
+    stem = f.stem
+    is_time = stem.startswith("time_")
+    is_auto = stem.startswith("auto_")
+    display_name = stem[6:] if stem.startswith("named_") else stem
+    if is_time or is_auto:
+        ts_display = _time_display(stem[5:20])
+        if ts_display is not None:
+            suffix = stem[20:]
+            if suffix.startswith("_") and suffix[1:].isdigit():
+                ts_display += f" ({int(suffix[1:])})"
+            display_name = ts_display
+    return {
+        "id": stem,
+        "name": display_name,
+        "type": "time" if is_time else ("auto" if is_auto else "named"),
+        "created_at": f.stat().st_mtime,
+    }
+
+
+def snapshot_metadata(project_id: str, snapshot_id: str) -> dict[str, Any] | None:
+    """Read the actual display name and metadata for a selected version."""
+    f = _snapshots_dir(project_id) / f"{Path(snapshot_id).name}.json"
+    try:
+        return _snapshot_metadata(f)
+    except OSError:
+        return None
+
+
 def list_snapshots(project_id: str = "default") -> list[dict[str, Any]]:
     """List snapshots, newest first. Types: 'time' (time-named, prunable),
     'named' (custom name, permanent)."""
@@ -99,27 +128,7 @@ def list_snapshots(project_id: str = "default") -> list[dict[str, Any]]:
     snapshots = []
     for f in snap_dir.glob("*.json"):
         try:
-            stat = f.stat()
-            stem = f.stem
-            is_time = stem.startswith("time_")
-            is_named = stem.startswith("named_")
-            created_at = stat.st_mtime
-            display_name = stem
-            if is_time or stem.startswith("auto_"):  # auto_ tolerated until migration
-                ts_display = _time_display(stem[5:20])
-                if ts_display is not None:
-                    display_name = ts_display
-                    t = time.mktime(time.strptime(stem[5:20], "%Y%m%d_%H%M%S"))
-                    created_at = t
-            elif is_named:
-                display_name = stem[6:]  # remove "named_"
-
-            snapshots.append({
-                "id": stem,
-                "name": display_name,
-                "type": "time" if is_time else ("auto" if stem.startswith("auto_") else "named"),
-                "created_at": created_at,
-            })
+            snapshots.append(_snapshot_metadata(f))
         except OSError:
             continue
 
@@ -162,28 +171,18 @@ def create_snapshot(
             while (snap_dir / f"{snap_id}.json").exists():
                 snap_id = f"named_{safe_name}({counter})"
                 counter += 1
-        display_name = snap_id[6:]  # include the (n) suffix when renamed-on-collision
     else:
         base = time.strftime("%Y%m%d_%H%M%S")
-        ts_display = time.strftime("%Y-%m-%d %H:%M:%S")
         snap_id = "time_" + base
         counter = 1
         while (snap_dir / f"{snap_id}.json").exists():
             counter += 1
             snap_id = f"time_{base}_{counter}"
-        if counter > 1:
-            ts_display = f"{ts_display} ({counter})"
-        display_name = ts_display
 
     _atomic_write(snap_dir / f"{snap_id}.json", json.dumps(state, ensure_ascii=False, indent=2))
     _cleanup_time_snapshots(project_id)
 
-    return {
-        "id": snap_id,
-        "name": display_name,
-        "type": "time" if not name else "named",
-        "created_at": time.time(),
-    }
+    return _snapshot_metadata(snap_dir / f"{snap_id}.json")
 
 
 def load_snapshot(project_id: str, snapshot_id: str) -> dict[str, Any] | None:
@@ -206,6 +205,27 @@ def restore_snapshot(project_id: str, snapshot_id: str) -> dict[str, Any] | None
     snapshot_state = load_snapshot(project_id, snapshot_id)
     if snapshot_state is None:
         return None
+    if not isinstance(snapshot_state, dict) or not any(
+        isinstance(snapshot_state.get(f"work{n}"), dict) for n in range(1, 6)
+    ):
+        raise ValueError("Snapshot state is invalid")
+    source_meta = snapshot_state.get("meta") or {}
+    if not isinstance(source_meta, dict):
+        raise ValueError("Snapshot metadata is invalid")
+    meta = snapshot_metadata(project_id, snapshot_id)
+    if meta is None:
+        return None
+    snapshot_state = {
+        **snapshot_state,
+        "meta": {
+            **source_meta,
+            "loadedFrom": meta["name"],
+            "loadedFromId": meta["id"],
+            "isDemo": False,
+            "demoCase": None,
+            "demoSnapshot": None,
+        },
+    }
 
     _atomic_write(
         _current_file(project_id),
@@ -230,10 +250,12 @@ def rename_snapshot(
     snapshot_id: str,
     new_name: str,
     overwrite: bool = False,
+    copy: bool = False,
 ) -> dict[str, Any] | None:
     """Rename a snapshot (any type becomes custom-named / permanent).
-    On name collision: overwrite=True removes the target version first (caller
-    has already asked the user); otherwise the target gets a (1), (2), … suffix.
+    On name collision: overwrite=True atomically replaces the target version;
+    otherwise the target gets a (1), (2), … suffix. copy=True duplicates the
+    selected snapshot, preserving both the source and any conflicting target.
     Returns new metadata; None if the snapshot doesn't exist.
     Raises ValueError when the new name is empty after sanitizing."""
     new_name = (new_name or "").strip()
@@ -242,6 +264,8 @@ def rename_snapshot(
     safe_name = re.sub(r'[<>:"/\\|?*]', "_", new_name).strip()
     if not safe_name:
         raise ValueError("Name is empty")
+    if copy and overwrite:
+        raise ValueError("Copy cannot overwrite a snapshot")
 
     safe_id = Path(snapshot_id).name
     snap_dir = _snapshots_dir(project_id)
@@ -250,24 +274,19 @@ def rename_snapshot(
         return None
 
     target = "named_" + safe_name
-    if overwrite:
-        existing = snap_dir / f"{target}.json"
-        if existing.exists() and existing != src:
-            try:
-                existing.unlink()  # 覆盖：先移除被顶掉的版本
-            except OSError:
-                raise ValueError("Cannot overwrite target snapshot")
-    else:
+    if not overwrite:
         counter = 1
-        while (snap_dir / f"{target}.json").exists() and (snap_dir / f"{target}.json") != src:
+        while (snap_dir / f"{target}.json").exists() and (copy or (snap_dir / f"{target}.json") != src):
             target = f"named_{safe_name}({counter})"
             counter += 1
     dst = snap_dir / f"{target}.json"
-    if dst == src:
-        return {"id": target, "name": target[6:], "type": "named", "created_at": dst.stat().st_mtime}
-    os.replace(src, dst)
+    if copy:
+        # Never use current.json: "另存" duplicates the selected historical state.
+        _atomic_write(dst, src.read_text(encoding="utf-8"))
+    elif dst != src:
+        os.replace(src, dst)
 
-    return {"id": target, "name": target[6:], "type": "named", "created_at": dst.stat().st_mtime}
+    return _snapshot_metadata(dst)
 
 
 def _cleanup_time_snapshots(project_id: str, keep: int = MAX_TIME_SNAPSHOTS) -> None:
@@ -291,6 +310,9 @@ def _cleanup_time_snapshots(project_id: str, keep: int = MAX_TIME_SNAPSHOTS) -> 
 def remove_legacy_auto_snapshots() -> None:
     """One-time migration: delete legacy auto_*.json snapshots (the auto-snapshot
     feature was removed). Idempotent — safe to call on every startup."""
+    # 启动时 server/data 可能尚不存在（首次运行/清理后）；迁移本身要先把
+    # 数据根目录建出来，不能让启动被 FileNotFoundError 打断。
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     for proj in DATA_DIR.iterdir():
         snap_dir = proj / "snapshots"
         if not snap_dir.is_dir():

@@ -42,7 +42,7 @@ ok('broken data block → parse failed', badJson.ok === false && badJson.reason 
 
 // demoCase naming
 const demo = M.buildExportMarkdown({ state: { ...state, meta: { demoCase: 'douya-mama' } }, workExports: {} });
-ok('demoCase filename + title', demo.filename === 'case-douya-mama-brand-workshop.md' && demo.markdown.startsWith('# 案例 douya-mama'));
+ok('demoCase filename + title', demo.filename === 'case-douya-mama-brand-workshop.md' && demo.markdown.startsWith('# case:douya-mama'));
 
 // default naming
 const def = M.buildExportMarkdown({ state: { ...state, meta: {} }, workExports: {} });

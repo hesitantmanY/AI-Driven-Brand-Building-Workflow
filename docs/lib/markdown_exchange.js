@@ -18,7 +18,7 @@
     const raw = (m.demoCase ? ('case:'+m.demoCase) : (m.loadedFrom || '')).trim() || DEFAULT_NAME;
     const safe = raw.replace(/[\\\/:*?"<>|\s]+/g,'-').replace(/^[.\-]+|[.\-]+$/g,'').slice(0,80) || DEFAULT_NAME;
     const filename = (raw === DEFAULT_NAME) ? 'brand-workshop.md' : (safe + '-brand-workshop.md');
-    const title = m.demoCase ? `案例 ${m.demoCase}` : raw;
+    const title = raw;
     const parts = [
       `# ${title}`,
       `导出时间：${new Date().toLocaleString()}`,

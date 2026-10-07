@@ -6,7 +6,7 @@
    - 每 P 步首一个「AI 起草」主按钮（workshop123 模式）：一次 LLM 调用
      双写——字段 JSON 容错解析整组填入表单，叙事 Markdown 存 aiResult
      并自动全部采纳（段落区只读正文展示，JSON 永不外露）
-   - 已有内容时点「重新生成」弹整体替换确认（workshop123 式）
+   - 已有 AI 结果时点「重新生成」直接整体替换（不弹确认）
    - summaryText 字段优先（表单是唯一真相源，导出/Work5 随字段变更）
    - simpleTable oninput 触发 chart 局部刷新
    ============================================================ */
@@ -32,7 +32,7 @@ Work4.defaultData = () => ({
   product: {
     name:'', description:'', coreDifferentiators:[],
     physicalFeatures:'', serviceOffering:'', technologyMoat:'',
-    skus:[], aiResult:'',
+    skus:[], aiResult:'', _aiGenerated:false,
     businessType:'physical',
     certifications:'', localization:'', serviceLocalization:'',
     people:'', process:'', physicalEvidence:'',
@@ -42,7 +42,7 @@ Work4.defaultData = () => ({
   price: {
     strategy:'', strategyNote:'',
     tiers:[], channelPricing:[], promotions:[],
-    competitorPrices:'', aiResult:'',
+    competitorPrices:'', aiResult:'', _aiGenerated:false,
     ppp:'', pricingNumbers:'', fxSensitivity:'',
     adoptedSegments: {}
   },
@@ -51,21 +51,21 @@ Work4.defaultData = () => ({
     offlineDirect:[], offlineDistrib:[], offlineRetail:[], offlineNotes:'',
     keyPartners:[], channelIncentives:'',
     structure:[],
-    aiResult:'',
+    aiResult:'', _aiGenerated:false,
     localChannelRelations:'',
     adoptedSegments: {}
   },
   promotion: {
     advertising:[], pr:[], salesPromotion:[],
     crm:{tool:'',membership:'',repurchase:'',notes:''},
-    contentStrategy:'', aiResult:'', theme:'',
+    contentStrategy:'', aiResult:'', _aiGenerated:false, theme:'',
     context:'', taboos:'', kolTiers:'', language:'',
     adoptedSegments: {}
   }
 });
 
 // Bump when changing render output so cached steps re-render for existing users.
-Work4.RENDER_VERSION = '6';
+Work4.RENDER_VERSION = '7';
 
 // 段落切分（按 Markdown 二级/三级标题）
 // 返回 [{segId, level, heading, body}]；segId 形如 'seg-1' / 'seg-2-1'（含子段时）。
@@ -374,39 +374,44 @@ Work4._salvageJsonObject = function(rawText){
 
 // 整组覆盖：解析字段对象 → 逐 spec 清洗写入（仅写入对象里存在的 key，未含的字段不动）。
 // 返回 {ok, n, total, reason?, warnings?}；解析失败不动任何字段（显式 toast，不静默）。
+Work4.caseLocked = function(){ return !!(state && state.meta && (state.meta.isDemo || state.meta.demoCase)); };
 Work4.applyStepAll = function(pKey, text){
+  if(Work4.caseLocked()) return {ok:false, n:0, total:0, reason:'案例浏览中，不可修改'};
   const obj = Work4.extractStepJsonObject(text);
   const specs = Work4.stepSpecs(pKey);
   const p = state.work4[pKey];
   if(!obj) return {ok:false, n:0, total:specs.length, reason:'未找到字段 JSON 对象'};
   let n = 0;
   const warnings = [];
+  const fieldLabel = s => s.key === 'keyPartners' ? '关键伙伴' : (s.name || s.key);
+  const keepWarning = name => warnings.push(name + ' 返回空结果，已保留原值');
   specs.forEach(s => {
+    if(!(s.key in obj) || obj[s.key] == null) return; // 只有“未含 key”不动
     const v = obj[s.key];
-    if(v === undefined || v === null || v === '') return;
     if(s.kind === 'tags'){
       const arr = Array.isArray(v) ? v : String(v).split(/[,，、;；\n]/).map(x=>x.replace(/^[\s\-\*•·]+/,'').trim()).filter(Boolean);
       if(arr.length){ p[s.key] = arr; n++; }
-    } else if(s.kind === 'partners'){
-      const parsed = Work4.parseStructured('```json\n' + JSON.stringify(v) + '\n```', 'partnerList');
-      if(parsed && parsed.ok){ p[s.key] = parsed.value; n++; }
-      else warnings.push(s.name + ' 解析失败' + (parsed && parsed.reason ? '：' + parsed.reason : ''));
-    } else if(s.kind === 'table'){
-      const parsed = Work4.parseStructured('```json\n' + JSON.stringify(v) + '\n```', s.schema);
-      if(parsed && parsed.ok){ p[s.key] = parsed.value; n++; }
-      else warnings.push(s.name + ' 解析失败' + (parsed && parsed.reason ? '：' + parsed.reason : ''));
+      else keepWarning(fieldLabel(s)); // AI01：空列表不覆盖已有数据
+    } else if(s.kind === 'partners' || s.kind === 'table' || s.kind === 'structure'){
+      if(Array.isArray(v) && !v.length){ keepWarning(fieldLabel(s)); return; }
+      const schema = s.kind === 'partners' ? 'partnerList' : (s.kind === 'structure' ? 'structure' : s.schema);
+      const parsed = Work4.parseStructured('```json\n' + JSON.stringify(v) + '\n```', schema);
+      if(parsed && parsed.ok && Array.isArray(parsed.value) && parsed.value.length){
+        p[s.kind === 'structure' ? 'structure' : s.key] = parsed.value;
+        n++;
+        if(parsed.warnings && parsed.warnings.length) warnings.push(...parsed.warnings);
+      } else {
+        const label = s.kind === 'structure' ? '渠道结构' : fieldLabel(s);
+        warnings.push(label + ' 解析失败，已保留原值' + (parsed && parsed.reason ? '：' + parsed.reason : ''));
+      }
     } else if(s.kind === 'crm'){
-      const c = (v && typeof v === 'object') ? v : {};
+      const c = (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
       p.crm = p.crm || {};
       let wrote=0;
       ['tool','membership','repurchase','notes'].forEach(k => { if(c[k] !== undefined){ p.crm[k] = String(c[k]||'').trim(); wrote++; } });
       // AI05：空 crm 对象不虚计"已填入"
       if(wrote) n++;
-      else warnings.push((s.name || s.key) + ' 没有可用字段');
-    } else if(s.kind === 'structure'){
-      const parsed = Work4.parseStructured('```json\n' + JSON.stringify(v) + '\n```', 'structure');
-      if(parsed && parsed.ok){ p.structure = parsed.value; n++; }
-      else warnings.push('渠道结构解析失败' + (parsed && parsed.reason ? '：' + parsed.reason : ''));
+      else keepWarning(fieldLabel(s));
     } else if(s.kind === 'enum'){
       if(s.values.includes(String(v))){ p[s.key] = String(v); n++; }
       else warnings.push((s.name || s.key) + ' 值不在可选范围，已保留原值（' + String(v).slice(0,20) + '）'); // AI05
@@ -419,7 +424,7 @@ Work4.applyStepAll = function(pKey, text){
   return {ok:true, n, total:specs.length, warnings};
 };
 
-// 该步表单是否已有内容（重新生成时的覆盖确认依据）
+// 该步表单是否已有内容（内容检测/健康提示；AI 按钮文案以 _aiGenerated/aiResult 为准）
 Work4.stepHasContent = function(pKey){
   const p = state.work4[pKey];
   return (Work4.STEP_FIELD_SPEC[pKey] || []).some(s => {
@@ -570,9 +575,10 @@ Work4.contextSummary = function(){
 Work4.aiHeadRow = function(pKey, opts){
   const p = state.work4[pKey];
   p.adoptedSegments = p.adoptedSegments || {};
-  const hasContent = Work4.stepHasContent(pKey);
-  // 按钮文案状态机（无 emoji）：空 →「AI 起草{内容}」；有内容 →「重新生成{内容}」
-  const btnLabel = hasContent
+  const generated = !!p.aiResult || p._aiGenerated===true;
+  // 按钮文案状态机（无 emoji）：AI 未生成 → 原文案；AI 已生成 → 「重新生成{内容}」。
+  // 手动填写不触发重新生成态，避免把人工数据误当 AI 产物。
+  const btnLabel = generated
     ? ('重新生成' + (opts.short || pKey))
     : (opts.label || 'AI 起草');
   const headRow = el('div',{class:'p-head-row', style:{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:'24px',marginBottom:'18px',flexWrap:'wrap'}});
@@ -587,7 +593,7 @@ Work4.aiHeadRow = function(pKey, opts){
   ctxBox.appendChild(el('div',{style:{padding:'8px 0 4px',color:'var(--color-ink-2)',fontFamily:'var(--font-mono)',fontSize:'12px'}},
     summary,
     el('br'),
-    el('span',{style:{fontSize:'10px',opacity:0.7}}, '一次生成本步全部字段填入下方表单，可逐项审改。点「重新生成」会整体替换当前内容（有确认）。')
+    el('span',{style:{fontSize:'10px',opacity:0.7}}, '一次生成本步全部字段填入下方表单，可逐项审改。点「重新生成」会直接整体替换上一次 AI 结果。')
   ));
   headRow.appendChild(ctxBox);
   // 右：按钮组（一个主按钮 + 清空叙事正文）
@@ -596,8 +602,8 @@ Work4.aiHeadRow = function(pKey, opts){
   aiBtn.addEventListener('click', () => Work4.runAiDraft(pKey, opts, aiBtn));
   btns.appendChild(aiBtn);
   if(!!p.aiResult){
-    const clearBtn = el('button',{class:'ghost small', onclick:()=>{
-      if(confirm('清空 AI 起草的叙事正文？表单内容不受影响。')){
+    const clearBtn = el('button',{class:'ghost small danger', onclick:async e=>{
+      if(await Interaction.confirm({title:'清空叙事正文？',message:'清空 AI 起草的叙事正文？表单内容不受影响。此操作不可撤销。',confirmLabel:'清空正文',trigger:e.currentTarget}) && p===state.work4[pKey] && !Work4.caseLocked()){
         p.aiResult = '';
         p.adoptedSegments = {};
         autosave(); Work4.rerender(pKey);
@@ -610,53 +616,64 @@ Work4.aiHeadRow = function(pKey, opts){
 };
 
 // 触发 AI 起草（per-P，2026-09-01 ADR 0008）：
-//   - 已有内容时先弹整体替换确认（workshop123 式）
+//   - 已有 AI 结果时直接整体替换（不弹确认）
 //   - 一次调用 → applyStepAll 双写：字段 JSON 填表单 + 叙事正文存 aiResult 并自动全部采纳
 Work4.runAiDraft = function(pKey, opts, btn){
+  if(Work4.caseLocked()){ showToast('案例浏览中，不可用 AI'); return; }
   const p = state.work4[pKey];
-  if(Work4.stepHasContent(pKey)){
-    if(!confirm('用 AI 起草会整体替换当前「' + (opts.short || pKey) + '」内容（已有内容会被覆盖），确定？')) return;
-  }
-  const prompt = Work4.buildStepPrompt(pKey);
-  const container = document.createElement('div');
   const origLabel = btn.textContent;
+  const restoreBtn = ()=>{ btn.disabled = false; btn.textContent = origLabel; };
+  let prompt;
+  try{
+    prompt = Work4.buildStepPrompt(pKey);
+  }catch(e){
+    showToast('AI 起草失败：' + (e && e.message ? e.message : String(e)));
+    return false;
+  }
+  const container = document.createElement('div');
   btn.disabled = true;
   btn.textContent = '生成中…';
-  const restoreBtn = ()=>{ btn.disabled = false; btn.textContent = origLabel; };
-  API.aiButton({
-    button: btn,
-    container,
-    jsonMode: false,
-    label: origLabel,
-    buildPrompt: () => [{role:'user', content: prompt}],
-    onResult: (r, raw, source) => {
-      const text = typeof r === 'string' ? r : (raw || (r && typeof r==='object' ? JSON.stringify(r,null,2) : ''));
-      if(!text){
-        showToast('AI 未返回内容');
-        restoreBtn();
-        return;
-      }
-      // 双写：字段 JSON → 表单；叙事正文（剥掉 JSON 块）→ aiResult + 自动全部采纳
-      const applied = Work4.applyStepAll(pKey, text);
-      const narrative = String(text).replace(/```(?:json|JSON)?[\s\S]*?```/g, '').trim();
-      if(narrative){
-        p.aiResult = Work4._prettifyJsonBlocks(narrative);
-        Work4.adoptAll(pKey);
-      }
-      autosave();
-      Work4.rerender(pKey);
-      if(applied.ok){
-        // AI05：字段级警告(归一化/部分失败)不再吞掉
-        let msg = '已生成并填入 ' + applied.n + '/' + applied.total + ' 个字段，请逐项审改';
-        if(applied.warnings && applied.warnings.length){
-          msg += ' ｜ ' + applied.warnings.slice(0,3).join('；') + (applied.warnings.length>3 ? '…' : '');
+  try{
+    API.aiButton({
+      button: btn,
+      container,
+      jsonMode: false,
+      label: origLabel,
+      buildPrompt: () => [{role:'user', content: prompt}],
+      onResult: (r, raw, source) => {
+        const text = typeof r === 'string' ? r : (raw || (r && typeof r==='object' ? JSON.stringify(r,null,2) : ''));
+        if(!text){
+          showToast('AI 未返回内容');
+          restoreBtn();
+          return;
         }
-        showToast(msg);
-      } else {
-        showToast('未能解析字段：' + applied.reason + '；正文已存入段落区');
+        // 双写：字段 JSON → 表单；叙事正文（剥掉 JSON 块）→ aiResult + 自动全部采纳
+        const applied = Work4.applyStepAll(pKey, text);
+        p._aiGenerated = true;
+        const narrative = String(text).replace(/```(?:json|JSON)?[\s\S]*?```/g, '').trim();
+        p.aiResult = narrative ? Work4._prettifyJsonBlocks(narrative) : '';
+        p.adoptedSegments = {};
+        if(narrative) Work4.adoptAll(pKey);
+        autosave();
+        Work4.rerender(pKey);
+        restoreBtn();
+        if(applied.ok){
+          // AI05：字段级警告(归一化/部分失败)不再吞掉
+          let msg = '已生成并填入 ' + applied.n + '/' + applied.total + ' 个字段，请逐项审改';
+          if(applied.warnings && applied.warnings.length){
+            msg += ' ｜ ' + applied.warnings.slice(0,3).join('；') + (applied.warnings.length>3 ? '…' : '');
+          }
+          showToast(msg);
+        } else {
+          showToast('未能解析字段：' + applied.reason + '；正文已存入段落区');
+        }
       }
-    }
-  });
+    });
+  }catch(e){
+    showToast('AI 起草失败：' + (e && e.message ? e.message : String(e)));
+    restoreBtn();
+    return false;
+  }
   // 异步路径，aiButton 完成时 Runner.finish 不会主动恢复 button；onResult 会。
   // 兜底：60 秒后强制恢复
   setTimeout(restoreBtn, 60000);
@@ -687,6 +704,7 @@ Work4.renderSegments = function(pKey){
 
 // 全部采纳（2026-09-01：AI 起草后自动调用——段落区只读展示，无需手动逐段采纳）
 Work4.adoptAll = function(pKey){
+  if(Work4.caseLocked()) return;
   const p = state.work4[pKey];
   p.adoptedSegments = p.adoptedSegments || {};
   const segs = Work4.segResult(p.aiResult);
@@ -883,7 +901,7 @@ Work4.render.product = function(sec){
 
   // 核心差异化
   plate.appendChild(el('h4',{},'核心差异化'));
-  const diff=UI.tagsInput(p.coreDifferentiators||[]);
+  const diff=UI.tagsInput(()=>p.coreDifferentiators||[], '输入后回车添加', next=>{p.coreDifferentiators=next;autosave();});
   diff.el.querySelector('input').addEventListener('blur',()=>{p.coreDifferentiators=diff.get();autosave()});
   plate.appendChild(diff.el);
   plate.appendChild(UI.field('物理特征 / 技术规格', el('textarea',{rows:3,oninput:e=>{p.physicalFeatures=e.target.value;autosave()}},p.physicalFeatures)));
@@ -1070,9 +1088,9 @@ Work4.render.place = function(sec){
   // 2. 渠道清单（渲染循环不变：规格驱动逐字段画，AI 起草统一走步首按钮）
   const renderPlaceField = (spec) => {
     const content = spec.kind === 'partners'
-      ? Work4.partnerBox(p[spec.key], v => { p[spec.key] = v; autosave(); })
+      ? Work4.partnerBox(()=>p[spec.key], v => { p[spec.key] = v; autosave(); })
       : (spec.kind === 'tags'
-        ? Work4.tagBox(p[spec.key], v => { p[spec.key] = v; autosave(); })
+        ? Work4.tagBox(()=>p[spec.key], v => { p[spec.key] = v; autosave(); })
         : el('textarea', {rows: spec.rows || 2, placeholder: spec.placeholder || '', oninput: e => { p[spec.key] = e.target.value; autosave(); }}, p[spec.key] || ''));
     return UI.field(spec.label, content);
   };
@@ -1126,7 +1144,15 @@ Work4.render.place = function(sec){
         el('input',{value:grp.name,oninput:e=>{grp.name=e.target.value;autosave();Work4.refreshCharts('place')}})));
       tr.appendChild(el('td',{},el('input',{value:ch.name,oninput:e=>{ch.name=e.target.value;autosave();Work4.refreshCharts('place')}})));
       tr.appendChild(el('td',{},el('input',{type:'number',min:0,max:100,value:ch.share,oninput:e=>{ch.share=parseInt(e.target.value)||0;autosave();Work4.refreshCharts('place')}})));
-      tr.appendChild(el('td',{},el('button',{class:'ghost small',onclick:()=>{grp.children.splice(ci,1);autosave();Work4.rerender('place')}},'×')));
+      const getChildren=()=>{
+        const groups=state.work4.place.structure||[];
+        const current=groups.find(g=>g===grp || (grp.id && g.id===grp.id)) || groups[gi];
+        return current?.children||[];
+      };
+      tr.appendChild(el('td',{},el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Interaction.removeItem({
+        list:getChildren,index:ci,type:'二级渠道',name:()=>Interaction.objectName('二级渠道',ch.name,ci,getChildren,c=>c.name),trigger:e.currentTarget,
+        onChange:()=>{autosave();Work4.rerender('place');}
+      })},'二级渠道',()=>ch.name,ci,getChildren,c=>c.name),'×')));
       tb.appendChild(tr);
     });
   });
@@ -1294,9 +1320,13 @@ Work4.summaryText = function(key){
 
 // simpleTable：可选 onChange 回调（用于 simpleTable oninput 触发 chart 局部重画）
 Work4.simpleTable=function(sec, arr, cols, keyName){
+  const addNoun=({advertising:'媒介',pr:'公关事件',salesPromotion:'促销手段',tiers:'价格档位',channelPricing:'渠道定价',promotions:'促销节奏'}[keyName]||'一行');
   const plate = (sec && sec.querySelector) ? sec.querySelector('.plate') : sec;
   const stepEl = (sec && sec.closest) ? sec.closest('.step') : null;
   const stepId = stepEl ? stepEl.dataset.step : null;
+  const owner=stepId || ({tiers:'price',channelPricing:'price',promotions:'price',advertising:'promotion',pr:'promotion',salesPromotion:'promotion',skus:'product'}[keyName]) || Work4.currentStepId();
+  const getRows=()=>Array.isArray(state.work4?.[owner]?.[keyName])?state.work4[owner][keyName]:arr;
+  const nameOf=row=>row[cols.find(c=>c.type!=='number' && c.type!=='check')?.key]||'';
   const table=el('div',{class:'table-wrap'});
   const t=el('table',{class:'data'});
   t.innerHTML='<thead><tr>'+cols.map(c=>`<th>${c.label}</th>`).join('')+'<th style="width:50px"></th></tr></thead>';
@@ -1323,15 +1353,18 @@ Work4.simpleTable=function(sec, arr, cols, keyName){
       }
       tr.appendChild(td);
     });
-    tr.appendChild(el('td',{},el('button',{class:'ghost small',onclick:()=>{arr.splice(i,1);autosave();Work4.rerender(Work4.currentStepId());}},'删除')));
+    tr.appendChild(el('td',{},el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Interaction.removeItem({
+      list:getRows,index:i,type:addNoun,name:()=>Interaction.objectName(addNoun,nameOf(row),i,getRows,nameOf),trigger:e.currentTarget,
+      onChange:()=>{autosave();Work4.rerender(owner);}
+    })},addNoun,()=>nameOf(row),i,getRows,nameOf),'删除')));
     tb.appendChild(tr);
   });
   t.appendChild(tb); table.appendChild(t); plate.appendChild(table);
   plate.appendChild(el('button',{class:'small',onclick:()=>{
     const blank={}; cols.forEach(c=>blank[c.key]= c.type==='number'?null:(c.type==='check'?false:''));
-    arr.push(blank);
-    autosave(); Work4.rerender(Work4.currentStepId());
-  }}, '+ 添加'));
+    getRows().push(blank);
+    autosave(); Work4.rerender(owner);
+  }}, '+ 添加'+addNoun));
 };
 
 Work4.currentStepId=function(){
@@ -1340,7 +1373,7 @@ Work4.currentStepId=function(){
 };
 
 Work4.tagBox=function(arr, onChange){
-  const ti=UI.tagsInput(arr||[]);
+  const ti=UI.tagsInput(arr||[], '输入后回车添加', onChange);
   ti.el.querySelector('input').addEventListener('blur',()=>onChange(ti.get()));
   return ti.el;
 };
@@ -1351,36 +1384,36 @@ Work4.tagBox=function(arr, onChange){
 Work4.partnerBox=function(arr, onChange){
   const wrap=el('div',{class:'chip-row partner-row'});
   const input=el('input',{type:'text',placeholder:'输入伙伴名称回车添加'});
-  const items=(arr||[]).map(p=>{
-    if(p && typeof p==='object' && !Array.isArray(p)){
-      return {
-        name:String(p.name==null?'':p.name).trim(),
-        side:(p.side==='线上'||p.side==='线下') ? p.side : ''
-      };
-    }
-    return {name:String(p==null?'':p).trim(), side:''};
-  }).filter(p=>p.name);
-  const sync=()=>onChange(items.map(p=>({name:p.name,side:p.side})));
+  const getItems=typeof arr==='function'?arr:()=>arr||[];
+  const nameOf=item=>String(item && typeof item==='object'?item.name??'':item??'').trim();
+  const sync=()=>onChange(getItems());
   const render=()=>{
     wrap.innerHTML='';
-    items.forEach((item,i)=>{
+    getItems().forEach((item,i)=>{
+      const name=nameOf(item),itemSide=item && typeof item==='object'?item.side:'';
       const chip=el('span',{class:'partner-chip'});
-      chip.appendChild(el('span',{class:'partner-name'},item.name));
-      const seg=el('span',{class:'sbu-segmented partner-seg',role:'group','aria-label':item.name+' 渠道归属'});
+      chip.appendChild(el('span',{class:'partner-name'},name||'未命名关键伙伴，第 '+(i+1)+' 项'));
+      const seg=el('span',{class:'sbu-segmented partner-seg',role:'group','aria-label':(name||'第 '+(i+1)+' 项')+' 渠道归属'});
       ['线上','线下'].forEach(side=>{
-        const on=item.side===side;
+        const on=itemSide===side;
+        const relationLabel=(on?'取消关联':'关联')+'关键伙伴：'+Interaction.objectName('关键伙伴',name,i,getItems,nameOf)+'（'+side+'）';
         const btn=el('button',{type:'button',class:'sbu-seg partner-seg-btn'+(on?' is-on':''),
-          'aria-pressed':on?'true':'false','aria-label':item.name+'：'+side},side);
+          'aria-pressed':on?'true':'false','aria-label':relationLabel,title:relationLabel},side);
         btn.addEventListener('click',()=>{
-          item.side = on ? '' : side;
+          const items=getItems(),index=items.indexOf(item);if(index<0)return;
+          if(item && typeof item==='object')item.side=on?'':side;
+          else items[index]={name,side:on?'':side};
           sync(); render(); autosave();
+          Work4.refreshCharts('place');
         });
         seg.appendChild(btn);
       });
       chip.appendChild(seg);
-      chip.appendChild(el('span',{class:'sbu-seg-status partner-status'},item.side||'未分类'));
-      chip.appendChild(el('button',{type:'button',class:'partner-remove','aria-label':'删除 '+item.name,
-        onclick:()=>{ items.splice(i,1); sync(); render(); autosave(); }},'×'));
+      chip.appendChild(el('span',{class:'sbu-seg-status partner-status'},itemSide==='线上'||itemSide==='线下'?itemSide:'未分类'));
+      chip.appendChild(el('button',Interaction.deleteButton({class:'partner-remove',onclick:e=>Interaction.removeItem({
+        list:getItems,index:i,type:'关键伙伴',name:()=>Interaction.objectName('关键伙伴',nameOf(item),i,getItems,nameOf),trigger:e.currentTarget,
+        onChange:()=>{sync();render();autosave();Work4.rerender('place');}
+      })},'关键伙伴',()=>nameOf(item),i,getItems,nameOf),'×'));
       wrap.appendChild(chip);
     });
     wrap.appendChild(input);
@@ -1388,9 +1421,10 @@ Work4.partnerBox=function(arr, onChange){
   input.addEventListener('keydown',e=>{
     if(e.key==='Enter' && input.value.trim()){
       e.preventDefault();
-      items.push({name:input.value.trim(), side:''});
+      getItems().push({name:input.value.trim(), side:''});
       input.value='';
       sync(); render(); autosave();
+      Work4.refreshCharts('place');
     }
   });
   render();
@@ -1501,7 +1535,9 @@ Work4.renderChannelTree=function(container, structure, partners){
   // 与 work5 channelTreeSvg 同构：框加宽到 180，伙伴名按宽度换行，
   // 框高 = max(渠道行数, 标题+伙伴行)。
   const partnerArr = Array.isArray(partners) ? partners : [];
-  const partnerOfSide = (side) => partnerArr
+  const normalizedPartners = partnerArr.map(p => (p && typeof p === 'object' && !Array.isArray(p)) ? p : { name: String(p || '').trim(), side: '' });
+  const unclassified = normalizedPartners.filter(p => p.name && p.side !== '线上' && p.side !== '线下').map(p => p.name);
+  const partnerOfSide = (side) => normalizedPartners
     .map(p => (p && typeof p === 'object' && !Array.isArray(p)) ? p : { name: String(p || '').trim(), side: '' })
     .filter(p => p.name && p.side === side)
     .map(p => p.name);
@@ -1530,17 +1566,18 @@ Work4.renderChannelTree=function(container, structure, partners){
     const boxH = pns.length ? (50 + PARTNER_LINE_H * partnerLineCount + 10) : 34;
     return { grp, kids, pns, partnerBlocks, gh: Math.max(barsH, boxH) };
   });
-  const totalH = meta.reduce((a, m) => a + m.gh, 20) + meta.length * 8;
+  const totalH = meta.reduce((a, m) => a + m.gh, 20) + meta.length * 8 + (unclassified.length ? 28 : 0);
   const W = 640, H = totalH;
   let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
   let y = 20;
   meta.forEach(m => {
     const { grp, kids, pns, partnerBlocks, gh } = m;
     const gy = y + gh / 2;
-    svg += `<rect x="${GROUP_X}" y="${y}" width="${GROUP_W}" height="${gh}" fill="var(--color-paper-2)" stroke="var(--color-ink)"/>`;
+    const groupShare=(kids||[]).reduce((a,c)=>a+(Number(c.share)||0),0);
+    svg += `<rect x="${GROUP_X}" y="${y}" width="${GROUP_W}" height="${gh}" fill="var(--color-paper-2)" stroke="var(--color-ink)" data-partners="${esc(pns.join('、'))}"/>`;
     if(pns.length){
-      svg += `<text x="${GROUP_X + INNER_PAD}" y="${y + 22}" font-family="Playfair Display" font-style="normal" font-size="14" fill="var(--color-ink)">${esc(grp.name)}</text>`;
-      svg += `<text x="${GROUP_X + INNER_PAD}" y="${y + 42}" font-family="JetBrains Mono" font-size="9" letter-spacing="1" fill="var(--color-ink-2)">伙伴</text>`;
+      svg += `<text x="${GROUP_X + INNER_PAD}" y="${y + 22}" font-family="Playfair Display" font-style="normal" font-size="14" fill="var(--color-ink)">${esc(grp.name)} ${groupShare}%</text>`;
+      svg += `<text x="${GROUP_X + INNER_PAD}" y="${y + 42}" font-family="JetBrains Mono" font-size="9" letter-spacing="1" fill="var(--color-ink-2)">◇ 伙伴：${esc(pns.join('、'))}</text>`;
       let li = 0;
       partnerBlocks.forEach(lines => lines.forEach((ln, j)=>{
         const prefix = j === 0 ? '· ' : '   ';
@@ -1548,7 +1585,7 @@ Work4.renderChannelTree=function(container, structure, partners){
         li++;
       }));
     } else {
-      svg += `<text x="${GROUP_X + GROUP_W / 2}" y="${gy + 4}" text-anchor="middle" font-family="Playfair Display" font-style="normal" font-size="14" fill="var(--color-ink)">${esc(grp.name)}</text>`;
+      svg += `<text x="${GROUP_X + GROUP_W / 2}" y="${gy + 4}" text-anchor="middle" font-family="Playfair Display" font-style="normal" font-size="14" fill="var(--color-ink)">${esc(grp.name)} ${groupShare}%</text>`;
     }
     // 2026-09-07（用户要求）：bar 行距按框高 gh 平均分布（spread），
     // 伙伴多时框被撑高，bar 自动均匀散开铺满框高，连接线从框中心 gy 对称发散。
@@ -1557,13 +1594,16 @@ Work4.renderChannelTree=function(container, structure, partners){
     kids.forEach((ch, ci) => {
       const cy = y + step * (ci + 0.5);
       svg += `<line x1="${CONN_X}" y1="${gy}" x2="${ROW_X}" y2="${cy}" stroke="var(--color-rule)"/>`;
-      const barW = (ch.share / 100) * BAR_W;
+      const share = Number.parseFloat(ch.share);
+      const safeShare = Number.isFinite(share) ? Math.max(0, share) : 0;
+      const barW = (safeShare / 100) * BAR_W;
       svg += `<rect x="${ROW_X}" y="${cy - 10}" width="${BAR_W}" height="20" fill="var(--color-paper-2)" stroke="var(--color-rule)"/>`;
       svg += `<rect x="${ROW_X}" y="${cy - 10}" width="${barW}" height="20" fill="var(--color-ink)"/>`;
-      svg += `<text x="${TEXT_X}" y="${cy + 4}" font-family="JetBrains Mono" font-size="11" fill="var(--color-ink)">${esc(ch.name)} ${ch.share}%</text>`;
+      svg += `<text x="${TEXT_X}" y="${cy + 4}" font-family="JetBrains Mono" font-size="11" fill="var(--color-ink)">${esc(ch.name)} ${safeShare}%</text>`;
     });
     y += gh + 8;
   });
+  if(unclassified.length) svg += `<desc>◇ 未分类伙伴：${esc(unclassified.join('、'))} — 回 Work4 标注线上/线下</desc>`;
   svg += `</svg>`;
   container.insertAdjacentHTML('beforeend', svg);
 };
@@ -1630,19 +1670,15 @@ Work4.migrateKeyPartners=function(w4){
     }).filter(Boolean);
     place.keyPartners=normalized;
   }
-  if(place && Array.isArray(place.structure) && place.structure.length===2){
-    const a=place.structure[0], b=place.structure[1];
-    if(a && b && String(a.name||'').trim()==='线下' && String(b.name||'').trim()==='线上'){
-      place.structure=[b,a];
-    }
-  } else if(place && Array.isArray(place.structure) && place.structure.length===1){
-    // 2026-09-07 诊断：单组旧案例（如 douya-mama）会让另一侧伙伴落“未挂载”，
-    // 补一个空的位置桶（不编造 share），Work4 结构表仍可手工添加二级渠道。
-    const only=place.structure[0];
-    const name=String(only && only.name || '').trim();
-    if(name==='线下') place.structure.unshift({name:'线上', children:[]});
-    else if(name==='线上') place.structure.push({name:'线下', children:[]});
-    else place.structure.push({name:'线下', children:[]});
+  if(place && Array.isArray(place.structure)){
+    // 渠道结构的位置契约固定为 [线上,线下]。旧数据可能反序、缺组或带额外空组；
+    // 统一归位/补桶，才能让伙伴 side 与树图位置稳定映射。
+    const clean=place.structure.filter(g=>g && typeof g==='object');
+    const online=clean.find(g=>String(g.name||'').trim()==='线上') || {name:'线上', children:[]};
+    const offline=clean.find(g=>String(g.name||'').trim()==='线下') || {name:'线下', children:[]};
+    online.children=Array.isArray(online.children)?online.children:[];
+    offline.children=Array.isArray(offline.children)?offline.children:[];
+    place.structure=[online, offline];
   }
   return w4;
 };

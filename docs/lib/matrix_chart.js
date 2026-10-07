@@ -149,7 +149,7 @@ function renderMatrix(opts){
     if(typeof opts.hover==='function'){
       tip = opts.hover(p) || '';
     }
-    svg+=`<circle cx="${x(p.x)}" cy="${y(p.y)}" r="7" fill="${isSel?'var(--color-ink)':'var(--color-paper)'}" stroke="var(--color-ink)" stroke-width="2" data-pid="${esc(p.id)}" style="cursor:pointer">${tip?`<title>${esc(tip)}</title>`:''}</circle>`;
+    svg+=`<circle cx="${x(p.x)}" cy="${y(p.y)}" r="7" fill="${isSel?'var(--color-ink)':'var(--color-paper)'}" stroke="var(--color-ink)" stroke-width="2" data-pid="${esc(p.id)}" style="cursor:${onSelect?'pointer':'default'}">${tip?`<title>${esc(tip)}</title>`:''}</circle>`;
   };
   points.forEach(p=>{ if(p.id!==selectedId) drawDot(p); });
   if(points.some(p=>p.id===selectedId)) drawDot(points.find(p=>p.id===selectedId));

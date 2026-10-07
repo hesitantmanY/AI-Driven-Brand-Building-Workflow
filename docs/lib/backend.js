@@ -5,7 +5,7 @@
  测试用假 fetch 跨同一接缝。
 
  Public API（window.Backend）：
-   base() / health() / lda(documents, params) / parseExcel(file)
+   base() / health() / lda(documents, params, opts) / parseExcel(file)
  ============================================================ */
 (function(){
   'use strict';
@@ -32,10 +32,11 @@
         return false;
       }
     },
-    async lda(documents, params={}){
+    async lda(documents, params={},opts={}){
       const r=await fetch(this.base()+'/api/lda',{
         method:'POST',headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({documents, k:5, passes:15, iterations:100, no_below:2, no_above:0.5, ...params})
+        body: JSON.stringify({documents, k:5, passes:15, iterations:100, no_below:2, no_above:0.5, ...params}),
+        signal:opts.signal
       });
       if(!r.ok){ const t=await r.text(); throw new Error(t); }
       return r.json();

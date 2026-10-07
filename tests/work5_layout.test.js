@@ -112,7 +112,7 @@ ok('渲染用全局 primary 类', classes.some(c => String(c).split(' ').include
 ok('渲染无 .btn 自定义类残留', !classes.some(c => String(c).split(' ').includes('btn')));
 const txt = collectText(sec);
 ok('渲染含成稿检查面板', txt.includes('成稿检查'));
-ok('渲染含「去改 →」来源回链', txt.includes('去改 →'));
+ok('渲染含「去 Work 」来源回链', txt.includes('去 Work '));
 ok('眉标全删（无 CHAPTER / Global Brand Workshop / V / 01）',
   !txt.includes('CHAPTER') && !txt.includes('Global Brand Workshop') && !txt.includes('V / '));
 ok('国标编号章节标题（1 业务与市场 / 1.1 小节）',

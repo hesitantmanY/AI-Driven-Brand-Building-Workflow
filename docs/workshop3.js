@@ -29,6 +29,8 @@ Work3.DEFAULT_IMPLEMENTABILITY_DIMS = [
 ];
 
 Work3.defaultData = () => ({
+  _scenariosGenerated:false,
+  _painMapGenerated:false,
   // 上游接入（只读回显 + 场景细分）
   context: {
     sbuName:'', sbuOneLine:'',
@@ -139,8 +141,6 @@ Work3.renderStep = function(id){
   // RENDER_VERSION guard（契约在 UI.mountGuard，2026-09-01 候选 4）
   if(!UI.mountGuard(sec, Work3, id)) return;
   Work3.syncContext();
-  // 老数据 persona 评分只有 desirabilityScores、维度列没回填聚合值 → 先补，MVO 才能判分
-  if(typeof Work3.ensureDesirabilityAggregates==='function') Work3.ensureDesirabilityAggregates();
   sec.innerHTML='';
   const idx3 = Work3.steps.findIndex(s=>s.id===id);
   sec.appendChild(el('div',{class:'sub-head'},
@@ -161,7 +161,7 @@ Work3.renderStep = function(id){
   UI.mountMark(sec, Work3);
 };
 // Bump when changing render output so cached steps re-render.
-Work3.RENDER_VERSION = '3';
+Work3.RENDER_VERSION = '4';
 // Forced redraw (clear cache + re-render).
 Work3.rerender=function(id){
   const sec=document.querySelector('#steps3 .step[data-step="'+id+'"]');
@@ -172,6 +172,110 @@ Work3.rerender=function(id){
 // Global refreshDynamic: default behavior invalidates cache on any id change.
 Work3.refreshDynamic=function(id){
   Work3.rerender(id);
+};
+
+/* 删除后只清理确实指向该对象的引用，其他填写与评分继续保留。 */
+Work3.deleteChanged = function(step){
+  if(typeof document.querySelectorAll==='function'){
+    document.querySelectorAll('#steps3 .step, #steps4 .step, #steps5 .step').forEach(sec=>{sec.dataset.rendered='0';});
+  }
+  autosave(); Work3.rerender(step);
+  if(typeof App!=='undefined' && typeof App.updateSummary==='function') App.updateSummary();
+};
+Work3.deleteName = function(type,item,index,list,nameOf){
+  return Interaction.objectName(type,nameOf(item),index,list,nameOf);
+};
+Work3.removeScenario = function(index,trigger){
+  const w=state.work3, item=w.scenarios[index]; if(!item) return Promise.resolve(false);
+  const pains=(w.mining.painMap||[]).filter(p=>p.scenarioId===item.id);
+  const candidates=(w.candidates||[]).filter(c=>c.scenarioId===item.id);
+  const impact=pains.length||candidates.length
+    ? `将取消 ${pains.length} 条痛点、${candidates.length} 个备选卖点对该场景的关联。场景中的 ${(item.personaIds||[]).length} 个画像关联随场景删除；痛点、卖点及其已有评分和证据会保留。` : '';
+  return Interaction.removeItem({list:()=>state.work3.scenarios,index,type:'场景',
+    name:()=>Work3.deleteName('场景',item,index,w.scenarios,s=>s.name),impact,trigger,
+    onChange:()=>{
+      if(impact){
+        (w.mining.painMap||[]).forEach(p=>{if(p.scenarioId===item.id)p.scenarioId='';});
+        (w.candidates||[]).forEach(c=>{if(c.scenarioId===item.id)c.scenarioId='';});
+      }
+      Work3.deleteChanged('scenarios');
+    }});
+};
+Work3.removePain = function(index,trigger){
+  const w=state.work3, item=w.mining.painMap[index]; if(!item) return Promise.resolve(false);
+  const linked=w.candidates.filter(c=>c.painId===item.id || (!c.painId && Work3.resolvePainId(c.pain,true)===item.id));
+  const impact=linked.length ? `将解除 ${linked.length} 个备选卖点对该痛点的绑定。卖点中已有的痛点描述、证据和评分会保留；该痛点不再出现在痛点地图和下游证据中。` : '';
+  return Interaction.removeItem({list:()=>state.work3.mining.painMap,index,type:'痛点',
+    name:()=>Work3.deleteName('痛点',item,index,w.mining.painMap,p=>p.pain),impact,trigger,
+    onChange:()=>{
+      if(impact) linked.forEach(c=>{if(w.candidates.includes(c))c.painId='';});
+      Work3.deleteChanged('mining');
+    }});
+};
+Work3.hasCandidateScores = function(c){
+  const dims=[...state.work3.dimensions.desirability,...state.work3.dimensions.implementability];
+  return dims.some(d=>Work3.scoreValue(c[d.key])!=null) ||
+    Object.values(c.desirabilityScores||{}).some(sc=>Object.values(sc||{}).some(v=>Work3.scoreValue(v)!=null)) ||
+    Work3.scoreValue(c.reviewDes)!=null || Work3.scoreValue(c.reviewImp)!=null;
+};
+Work3.removeCandidate = function(index,trigger){
+  const w=state.work3, item=w.candidates[index]; if(!item) return Promise.resolve(false);
+  const manual=(w.matrix.manualSelected||[]).includes(item.id);
+  const core=(w.proposition.coreValueIds||[]).includes(item.id);
+  const analyses=(w.migration.analyses||[]).filter(a=>a.candidateId===item.id).length;
+  const checkpoints=(w._scoreDone||[]).filter(k=>String(k).split(':').at(-1)===item.id).length;
+  const scored=Work3.hasCandidateScores(item);
+  const impact=scored||manual||core||item.selected||analyses||checkpoints
+    ? `该卖点${scored?'已有评分，删除会移除它的评分和矩阵点位；':'会从矩阵及排名中移除；'}将清理${manual?'手动入选记录、':''}${core||item.selected?'核心卖点引用、':''}${analyses+' 条迁移分析和 '+checkpoints+' 个评分断点'}。其他卖点及已有主张、定位和正文保留，下游证据按剩余卖点更新。` : '';
+  return Interaction.removeItem({list:()=>state.work3.candidates,index,type:'备选卖点',
+    name:()=>Work3.deleteName('备选卖点',item,index,w.candidates,c=>c.name),impact,trigger,
+    onChange:()=>{
+      if(impact){
+        w.matrix.manualSelected=(w.matrix.manualSelected||[]).filter(id=>id!==item.id);
+        w.proposition.coreValueIds=(w.proposition.coreValueIds||[]).filter(id=>id!==item.id);
+        w.migration.analyses=(w.migration.analyses||[]).filter(a=>a.candidateId!==item.id);
+        w._scoreDone=(w._scoreDone||[]).filter(k=>String(k).split(':').at(-1)!==item.id);
+      }
+      Work3.deleteChanged('candidates');
+    }});
+};
+Work3.removeDimension = function(axis,index,trigger){
+  const w=state.work3, dims=w.dimensions[axis], item=dims[index]; if(!item) return Promise.resolve(false);
+  if(dims.length<=1){showToast('每侧至少保留 1 个维度');return Promise.resolve(false);}
+  const label=axis==='desirability'?'合意性':'可实施性';
+  const scored=w.candidates.filter(c=>Work3.scoreValue(c[item.key])!=null ||
+    Object.values(c.desirabilityScores||{}).some(sc=>Work3.scoreValue(sc?.[item.key])!=null)).length;
+  return Interaction.removeItem({list:()=>state.work3.dimensions[axis],index,type:'评分维度',
+    name:()=>Work3.deleteName('评分维度',item,index,dims,d=>d.label),trigger,
+    impact:`这是${label}维度。将删除 ${scored} 个卖点中该维度的评分及 persona 子分，移除该维度的来源标记。本轴评分断点、复盘覆盖分和现有迁移分析将失效；矩阵按剩余维度重新计算，另一轴的维度和评分保留。`,
+    onChange:()=>{
+      w.candidates.forEach(c=>{
+        delete c[item.key]; delete c['src_'+item.key];
+        if(c.extraDims)delete c.extraDims[item.key];
+        Object.values(c.desirabilityScores||{}).forEach(sc=>{if(sc)delete sc[item.key];});
+        delete c[axis==='desirability'?'reviewDes':'reviewImp'];
+      });
+      const prefix=axis==='desirability'?'d:':'i:';
+      w._scoreDone=(w._scoreDone||[]).filter(k=>!String(k).startsWith(prefix));
+      w.migration.analyses=[]; w.migration.prompt='';
+      Work3.deleteChanged('matrix');
+    }});
+};
+Work3.removeAlternative = function(index,trigger){
+  const p=state.work3.proposition, item=p.alternatives[index]; if(!item) return Promise.resolve(false);
+  const selected=!!p.chosenValueText && item.text===p.chosenValueText;
+  return Interaction.removeItem({list:()=>state.work3.proposition.alternatives,index,type:'价值主张候选',
+    name:()=>Work3.deleteName('价值主张候选',item,index,p.alternatives,a=>a.text),trigger,
+    impact:selected?'这是已选定的价值主张。删除后将清除选定指针，下游不再将它作为选定主张；已有定位、表单及叙事正文保留。':'',
+    onChange:()=>{if(selected)p.chosenValueText='';Work3.deleteChanged('proposition');}});
+};
+Work3.removeSlogan = function(index,trigger){
+  const id=state.work3.identity, item=id.sloganOptions[index]; if(item==null) return Promise.resolve(false);
+  const selected=!!id.chosenSlogan && item===id.chosenSlogan;
+  return Interaction.removeItem({list:()=>state.work3.identity.sloganOptions,index,type:'Slogan',
+    name:()=>Work3.deleteName('Slogan',item,index,id.sloganOptions,s=>s),trigger,
+    impact:selected?'这是已选定的 Slogan。删除后将清除选定指针，下游不再将它作为选定 Slogan；已有品牌人格、表单及叙事正文保留。':'',
+    onChange:()=>{if(selected)id.chosenSlogan='';Work3.deleteChanged('identity');}});
 };
 
 Work3.titles = {
@@ -217,8 +321,8 @@ Work3.mvo = {
         const named=state.work3.candidates.filter(c=>(c.name||'').trim());
         if(!named.length) return false;
         const ddims=state.work3.dimensions.desirability, idims=state.work3.dimensions.implementability;
-        const hasDesirability = c => ddims.every(d=>c[d.key]!=null) || Object.keys(c.desirabilityScores||{}).length>0;
-        const hasImplementability = c => idims.every(d=>c[d.key]!=null);
+        const hasDesirability = c => ddims.length>0 && ddims.every(d=>Work3.desirabilityDimensionValue(c,d)!=null);
+        const hasImplementability = c => idims.length>0 && idims.every(d=>Work3.scoreValue(c[d.key])!=null);
         return named.every(c=>hasDesirability(c) && hasImplementability(c));
       }},
       {label:'已确定扇面内的入选卖点', test:()=>state.work3.candidates.some(c=>c.selected)}
@@ -272,7 +376,7 @@ Work3.render.scenarios = function(sec){
   // 主按键：AI 起草场景细分（1 单元）
   const {box} = API.aiCtxBox({
     workId:'work3', needs:['sbu','personas','markets'], fewShotKey:'work3.scenarios',
-    label: state.work3.scenarios.length ? '重新生成场景细分' : 'AI 起草场景细分',
+    label: state.work3._scenariosGenerated ? '重新生成场景细分' : 'AI 起草场景细分',
     system:'你是市场研究专家。请把客户画像与使用场景翻译为 3–5 个"目标市场细分场景"（不是产品使用情境），每个场景须：客群规模可估算、痛点可被现有产品功能命中、竞品未垄断心智。为每个场景给需求强度三维分（1–10）：pain 痛点真实度 / willingness 支付意愿 / frequency 决策频率；关联 1–2 个最匹配的画像 id；默认标记 3 个主战场（selected=true）。',
     instruction:()=>{
       const w1 = state.work1;
@@ -284,6 +388,7 @@ Work3.render.scenarios = function(sec){
     onResult:(r,raw,mode)=>{
       if(!r?.scenarios?.length){ showToast('AI 未返回场景，已保留原值'); return; }
       // 2026-08-29 重新生成语义：已生成 → 按钮变「重新生成」，点击直接整组替换（不确认）
+      state.work3._scenariosGenerated = true;
       state.work3.scenarios = r.scenarios.map(s=>({
         id:uid('sc'), name:(s.name||'').slice(0,24), description:s.description||'',
         personaIds:s.personaIds||[], needStrength:{pain:s.needStrength?.pain||5, willingness:s.needStrength?.willingness||5, frequency:s.needStrength?.frequency||5},
@@ -301,7 +406,7 @@ Work3.render.scenarios = function(sec){
     card.appendChild(el('div',{style:{display:'flex',gap:'10px',alignItems:'center'}},
       el('input',{value:s.name,placeholder:'场景名（≤12 字）',style:{flex:1,fontFamily:'var(--font-display)',fontStyle:'normal',fontSize:'18px'},oninput:e=>{s.name=e.target.value;autosave()}}),
       el('label',{class:'ai-settings-check'}, (()=>{const cb=el('input',{type:'checkbox',checked:s.selected});cb.style.width='auto';cb.addEventListener('change',()=>{s.selected=cb.checked;autosave();Work3.rerender('scenarios');});return cb;})(), ' 主战场'),
-      el('button',{class:'ghost small',onclick:()=>{state.work3.scenarios.splice(i,1);autosave();Work3.rerender('scenarios')}},'×')));
+      el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work3.removeScenario(i,e.currentTarget)},'场景',()=>s.name,i,()=>state.work3.scenarios,x=>x.name),'×')));
     card.appendChild(el('textarea',{rows:2,placeholder:'描述：客群 / 规模 / 痛点命中 / 竞品空档',style:{marginTop:'6px'},oninput:e=>{s.description=e.target.value;autosave()}},s.description));
     // 需求强度三维滑块
     const sliders = el('div',{class:'grid3',style:'margin-top:8px'});
@@ -330,6 +435,55 @@ Work3.render.scenarios = function(sec){
 };
 
 /* ---------- 2. 卖点挖掘 ---------- */
+/* 语料/参数变化后，上次 LDA 结果不再代表当前 corpus；立即失效，避免旧统计/构成被当现状。 */
+Work3.invalidateLda = function(){
+  const m=state.work3.mining;
+  m.ldaResult=null; m.stats=null; m.topics=[]; m.wordFreqTop=[]; m.corpusComposition=null;
+  m._simulated=false; m.ldaError=null;
+  (m.painMap||[]).forEach(p=>{ p.linkedTopicId=null; });
+};
+Work3.corpusCounts = function(){
+  const m=state.work3.mining, themes=state.work1?.analysis?.openThemes||[];
+  const localReal=(m.documents||[]).length, simulated=(m.simulatedDocuments||[]).length;
+  const openAvailable=themes.reduce((n,t)=>n+(t.texts||[]).length,0);
+  const themesAvailable=themes.reduce((n,t)=>n+(t.themes||[]).length,0);
+  const openUsed=m.includeWork1Open?openAvailable:0, themesUsed=m.includeWork1Themes?themesAvailable:0;
+  const realUsed=localReal+openUsed+themesUsed, simulatedUsed=m.includeSimulated!==false?simulated:0;
+  return {localReal,simulated,openAvailable,themesAvailable,openUsed,themesUsed,realUsed,simulatedUsed,total:realUsed+simulatedUsed};
+};
+Work3.simulatedStatus = function(){
+  const m=state.work3.mining;
+  if(!(m.simulatedDocuments||[]).length)return '当前无模拟语料';
+  return m.includeSimulated!==false?'模拟语料仍参与建模':'模拟语料未参与建模';
+};
+Work3.clearCorpus = async function(source,trigger){
+  const w=state.work3,m=w.mining,real=(m.documents||[]).length,sim=(m.simulatedDocuments||[]).length;
+  if(state.meta?.isDemo||state.meta?.demoCase)return false;
+  const local=source==='real',target=local?'本地真实语料':'模拟语料';
+  const message=local
+    ? `将删除当前 Work3 手动添加或导入的 ${real} 条真实语料。${sim} 条模拟语料会保留，当前${m.includeSimulated!==false?'仍参与建模':'未参与建模'}；Work1 开放题/主题不会删除，仍按各自勾选状态参与建模。`
+    : `将删除 ${sim} 条模拟语料；${real} 条本地真实语料会保留。Work1 开放题/主题不会删除，仍按各自勾选状态参与建模。`;
+  if(!await Interaction.confirm({title:'清空'+target+'？',message:message+' 旧 LDA 结果将失效，主题关联将清除；此操作不可撤销。',confirmLabel:'清空'+target,trigger}))return false;
+  if(w!==state.work3||state.meta?.isDemo||state.meta?.demoCase)return false;
+  const key=local?'documents':'simulatedDocuments',count=(m[key]||[]).length;
+  m[key]=[]; Work3.invalidateLda(); Work3.deleteChanged('mining');
+  const remaining=Work3.corpusCounts();
+  showToast(`已清空${target} ${count} 条。剩余本地真实 ${remaining.localReal} 条、模拟 ${remaining.simulated} 条；${Work3.simulatedStatus()}。Work1 开放题/主题保留，仍按各自勾选状态参与建模。`,7000);
+  return true;
+};
+Work3.removeDocument = function(source,index,trigger){
+  const local=source==='real',key=local?'documents':'simulatedDocuments',m=state.work3.mining;
+  if(index<0||index>=(m[key]||[]).length)return Promise.resolve(false);
+  const type=local?'真实语料':'模拟语料',text=String(m[key][index]);
+  return Interaction.removeItem({list:()=>state.work3.mining[key],index,type,name:'第 '+(index+1)+' 条',trigger,
+    impact:`来源：${local?'Work3 手动添加/导入的本地真实语料':'画像生成的模拟语料'}。文本摘要：「${text.slice(0,100)}${text.length>100?'…':''}」。删除 1 条后旧 LDA 结果将失效，痛点的主题关联将清除；其他语料来源及其纳入勾选保留。`,
+    onChange:()=>{Work3.invalidateLda();Work3.deleteChanged('mining');}});
+};
+Work3.compositionText = function(comp){
+  const real=Number(comp?.real)||0,simulated=Number(comp?.simulated)||0,total=real+simulated;
+  const percent=n=>total?(n/total*100).toFixed(1):'0.0';
+  return `实际建模语料构成：真实 ${real} 条（${percent(real)}%）+ 模拟 ${simulated} 条（${percent(simulated)}%），共 ${total} 条`;
+};
 Work3.render.mining = function(sec){
   const plate = sec.querySelector('.plate');
   const m=state.work3.mining;
@@ -338,7 +492,9 @@ Work3.render.mining = function(sec){
   plate.appendChild(el('h4',{},'语料输入'));
   const docsCard=el('div',{class:'plate'});
   const simCount=(m.simulatedDocuments||[]).length;
-  docsCard.appendChild(el('span',{class:'plate-label'}, simCount? `真实 ${m.documents.length} 条 + 模拟 ${simCount} 条` : `${m.documents.length} 条文档`));
+  const counts=Work3.corpusCounts();
+  docsCard.appendChild(el('span',{class:'plate-label'},`本地真实 ${counts.localReal} 条 + 模拟 ${counts.simulated} 条（${Work3.simulatedStatus()}）`));
+  docsCard.appendChild(el('p',{class:'hint'},`Work1 上游真实来源：开放题 ${counts.openAvailable} 条（${m.includeWork1Open?'按勾选纳入 '+counts.openUsed+' 条':'未纳入'}）；主题 ${counts.themesAvailable} 条（${m.includeWork1Themes?'按勾选纳入 '+counts.themesUsed+' 条':'未纳入'}）。当前实际纳入真实 ${counts.realUsed} 条 + 模拟 ${counts.simulatedUsed} 条，共 ${counts.total} 条。`));
   const docList=el('div',{style:{maxHeight:'180px',overflow:'auto',marginBottom:'10px'}});
   function renderDocs(){
     docList.innerHTML='';
@@ -346,7 +502,7 @@ Work3.render.mining = function(sec){
       docList.appendChild(el('div',{style:{display:'flex',gap:'8px','align-items':'flex-start',padding:'4px 0',borderBottom:'1px solid var(--color-rule)'}},
         el('span',{class:'mono',style:{'font-size':'11px',color:'var(--color-ink-2)','min-width':'28px'}}, '#'+(i+1)),
         el('div',{style:{flex:1,'font-size':'13px'}}, d.slice(0,180)+(d.length>180?'…':'')),
-        el('button',{class:'ghost small',onclick:()=>{m.documents.splice(i,1);autosave();renderDocs();}},'×')));
+        el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work3.removeDocument('real',i,e.currentTarget)},'真实语料','第 '+(i+1)+' 条',i,()=>m.documents),'×')));
     });
     if(m.documents.length>50) docList.appendChild(el('p',{class:'hint'},`还有 ${m.documents.length-50} 条未显示`));
   }
@@ -357,22 +513,22 @@ Work3.render.mining = function(sec){
   docsCard.appendChild(el('div',{class:'ai-actions',style:{'margin-top':'8px'}},
     el('button',{onclick:()=>{
       const lines=paste.value.split(/\n\s*\n|\n/).map(s=>s.trim()).filter(Boolean);
-      m.documents.push(...lines); paste.value=''; autosave(); renderDocs();
+      m.documents.push(...lines); paste.value=''; Work3.invalidateLda(); autosave(); Work3.rerender('mining');
     }},'添加到语料'),
     el('label',{class:'ghost',title: backendOnline ? '' : '需要启动本地服务才可导入，当前不可用',
       style:{display:'inline-flex',alignItems:'center',gap:'6px',cursor: backendOnline ? 'pointer' : 'not-allowed',opacity: backendOnline ? 1 : .5,'font-family':'var(--font-mono)','font-size':'11px','letter-spacing':'.15em','padding':'9px 16px'}},
       backendOnline ? '导入 Excel/CSV' : '导入 Excel/CSV（需本地服务）',
       el('input',{type:'file',accept:'.xlsx,.xls,.csv,.txt',style:{display:'none'},onchange:e=>Work3.importExcel(e.target.files[0],renderDocs)})
     ),
-    el('button',{class:'ghost',onclick:()=>{ if(confirm('清空全部语料？')){m.documents=[];autosave();renderDocs();}}},'清空')
+    el('button',{class:'ghost danger',onclick:e=>Work3.clearCorpus('real',e.currentTarget)},'清空本地真实语料')
   ));
   plate.appendChild(docsCard);
 
   // 模拟语料生成（2026-08-29 共识：真实 <3 补足；足量后作补充参与建模，可勾选退出）
   const simGen = el('div',{class:'ai-box',style:{margin:'12px 0 0'}});
   const simMid = el('div',{class:'ai-box-mid'});
-  if(m.documents.length<3) simMid.appendChild(el('p',{class:'hint',style:{margin:'0 0 8px'}},'真实语料不足 3 条：可生成模拟语料补足后建模，模拟产出会全程标注。'));
-  const simBtn = el('button',{class:'ghost'}, simCount?'重新生成模拟语料':'生成模拟语料（基于画像）');
+  if(counts.total<3) simMid.appendChild(el('p',{class:'hint',style:{margin:'0 0 8px'}},`当前纳入真实 ${counts.realUsed} 条、模拟 ${counts.simulatedUsed} 条，共 ${counts.total} 条，不足 3 条：可生成模拟语料补足后建模，模拟产出会全程标注。`));
+  const simBtn = el('button',{class:'primary'}, simCount?'重新生成模拟语料':'生成模拟语料（基于画像）');
   simMid.appendChild(simBtn);
   simMid.appendChild(el('label',{style:{display:'flex',gap:'6px','align-items':'center','font-family':'var(--font-body)','text-transform':'none','letter-spacing':0,'font-size':'13px','margin-top':'6px'}},
     el('input',{type:'checkbox',checked:m.includeNegative!==false,onchange:e=>{m.includeNegative=e.target.checked;autosave();}}),
@@ -392,16 +548,16 @@ Work3.render.mining = function(sec){
     head.appendChild(el('span',{class:'plate-label'},`模拟语料（画像生成 ${simCount} 条）`));
     head.appendChild(el('span',{class:'tag'},'模拟'));
     head.appendChild(el('label',{style:{display:'flex',gap:'6px','align-items':'center','font-family':'var(--font-body)','text-transform':'none','letter-spacing':0,'font-size':'13px'}},
-      el('input',{type:'checkbox',checked:m.includeSimulated!==false,onchange:e=>{m.includeSimulated=e.target.checked;autosave();Work3.rerender('mining');}}),
+      el('input',{type:'checkbox',checked:m.includeSimulated!==false,onchange:e=>{m.includeSimulated=e.target.checked;Work3.invalidateLda();autosave();Work3.rerender('mining');}}),
       '建模时包含模拟语料（默认勾选，可取消）'));
-    head.appendChild(el('button',{class:'ghost small',onclick:()=>{ if(confirm('清空全部模拟语料？')){ m.simulatedDocuments=[]; autosave(); Work3.rerender('mining'); }}},'清空'));
+    head.appendChild(el('button',{class:'ghost small danger',onclick:e=>Work3.clearCorpus('simulated',e.currentTarget)},'清空模拟语料'));
     simCard.appendChild(head);
     const simList=el('div',{style:{maxHeight:'180px',overflow:'auto',marginBottom:'10px'}});
     m.simulatedDocuments.slice(0,50).forEach((d,i)=>{
       simList.appendChild(el('div',{style:{display:'flex',gap:'8px','align-items':'flex-start',padding:'4px 0',borderBottom:'1px solid var(--color-rule)'}},
         el('span',{class:'mono',style:{'font-size':'11px',color:'var(--color-ink-2)','min-width':'28px'}}, '#'+(i+1)),
         el('div',{style:{flex:1,'font-size':'13px'}}, d.slice(0,180)+(d.length>180?'…':'')),
-        el('button',{class:'ghost small',onclick:()=>{m.simulatedDocuments.splice(i,1);autosave();Work3.rerender('mining');}},'×')));
+        el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work3.removeDocument('simulated',i,e.currentTarget)},'模拟语料','第 '+(i+1)+' 条',i,()=>m.simulatedDocuments),'×')));
     });
     if(m.simulatedDocuments.length>50) simList.appendChild(el('p',{class:'hint'},`还有 ${m.simulatedDocuments.length-50} 条未显示`));
     simCard.appendChild(simList);
@@ -410,10 +566,10 @@ Work3.render.mining = function(sec){
 
   // 包含 Work 1 勾选 + LDA 参数（折叠高级区）
   const inc1=el('label',{style:{display:'flex',gap:'8px','align-items':'center','font-family':'var(--font-body)','text-transform':'none','letter-spacing':0}},
-    el('input',{type:'checkbox',checked:m.includeWork1Open,onchange:e=>{m.includeWork1Open=e.target.checked;autosave()}}),
+    el('input',{type:'checkbox',checked:m.includeWork1Open,onchange:e=>{m.includeWork1Open=e.target.checked;Work3.invalidateLda();autosave();Work3.rerender('mining')}}),
     '包含 Work 1 开放题答案');
   const inc2=el('label',{style:{display:'flex',gap:'8px','align-items':'center','font-family':'var(--font-body)','text-transform':'none','letter-spacing':0}},
-    el('input',{type:'checkbox',checked:m.includeWork1Themes,onchange:e=>{m.includeWork1Themes=e.target.checked;autosave()}}),
+    el('input',{type:'checkbox',checked:m.includeWork1Themes,onchange:e=>{m.includeWork1Themes=e.target.checked;Work3.invalidateLda();autosave();Work3.rerender('mining')}}),
     '包含 Work 1 主题文本');
   plate.appendChild(el('div',{class:'row',style:{'max-width':'560px'}}, inc1, inc2));
 
@@ -421,18 +577,18 @@ Work3.render.mining = function(sec){
   adv.appendChild(el('summary',{class:'hint',style:'cursor:pointer'},'LDA 高级参数'));
   const p=m.ldaParams;
   adv.appendChild(el('div',{class:'grid4'},
-    UI.field('K 主题数', el('input',{type:'number',min:2,max:15,value:p.k,oninput:e=>{p.k=parseInt(e.target.value);autosave()}})),
-    UI.field('passes', el('input',{type:'number',min:1,max:50,value:p.passes,oninput:e=>{p.passes=parseInt(e.target.value);autosave()}})),
-    UI.field('iterations', el('input',{type:'number',min:10,max:500,value:p.iterations,oninput:e=>{p.iterations=parseInt(e.target.value);autosave()}})),
-    UI.field('no_below', el('input',{type:'number',min:1,max:20,value:p.no_below,oninput:e=>{p.no_below=parseInt(e.target.value);autosave()}}))
+    UI.field('K 主题数', el('input',{type:'number',min:2,max:15,value:p.k,oninput:e=>{p.k=parseInt(e.target.value);Work3.invalidateLda();autosave()}})),
+    UI.field('passes', el('input',{type:'number',min:1,max:50,value:p.passes,oninput:e=>{p.passes=parseInt(e.target.value);Work3.invalidateLda();autosave()}})),
+    UI.field('iterations', el('input',{type:'number',min:10,max:500,value:p.iterations,oninput:e=>{p.iterations=parseInt(e.target.value);Work3.invalidateLda();autosave()}})),
+    UI.field('no_below', el('input',{type:'number',min:1,max:20,value:p.no_below,oninput:e=>{p.no_below=parseInt(e.target.value);Work3.invalidateLda();autosave()}}))
   ));
-  adv.appendChild(UI.field('no_above', el('input',{type:'number',min:0.1,max:1,step:0.05,value:p.no_above,oninput:e=>{p.no_above=parseFloat(e.target.value);autosave()}})));
+  adv.appendChild(UI.field('no_above', el('input',{type:'number',min:0.1,max:1,step:0.05,value:p.no_above,oninput:e=>{p.no_above=parseFloat(e.target.value);Work3.invalidateLda();autosave()}})));
   plate.appendChild(adv);
 
   // 主按键：AI 起草痛点地图（2 单元流水线：确保主题 → 痛点地图）
   const aiBox = el('div',{class:'ai-box'});
   const mid = el('div',{class:'ai-box-mid'});
-  const painBtn = el('button',{class:'primary'}, m.painMap.length ? '重新生成痛点地图' : 'AI 起草痛点地图');
+  const painBtn = el('button',{class:'primary'}, state.work3._painMapGenerated ? '重新生成痛点地图' : 'AI 起草痛点地图');
   mid.appendChild(painBtn);
   const handle = (typeof AiContext!=='undefined')
     ? AiContext.mountSettings(mid,{workId:'work3', needs:['sbu','personas','scenarios'], fewShotKey:'work3.painmap',
@@ -448,6 +604,7 @@ Work3.render.mining = function(sec){
   if(m.stats){
     plate.appendChild(el('hr',{class:'rule'}));
     plate.appendChild(el('h4',{},'LDA 结果'));
+    if(m.corpusComposition)plate.appendChild(el('p',{class:'hint'},Work3.compositionText(m.corpusComposition)));
     if(m._simulated || (m.corpusComposition && m.corpusComposition.simulated>0)){
       const badges=el('div',{style:{display:'flex',gap:'8px','align-items':'center',margin:'0 0 10px',flexWrap:'wrap'}});
       if(m._simulated) badges.appendChild(el('span',{class:'tag'},'模拟建模（LLM）'));
@@ -471,7 +628,7 @@ Work3.render.mining = function(sec){
       plate.appendChild(wf);
     }
     plate.appendChild(el('h5',{},`${m.topics.length} 个主题`));
-    m.topics.forEach(t=>{
+    Work3.markEvidenceSources(m.topics,Work3.collectDocsLabeled()).forEach(t=>{
       const card=el('div',{class:'card',style:{'margin-bottom':'12px'}});
       card.appendChild(el('div',{},
         el('input',{type:'text',value:t.label||('主题 '+(t.id+1)),oninput:e=>{t.label=e.target.value;autosave()},
@@ -507,11 +664,11 @@ Work3.render.mining = function(sec){
       tr.appendChild(el('td',{},el('select',{onchange:e=>{p.type=e.target.value;autosave()}},
         ...['痛点','痒点'].map(v=>{const o=el('option',{value:v},v);if(p.type===v)o.selected=true;return o;}))));
       tr.appendChild(el('td',{},Work3.scenarioSelect(p.scenarioId, v=>{p.scenarioId=v;autosave();})));
-      const needs=UI.tagsInput(p.linkedNeeds||[]);
+      const needs=UI.tagsInput(()=>p.linkedNeeds||[], '输入后回车添加', next=>{p.linkedNeeds=next;autosave();});
       needs.el.querySelector('input').addEventListener('blur',()=>{p.linkedNeeds=needs.get();autosave()});
       needs.el.style.fontSize='11px';
       tr.appendChild(el('td',{},needs.el));
-      tr.appendChild(el('td',{},el('button',{class:'ghost small',onclick:()=>{m.painMap.splice(i,1);autosave();Work3.rerender('mining')}},'×')));
+      tr.appendChild(el('td',{},el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work3.removePain(i,e.currentTarget)},'痛点',()=>p.pain,i,()=>m.painMap,x=>x.pain),'×')));
       tb.appendChild(tr);
     });
     t.appendChild(tb);table.appendChild(t);plate.appendChild(table);
@@ -598,7 +755,8 @@ Work3.importExcel = async function(file, renderDocs){
     const texts = result.rows.map(r=>String(r[col]||'')).filter(t=>t.trim().length>10);
     if(confirm(`将导入 ${texts.length} 条文本（列：${col}），是否继续？`)){
       m.documents.push(...texts);
-      autosave(); renderDocs();
+      Work3.invalidateLda();
+      autosave(); Work3.rerender('mining');
       showToast('已导入 '+texts.length+' 条');
     }
   }catch(e){ showToast('导入失败: '+e.message); }
@@ -629,16 +787,21 @@ Work3.simUserPrompt = function(){
     : '（无真实语料，直接基于画像与场景生成）';
 };
 Work3.generateSimulatedDocs = async function(btn, container, cfg){
-  const m=state.work3.mining;
+  const workspace=state,m=state.work3.mining;
+  const isCurrent=()=>state===workspace && state.work3.mining===m && !(state.meta?.isDemo||state.meta?.demoCase);
+  if(!isCurrent())return false;
   const useManual = state.settings.manualMode || !API.config().apiKey;
   const apply = (r)=>{
+    if(!isCurrent())return false;
     const list = (Array.isArray(r?.documents)?r.documents:[])
       .map(x=>typeof x==='string'?x:(x?.text||'')).map(s=>String(s).trim()).filter(s=>s.length>3);
-    if(!list.length){ showToast('生成失败：未解析到模拟语料'); return; }
+    if(!list.length){ showToast('生成失败：未解析到模拟语料'); return false; }
     m.simulatedDocuments = list;
+    Work3.invalidateLda();
     autosave();
     Work3.rerender('mining');
     showToast('已生成模拟语料 '+list.length+' 条（标注「模拟」）');
+    return true;
   };
   const system = Work3.simSystemPrompt();
   const user = Work3.simUserPrompt();
@@ -646,16 +809,23 @@ Work3.generateSimulatedDocs = async function(btn, container, cfg){
     API.manualBox(container, system + '\n\n' + user, apply, {title:'生成模拟语料（基于画像）'});
     return;
   }
-  if(btn){ btn.disabled=true; btn.textContent='生成中…'; }
+  const task=Runner.start({id:'work3-simulated-corpus',label:'模拟语料',button:btn,pausable:false});
+  if(!task)return false;
   try{
     const messages = AiContext.buildPrompt({
       workId:'work3', sections:(cfg?.sections||['sbu','personas','scenarios','valueFramework']),
       system, instruction:user
     });
-    const r = await API.callJson(messages);
-    apply(r);
-  }catch(e){ showToast('生成模拟语料失败: '+e.message); }
-  finally{ if(btn){ btn.disabled=false; btn.textContent = m.simulatedDocuments.length?'重新生成模拟语料':'生成模拟语料（基于画像）'; } }
+    const r = await API.callJson(messages,{signal:task.controller.signal});
+    if(task.aborted || !isCurrent())return false;
+    return apply(r);
+  }catch(e){
+    if(isCurrent())showToast(task.aborted||e?.name==='AbortError'?'已中止':'生成模拟语料失败: '+e.message);
+    return false;
+  }finally{
+    if(Runner.current===task)Runner.finish();
+    if(isCurrent() && btn){btn.textContent=m.simulatedDocuments.length?'重新生成模拟语料':'生成模拟语料（基于画像）';}
+  }
 };
 
 /* 收集 LDA 语料（本地粘贴/导入 + Work 1 按勾选 + 模拟语料按 includeSimulated 并入） */
@@ -667,56 +837,87 @@ Work3.collectDocs = function(){
    真实 = 粘贴/导入 + Work 1 开放题/主题（按勾选）；模拟 = 画像生成（按 includeSimulated）。 */
 Work3.collectDocsLabeled = function(){
   const m=state.work3.mining;
+  const themes=state.work1?.analysis?.openThemes||[];
   const out=[];
   (m.documents||[]).forEach(t=>out.push({text:t, source:'真实'}));
   if(m.includeWork1Open){
-    state.work1.analysis.openThemes.forEach(ot=>(ot.texts||[]).forEach(t=>out.push({text:t, source:'真实'})));
+    themes.forEach(ot=>(ot.texts||[]).forEach(t=>out.push({text:t, source:'真实'})));
   }
   if(m.includeWork1Themes){
-    state.work1.analysis.openThemes.forEach(ot=>{
+    themes.forEach(ot=>{
       (ot.themes||[]).forEach(t=>out.push({text:t.label+' '+(ot.question||''), source:'真实'}));
     });
   }
-  if(m.includeSimulated && (m.simulatedDocuments||[]).length){
+  if(m.includeSimulated!==false && (m.simulatedDocuments||[]).length){
     m.simulatedDocuments.forEach(t=>out.push({text:t, source:'模拟'}));
   }
   return out;
 };
 
-Work3.runLDA = async function(btn, silent){
-  const m=state.work3.mining;
+/* 代表文档只按本次原文精确匹配来源；生成的改写文本不冒认真实证据。 */
+Work3.markEvidenceSources = function(topics,labeled){
+  return (topics||[]).map(t=>({...t,representative_docs:(t.representative_docs||[]).map(value=>{
+    const text=String(value??'');
+    const body=text.replace(/^\[(真实|模拟|真实\/模拟|来源待核对)\]\s*/,'');
+    const exact=(labeled||[]).filter(d=>String(d.text)===text);
+    const matches=exact.length?exact:(labeled||[]).filter(d=>String(d.text)===body);
+    const sources=[...new Set(matches.map(d=>d.source))];
+    return '['+(sources.length?sources.join('/'):'来源待核对')+'] '+(exact.length?text:body);
+  })}));
+};
+
+Work3.runLDA = async function(btn, silent, taskHandle){
+  const workspace=state,m=state.work3.mining;
+  const isCurrent=()=>state===workspace && state.work3.mining===m && !(state.meta?.isDemo||state.meta?.demoCase);
+  if(!isCurrent())return false;
   const docs = Work3.collectDocs();
   if(docs.length<3){ showToast('语料不足 3 条：请提交真实语料，或先生成模拟语料补足'); return false; }
   const labeled = Work3.collectDocsLabeled();
   const simUsed = labeled.filter(x=>x.source==='模拟').length;
-  if(btn){ btn.disabled=true; btn.textContent='建模中…'; }
+  const params={...m.ldaParams},inputStamp=JSON.stringify([labeled,params]),useBackend=!!backendOnline;
+  const ownsTask=!taskHandle;
+  const task=taskHandle || Runner.start({id:'work3-lda',label:'主题建模',button:btn,pausable:false});
+  if(!task || task.aborted || (taskHandle && Runner.current!==taskHandle))return false;
+  const inputsCurrent=()=>isCurrent() && inputStamp===JSON.stringify([Work3.collectDocsLabeled(),m.ldaParams]);
+  Work3.invalidateLda();
+  autosave();
   try{
     let result;
-    if(backendOnline){
-      result=await Backend.lda(docs, m.ldaParams);
-      m._simulated = false;       // 真实 LDA（是否含模拟语料由 corpusComposition 标注）
+    if(useBackend){
+      result=await Backend.lda(docs, params,{signal:task.controller.signal});
     }else{
-      result=await Work3.llmLdaSim(docs, m.ldaParams.k);
-      m._simulated = true;  // UI 标注「模拟」
+      result=await Work3.llmLdaSim(docs, params.k,task.controller.signal);
     }
-    if(result.error){ m.ldaError=result.error; }
-    else{
+    if(task.aborted || !isCurrent())return false;
+    if(!inputsCurrent()){showToast('语料或建模参数已变化，未应用旧结果；请重新运行建模');return false;}
+    if(!result || typeof result!=='object')throw new Error('主题建模未返回有效结果');
+    m._simulated = !useBackend;
+    if(result.error){
+      Work3.invalidateLda();
+      m.ldaError=result.error;
+    } else{
       m.ldaError=null;
       m.stats=result.stats;
-      m.topics=result.topics;
+      m.topics=Work3.markEvidenceSources(result.topics,labeled);
       m.wordFreqTop=result.word_freq_top;
       m.corpusComposition = { real: labeled.length - simUsed, simulated: simUsed, total: docs.length };
     }
     autosave();
     return !result.error;
-  }catch(e){ m.ldaError=e.message; autosave(); return false; }
-  finally{ if(btn){ btn.disabled=false; btn.textContent='运行 LDA'; } }
+  }catch(e){
+    if(task.aborted || e?.name==='AbortError' || !inputsCurrent())return false;
+    Work3.invalidateLda();
+    m.ldaError=e.message;
+    autosave();
+    return false;
+  }
+  finally{if(ownsTask && Runner.current===task)Runner.finish();}
 };
 
-Work3.llmLdaSim = async function(docs, k){
+Work3.llmLdaSim = async function(docs, k, signal){
   const sys=`你是 LDA 主题建模模拟器。对给定的 ${docs.length} 条文档，模拟出 ${k} 个主题。输出 JSON: {"stats":{"raw_count":${docs.length},"valid_count":${docs.length},"total_words":0,"vocab_size":0,"coherence":0.5},"topics":[{"id":0,"label":"","share":20,"keywords":[{"word":"","weight":0.02}],"representative_docs":[""]}],"word_freq_top":[{"word":"","count":10}]}`;
   const sample=docs.slice(0,30).map((d,i)=>`${i+1}. ${d.slice(0,150)}`).join('\n');
-  const r=await API.callJson([{role:'system',content:sys},{role:'user',content:sample}]);
+  const r=await API.callJson([{role:'system',content:sys},{role:'user',content:sample}],{signal});
   if(!r) throw new Error('LLM 模拟返回空');
   r.topics=(r.topics||[]).slice(0,k).map((t,i)=>({id:i,label:t.label||'',share:t.share||Math.round(100/k),keywords:(t.keywords||[]).slice(0,12),representative_docs:(t.representative_docs||[]).slice(0,3)}));
   r.word_freq_top=r.word_freq_top||[];
@@ -763,7 +964,7 @@ Work3.runPainPipeline = async function(btn, container, cfg){
     if(!m.topics.length){
       const docs = Work3.collectDocs();
       if(docs.length<3){ Runner.finish(); showToast('语料不足 3 条：请提交真实语料，或先生成模拟语料补足'); return; }
-      const ok = await Work3.runLDA(null);
+      const ok = await Work3.runLDA(null,false,task);
       if(!ok || task.aborted){ if(!task.aborted) showToast('主题建模失败'); Runner.finish(); Work3.rerender('mining'); return; }
     }
     task.done=1; Runner.renderUI();
@@ -807,6 +1008,7 @@ Work3.applyPainResult = function(r){
     m.topics = r.topics.map((t,i)=>({id:t.id??i,label:t.label||('主题 '+(i+1)),share:t.share||Math.round(100/r.topics.length),keywords:(t.keywords||[]).map(k=>typeof k==='string'?{word:k,weight:0.05}:k),representative_docs:t.representative_docs||[]}));
   }
   if(r.pains){
+    state.work3._painMapGenerated = true;
     m.painMap = r.pains.map(p=>({id:uid('pain'),pain:p.pain||'',evidence:p.evidence||'',frequency:p.frequency||'中',linkedNeeds:p.linkedNeeds||[],linkedTopicId:p.linkedTopicId,type:p.type||'痛点',scenarioId: state.work3.scenarios.some(s=>s.id===p.scenarioId)? p.scenarioId : ''}));
   }
   autosave();
@@ -898,7 +1100,9 @@ Work3.render.candidates = function(sec){
     const selVal=Work3.candidatePainValue(c);
     painSel.appendChild(el('option',{value:''},'—'));
     state.work3.mining.painMap.forEach(p=>{const o=el('option',{value:p.id},p.pain+(p.type?' ('+p.type+')':''));if(selVal===p.id)o.selected=true;painSel.appendChild(o);});
-    painSel.appendChild(el('option',{value:'__custom'},'自定义…'));
+    const customOpt=el('option',{value:'__custom'},'自定义…');
+    if(selVal==='__custom') customOpt.selected=true;   // 自定义态必须在下拉可见，不能落回「—」
+    painSel.appendChild(customOpt);
     // 2026-09-01 修复：td 上直接设 display:flex 会覆盖 table-cell，整表列格错位、
     // 痛点列被挤空——flex 移到内层 div，td 保持表格单元。
     const painCell=el('td');
@@ -913,7 +1117,7 @@ Work3.render.candidates = function(sec){
     tr.appendChild(el('td',{},el('textarea',{rows:2,oninput:e=>{c.description=e.target.value;autosave()}},c.description)));
     tr.appendChild(el('td',{},el('input',{value:c.evidence||'',placeholder:'语料摘录 / N 篇评论提及 / 可验证依据',oninput:e=>{c.evidence=e.target.value;autosave()}})));
     tr.appendChild(el('td',{},Work3.scenarioSelect(c.scenarioId, v=>{c.scenarioId=v;autosave();})));
-    tr.appendChild(el('td',{},el('button',{class:'ghost small',onclick:()=>{cs.splice(i,1);autosave();Work3.rerender('candidates')}},'×')));
+    tr.appendChild(el('td',{},el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work3.removeCandidate(i,e.currentTarget)},'备选卖点',()=>c.name,i,()=>state.work3.candidates,x=>x.name),'×')));
     tb.appendChild(tr);
   });
   t.appendChild(tb);table.appendChild(t);plate.appendChild(table);
@@ -921,23 +1125,25 @@ Work3.render.candidates = function(sec){
 };
 
 /* ---------- 4. 评分与矩阵 ---------- */
-/* 把 per-persona desirabilityScores 的维度均值回填到 c[d.key]（三列显示 + MVO 判分）。
-   幂等：已有维度分的候选不动；返回是否发生变更。 */
+/* 评分求值保持只读：人工/AI 维度分优先，缺项才取当前 persona 子分均值。
+   旧 src_*='personas' 字段是历史缓存，不作为直接评分，以免画像删除后继续读旧均值。 */
+Work3.scoreValue = function(value){
+  if(value==null || value==='' || (typeof value==='string' && !value.trim()))return null;
+  const number=Number(value);
+  return Number.isFinite(number)?number:null;
+};
+Work3.desirabilityDimensionValue = function(c,d){
+  const direct=c['src_'+d.key]==='personas'?null:Work3.scoreValue(c[d.key]);
+  if(direct!=null)return direct;
+  const values=Object.values(c.desirabilityScores||{}).map(sc=>Work3.scoreValue(sc?.[d.key])).filter(v=>v!=null);
+  return values.length?mean(values):null;
+};
 Work3.ensureDesirabilityAggregates = function(){
-  const cs=state.work3.candidates;
-  const ddims=state.work3.dimensions.desirability;
-  let changed=false;
-  cs.forEach(c=>{
-    const scores=Object.values(c.desirabilityScores||{});
-    if(!scores.length) return;
-    ddims.forEach(d=>{
-      if(c[d.key]!=null) return;
-      const vals=scores.map(sc=>Number(sc[d.key])).filter(v=>!isNaN(v));
-      if(vals.length){ c[d.key]=mean(vals); c['src_'+d.key]='personas'; changed=true; }
-    });
+  return state.work3.candidates.map(c=>{
+    const view={...c};
+    state.work3.dimensions.desirability.forEach(d=>{view[d.key]=Work3.desirabilityDimensionValue(c,d);});
+    return view;
   });
-  if(changed) autosave();
-  return changed;
 };
 
 Work3.computeMatrix = function(){
@@ -947,21 +1153,15 @@ Work3.computeMatrix = function(){
   return cs.map(c=>{
     let des=0;
     // 2026-09-01 wayfinder map：W5 复盘覆盖分优先（直接写共享 state，W3 同步生效）。
-    if(c.reviewDes != null && !isNaN(Number(c.reviewDes))){
-      des = clamp(Number(c.reviewDes), 0, 10);
-    } else if(c.desirabilitySource==='personas' || Object.keys(c.desirabilityScores||{}).length){
-      const perPersonaMeans=Object.values(c.desirabilityScores||{}).map(sc=>{
-        const vals=ddims.map(d=>Number(sc[d.key])).filter(v=>!isNaN(v));
-        return vals.length?mean(vals):null;
-      }).filter(v=>v!=null);
-      des=perPersonaMeans.length?mean(perPersonaMeans):0;
+    if(Work3.scoreValue(c.reviewDes)!=null){
+      des = clamp(Work3.scoreValue(c.reviewDes), 0, 10);
     } else {
-      const vals=ddims.map(d=>Number(c[d.key])).filter(v=>!isNaN(v));
+      const vals=ddims.map(d=>Work3.desirabilityDimensionValue(c,d)).filter(v=>v!=null);
       des=vals.length?mean(vals):0;
     }
-    const ivals=idims.map(d=>Number(c[d.key])).filter(v=>!isNaN(v));
-    const imp = (c.reviewImp != null && !isNaN(Number(c.reviewImp)))
-      ? clamp(Number(c.reviewImp), 0, 10)
+    const ivals=idims.map(d=>Work3.scoreValue(c[d.key])).filter(v=>v!=null);
+    const imp = Work3.scoreValue(c.reviewImp)!=null
+      ? clamp(Work3.scoreValue(c.reviewImp), 0, 10)
       : (ivals.length?mean(ivals):0);
     return {...c, x:imp, y:des};
   });
@@ -1003,7 +1203,6 @@ Work3.render.matrix = function(sec){
   const plate = sec.querySelector('.plate');
   const cs=state.work3.candidates;
   if(!cs.filter(c=>(c.name||'').trim()).length){ plate.appendChild(el('div',{class:'warning'},'请先在「备选卖点」添加卖点。')); return; }
-  if(typeof Work3.ensureDesirabilityAggregates==='function') Work3.ensureDesirabilityAggregates();
 
   // 主按键：AI 起草双维评分（2 单元：合意性 → 可实施性）
   const aiBox = el('div',{class:'ai-box'});
@@ -1016,6 +1215,7 @@ Work3.render.matrix = function(sec){
     state.work3.dimensions.implementability.some(d=>c[d.key]!=null) ||
     Object.keys(c.desirabilityScores||{}).length>0);
   const scoreBtn = el('button',{class:'primary'}, scored ? '重新生成双维评分' : 'AI 起草双维评分');
+  scoreBtn._regenerate = scored;
   mid.appendChild(scoreBtn);
   const handle = (typeof AiContext!=='undefined')
     ? AiContext.mountSettings(mid,{workId:'work3', needs:['sbu','personas','differentiators'], fewShotKey:'work3.dims',
@@ -1045,14 +1245,14 @@ Work3.render.matrix = function(sec){
       const pMeans=state.work3.context.personas.map(p=>{
         const sc=c.desirabilityScores?.[p.id];
         if(!sc) return p.name.slice(0,2)+':—';
-        const m=mean(ddims.map(d=>Number(sc[d.key])||0));
-        return p.name.slice(0,2)+':'+m.toFixed(1);
+        const values=ddims.map(d=>Work3.scoreValue(sc[d.key])).filter(v=>v!=null);
+        return p.name.slice(0,2)+':'+(values.length?mean(values).toFixed(1):'—');
       });
       td.textContent=pMeans.join(' ');
       tr.appendChild(td);
     }
     [...ddims,...idims].forEach(d=>{
-      const v=c[d.key];
+      const v=ddims.includes(d)?Work3.desirabilityDimensionValue(c,d):Work3.scoreValue(c[d.key]);
       const src=c['src_'+d.key];
       const td=el('td',{class:'score-cell'});
       td.appendChild(el('input',{type:'number',min:0,max:10,step:0.1,value:v??'',oninput:e=>{c[d.key]=parseFloat(e.target.value);c['src_'+d.key]='user';autosave();}}));
@@ -1072,10 +1272,7 @@ Work3.render.matrix = function(sec){
       dimDet.appendChild(el('div',{style:{display:'flex',gap:'8px',marginBottom:'4px'}},
         el('input',{value:d.label,style:{width:'120px'},oninput:e=>{d.label=e.target.value;autosave()}}),
         el('input',{value:d.definition,style:{flex:1},oninput:e=>{d.definition=e.target.value;autosave()}}),
-        el('button',{class:'ghost small',onclick:()=>{
-          if(state.work3.dimensions[axis].length<=1){ showToast('每侧至少保留 1 个维度'); return; }
-          state.work3.dimensions[axis].splice(i,1);autosave();Work3.rerender('matrix');
-        }},'×')));
+        el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work3.removeDimension(axis,i,e.currentTarget)},'评分维度',()=>d.label,i,()=>state.work3.dimensions[axis],x=>x.label),'×')));
     });
     dimDet.appendChild(el('button',{class:'small ghost',onclick:()=>{state.work3.dimensions[axis].push({key:'dim_'+uid('d'),label:'新维度',definition:''});autosave();Work3.rerender('matrix')}},'+ 维度'));
   });
@@ -1226,16 +1423,18 @@ Work3.runDoubleScoring = async function(button, container, cfg){
     return;
   }
   // 2026-08-29 重新生成语义：已评分 → 清断点完整重跑（直接覆盖，不确认）
-  if(state.work3.candidates.some(c=>state.work3.dimensions.desirability.some(d=>c[d.key]!=null) ||
+  const hasScoredNow = state.work3.candidates.some(c=>state.work3.dimensions.desirability.some(d=>c[d.key]!=null) ||
                                     state.work3.dimensions.implementability.some(d=>c[d.key]!=null) ||
-                                    Object.keys(c.desirabilityScores||{}).length>0)){
+                                    Object.keys(c.desirabilityScores||{}).length>0);
+  const regenerating=!!((button && button._regenerate) || hasScoredNow);
+  if(regenerating){
     state.work3._scoreDone=[];
   }
   const task=Runner.start({id:'work3-double-score', label:'AI 起草双维评分', button,
     total:Work3._scorePending(), pausable:true});
   if(!task) return;
   try{
-    await Work3._scoreAxis('desirability', task);
+    await Work3._scoreAxis('desirability', task,regenerating);
     if(task.aborted) return;
     await Runner.checkpoint();
     await Work3._scoreAxis('implementability', task);
@@ -1260,7 +1459,7 @@ Work3._scorePending = function(){
 };
 
 /* 单轴细粒度评分循环（复用 _scoreDone 断点） */
-Work3._scoreAxis = async function(axis, task){
+Work3._scoreAxis = async function(axis, task,replaceDirect=false){
   const cs=state.work3.candidates.filter(c=>(c.name||'').trim());
   const personas=state.work3.context.personas;
   const hasSurvey=state.work3.context.hasSurvey;
@@ -1285,22 +1484,15 @@ Work3._scoreAxis = async function(axis, task){
           c.desirabilityScores=c.desirabilityScores||{};
           c.desirabilityScores[p.id]={};
           dims.forEach(d=>c.desirabilityScores[p.id][d.key]=clamp(Number(r[d.key])||0,0,10));
+          // 显式重新生成取得新子分后，移除上一轮直接维度结果；失败时原结果仍可用。
+          if(replaceDirect)dims.forEach(d=>{delete c[d.key];delete c['src_'+d.key];});
           c.desirabilitySource='personas';
         }
         doneSet.add(key); state.work3._scoreDone=[...doneSet]; autosave(); Runner.tick(1);
         try{ await Runner.checkpoint(); }catch(e){ return; }
       }
     }
-    // 回填各维度 persona 均值到 c[d.key]（三列显示 + MVO 判分，与演示数据一致）
-    cs.forEach(c=>{
-      const scores=Object.values(c.desirabilityScores||{});
-      if(!scores.length) return;
-      dims.forEach(d=>{
-        const vals=scores.map(sc=>Number(sc[d.key])).filter(v=>!isNaN(v));
-        if(vals.length){ c[d.key]=clamp(mean(vals),0,10); c['src_'+d.key]='personas'; }
-      });
-    });
-    autosave();
+    // display/MVO/矩阵在读取时求 persona 均值，不将聚合结果回写维度字段。
     return;
   }
   // AI 直评（无调研）或可实施性（企业视角）
@@ -1432,10 +1624,16 @@ Work3.render.proposition = function(sec){
   p.alternatives.forEach((a,i)=>{
     altBox.appendChild(el('div',{class:'card'+(a.text===p.chosenValueText?' selected':''),style:'margin-bottom:8px'},
       el('div',{style:{display:'flex','justify-content':'space-between','align-items':'flex-start',gap:'10px'}},
-        el('textarea',{rows:2,oninput:e=>{a.text=e.target.value;autosave()}},a.text),
+        el('textarea',{rows:2,oninput:e=>{
+          // 选定指针按值跟随：改名的是已选定候选时同步 chosenValueText，避免悬空
+          const wasChosen = !!p.chosenValueText && a.text===p.chosenValueText;
+          a.text=e.target.value;
+          if(wasChosen){ p.chosenValueText=e.target.value; App.updateSummary(); }
+          autosave();
+        }},a.text),
         el('div',{},
           el('button',{class:'small primary',onclick:()=>{p.chosenValueText=a.text;autosave();Work3.rerender('proposition');App.updateSummary()}},'选定'),
-          el('button',{class:'small ghost',onclick:()=>{p.alternatives.splice(i,1);autosave();Work3.rerender('proposition')}},'删除'))
+          el('button',Interaction.deleteButton({class:'small ghost',onclick:e=>Work3.removeAlternative(i,e.currentTarget)},'价值主张候选',()=>a.text,i,()=>p.alternatives,x=>x.text),'删除'))
     )));
   });
   plate.appendChild(altBox);
@@ -1541,7 +1739,7 @@ Work3.render.identity = function(sec){
   // 人格
   plate.appendChild(el('h4',{},'品牌人格'));
   plate.appendChild(UI.field('MBTI 类型', el('input',{value:id.mbti,oninput:e=>{id.mbti=e.target.value;autosave()}})));
-  const traits=UI.tagsInput(id.personalityTraits||[]);
+  const traits=UI.tagsInput(()=>id.personalityTraits||[], '输入后回车添加', next=>{id.personalityTraits=next;autosave();});
   traits.el.querySelector('input').addEventListener('blur',()=>{id.personalityTraits=traits.get();autosave()});
   plate.appendChild(UI.field('人格特质关键词', traits.el));
 
@@ -1551,10 +1749,16 @@ Work3.render.identity = function(sec){
   id.sloganOptions.forEach((s,i)=>{
     slogBox.appendChild(el('div',{class:'card'+(s===id.chosenSlogan?' selected':''),style:'margin-bottom:8px'},
       el('div',{style:{display:'flex','justify-content':'space-between','align-items':'center'}},
-        el('input',{value:s,oninput:e=>{id.sloganOptions[i]=e.target.value;autosave()}}),
+        el('input',{value:s,oninput:e=>{
+          // 选定指针按值跟随：改名已选定项时同步 chosenSlogan，避免悬空
+          const wasChosen = !!id.chosenSlogan && id.chosenSlogan===id.sloganOptions[i];
+          id.sloganOptions[i]=e.target.value;
+          if(wasChosen){ id.chosenSlogan=e.target.value; App.updateSummary(); }
+          autosave();
+        }}),
         el('div',{},
-          el('button',{class:'small primary',onclick:()=>{id.chosenSlogan=s;autosave();Work3.rerender('identity')}},'选定'),
-          el('button',{class:'small ghost',onclick:()=>{id.sloganOptions.splice(i,1);autosave();Work3.rerender('identity')}},'删除'))
+          el('button',{class:'small primary',onclick:()=>{id.chosenSlogan=id.sloganOptions[i];autosave();Work3.rerender('identity');App.updateSummary()}},'选定'),
+          el('button',Interaction.deleteButton({class:'small ghost',onclick:e=>Work3.removeSlogan(i,e.currentTarget)},'Slogan',()=>id.sloganOptions[i],i,()=>id.sloganOptions,s=>s),'删除'))
     )));
   });
   plate.appendChild(slogBox);
@@ -1575,13 +1779,20 @@ Work3.exportMd = function(){
       out+='- **'+(s.name||'未命名')+'**'+(s.selected?'（主战场）':'')+'：'+(s.description||'')+'；需求强度 痛'+(ns.pain||0)+'/愿'+(ns.willingness||0)+'/频'+(ns.frequency||0)+'\n';
     });
   } else out+='（未细分）\n';
+  const counts=Work3.corpusCounts();
+  out+=`\n**语料来源库存**：本地真实 ${counts.localReal} 条 + 模拟 ${counts.simulated} 条（${Work3.simulatedStatus()}）。\n`;
+  out+=`Work1 上游真实来源按勾选纳入：开放题 ${counts.openUsed}/${counts.openAvailable} 条、主题 ${counts.themesUsed}/${counts.themesAvailable} 条。当前实际纳入真实 ${counts.realUsed} 条 + 模拟 ${counts.simulatedUsed} 条，共 ${counts.total} 条。\n`;
   if(d.mining.topics.length){
     out+=`\n### 3. LDA 主题模型\n`;
     if(d.mining._simulated) out+=`- 建模方式：LLM 模拟\n`;
-    const comp = d.mining.corpusComposition || { real: d.mining.documents.length, simulated: (d.mining.simulatedDocuments||[]).length };
-    if((comp.real||0)+(comp.simulated||0)>0) out+=`- 语料构成：真实 ${comp.real||0} + 模拟 ${comp.simulated||0}（画像生成）\n`;
+    const comp = d.mining.corpusComposition;
+    if(comp)out+='- '+Work3.compositionText(comp)+'\n';
+    else out+='- 语料构成：本次建模来源数量未记录，请重新运行 LDA 以更新。\n';
     out+=`- 文档数：${d.mining.stats?.valid_count}\n- Coherence：${d.mining.stats?.coherence}\n\n`;
-    d.mining.topics.forEach(t=>{ out+=`- **${t.label||'主题'+(t.id+1)}** (${t.share}%): ${t.keywords.slice(0,8).map(k=>k.word).join('、')}\n`; });
+    Work3.markEvidenceSources(d.mining.topics,Work3.collectDocsLabeled()).forEach(t=>{
+      out+=`- **${t.label||'主题'+(t.id+1)}** (${t.share}%): ${t.keywords.slice(0,8).map(k=>k.word).join('、')}\n`;
+      (t.representative_docs||[]).forEach(doc=>{out+='  - 代表文档：'+doc+'\n';});
+    });
   }
   if(d.mining.painMap.length){
     out+='\n### 4. 痛点地图\n';

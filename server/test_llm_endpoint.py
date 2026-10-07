@@ -11,11 +11,15 @@ Run: server/.venv/bin/python server/test_llm_endpoint.py
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi.testclient import TestClient
 
-from app import app
+import storage
+with TemporaryDirectory() as startup_dir, patch.object(storage, "DATA_DIR", Path(startup_dir) / "data"):
+    from app import app
 import llm_proxy
 
 

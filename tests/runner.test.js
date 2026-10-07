@@ -45,25 +45,19 @@ ok('setTotal updates total', Runner.current.total === 5);
   ok('finish clears current', Runner.current === null);
   ok('signal() undefined after finish', Runner.signal() === undefined);
 
-  // 三态机（2026-09-01 决策）：生成中→点击=暂停；暂停态再点击=中止（无恢复路径，
-  // 断点续跑由重新点生成提供）。checkpoint 挂起的 promise 被中止唤醒并抛 AbortError。
-  let pausedCalls = 0, resumedCalls = 0;
-  const t3 = Runner.start({id:'c', label:'任务C', pausable:true, onPause:()=>pausedCalls++, onResume:()=>resumedCalls++});
+  // 三态机：生成中主体暂停，已暂停主体中止，没有继续出口。
+  let pausedCalls=0,resumedCalls=0;
+  const t3=Runner.start({id:'c',label:'任务C',pausable:true,onPause:()=>pausedCalls++,onResume:()=>resumedCalls++});
   Runner.togglePause();
-  ok('togglePause pauses', t3.paused === true && t3.status === 'paused');
-  const cp = Runner.checkpoint(); // 暂停中挂起
-  setTimeout(() => Runner.togglePause(), 5); // 暂停态再点击 = 中止
-  let threwAb = false;
-  try{ await cp; }catch(e){ threwAb = e && e.name === 'AbortError'; }
-  ok('paused 再点击 = 中止（checkpoint 抛 AbortError）', threwAb && t3.aborted === true);
-  ok('恢复路径已删（onResume 不触发）', resumedCalls === 0 && pausedCalls === 1);
-  Runner.finish();
-
-  // 暂停态 abort 幂等：再次 toggle 不炸
-  const t5 = Runner.start({id:'e', label:'任务E', pausable:true});
-  Runner.togglePause(); Runner.togglePause();
+  ok('主体首次点击暂停',t3.paused===true && t3.status==='paused');
+  const cp=Runner.checkpoint();
+  setTimeout(()=>Runner.togglePause(),5);
+  let aborted=false;
+  try{await cp;}catch(e){aborted=e.name==='AbortError';}
+  ok('暂停后主体点击中止，挂起checkpoint抛AbortError',aborted && t3.aborted && Runner.signal().aborted);
+  ok('暂停触发一次，从未触发继续',pausedCalls===1 && resumedCalls===0);
   Runner.togglePause();
-  ok('中止后 togglePause 无害', t5.aborted === true && Runner.current === t5);
+  ok('中止后连点不恢复任务',t3.aborted===true && resumedCalls===0);
   Runner.finish();
 
   console.log(`\n${pass} pass / ${fail} fail`);

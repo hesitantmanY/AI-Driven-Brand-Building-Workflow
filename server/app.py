@@ -1,6 +1,7 @@
 """FastAPI entry point. Serves the HTML tool and provides API endpoints for config, state, snapshots, LLM proxy, LDA, and Excel parsing."""
 from __future__ import annotations
 
+import json
 import mimetypes
 import re
 from pathlib import Path
@@ -39,6 +40,7 @@ from storage import (
     rename_snapshot,
     restore_snapshot,
     save_state,
+    snapshot_metadata,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -171,6 +173,7 @@ class SnapshotCreate(BaseModel):
 class SnapshotRename(BaseModel):
     name: str
     overwrite: bool = False
+    copy_source: bool = Field(default=False, alias="copy")
 
     @field_validator("name")
     @classmethod
@@ -357,10 +360,18 @@ def get_snapshot(snapshot_id: str, project_id: str = Query("default", pattern=PR
 
 @app.post("/api/snapshots/{snapshot_id}/restore")
 def restore_snapshot_endpoint(snapshot_id: str, project_id: str = Query("default", pattern=PROJECT_ID_PATTERN)) -> dict:
-    data = restore_snapshot(project_id, snapshot_id)
+    meta = snapshot_metadata(project_id, snapshot_id)
+    if meta is None:
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    try:
+        data = restore_snapshot(project_id, snapshot_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     if data is None:
         raise HTTPException(status_code=404, detail="Snapshot not found")
-    return {"ok": True, "state": data}
+    response = {"ok": True, "state": data, "snapshot": meta}
+    json.dumps(response, ensure_ascii=False)
+    return response
 
 
 @app.delete("/api/snapshots/{snapshot_id}")
@@ -373,11 +384,12 @@ def delete_snapshot_endpoint(snapshot_id: str, project_id: str = Query("default"
 @app.post("/api/snapshots/{snapshot_id}/rename")
 def rename_snapshot_endpoint(snapshot_id: str, body: SnapshotRename, project_id: str = Query("default", pattern=PROJECT_ID_PATTERN)) -> dict:
     try:
-        snap = rename_snapshot(project_id, snapshot_id, body.name, overwrite=body.overwrite)
+        snap = rename_snapshot(project_id, snapshot_id, body.name, overwrite=body.overwrite, copy=body.copy_source)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     if snap is None:
         raise HTTPException(status_code=404, detail="Snapshot not found")
+    json.dumps(snap, ensure_ascii=False)
     return snap
 
 

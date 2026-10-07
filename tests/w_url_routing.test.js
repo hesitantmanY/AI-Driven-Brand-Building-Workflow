@@ -259,7 +259,14 @@ function resetState(overrides){
      state.meta.currentWork === 1 && state.meta.currentStep === 'sbu',
      JSON.stringify(state.meta));
 
-  // ── Case 5: case 深链（URL 有 case 参数、state 未在案例中）→ 自动进入案例 ──
+  // ── Case 4b: malformed numeric work must fallback, not parseInt('1foo') → 1 ──
+  resetState({ meta: { savedAt: null, isDemo: false, currentWork: 4, currentStep: 'product' } });
+  resetLocation('?w=1foo&s=sbu');
+  await App.restoreFromUrl();
+  ok('非法 w=1foo 不覆盖（parseInt 不能当校验）',
+     state.meta.currentWork === 4 && state.meta.currentStep === 'product',
+     JSON.stringify(state.meta));
+
   resetState({ meta: { savedAt: null, isDemo: false, currentWork: 1, currentStep: 'sbu' } });
   resetLocation('?case=hengrui-zao&w=1&s=environment');
   await App.restoreFromUrl();

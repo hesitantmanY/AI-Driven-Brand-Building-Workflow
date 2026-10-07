@@ -1,0 +1,5026 @@
+{
+  "group": "archives",
+  "isolation": "Temporary server source and empty data; no real archives or provider keys",
+  "browser": "154.0.8037.95",
+  "cases": [
+    {
+      "code": "A01",
+      "title": "有/无未保存改动加载确认、取消和持久化",
+      "assertions": [
+        {
+          "label": "创建真实命名版本",
+          "passed": true,
+          "details": {
+            "id": "named_指定加载版本",
+            "name": "指定加载版本",
+            "type": "named",
+            "created_at": 1791257051.4337547
+          }
+        },
+        {
+          "label": "已保存先准确确认名称和无自动备份",
+          "passed": true,
+          "details": "×\n加载并覆盖当前工作区？\n\n加载「指定加载版本」将直接覆盖当前工作区，系统不会自动创建恢复备份。若要保留当前成果，请先取消并另存为版本。\n\n取消\n加载并覆盖"
+        },
+        {
+          "label": "已保存未保存警告准确",
+          "passed": true,
+          "details": "×\n加载并覆盖当前工作区？\n\n加载「指定加载版本」将直接覆盖当前工作区，系统不会自动创建恢复备份。若要保留当前成果，请先取消并另存为版本。\n\n取消\n加载并覆盖"
+        },
+        {
+          "label": "已保存默认焦点是取消",
+          "passed": true
+        },
+        {
+          "label": "已保存确认焦点限制在弹窗",
+          "passed": true
+        },
+        {
+          "label": "已保存取消无恢复请求",
+          "passed": true,
+          "details": [
+            "http://127.0.0.1:57403/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+          ]
+        },
+        {
+          "label": "已保存取消不覆盖 live/API",
+          "passed": true
+        },
+        {
+          "label": "已保存取消返回触发加载按钮焦点",
+          "passed": true
+        },
+        {
+          "label": "已保存确认只恢复一次",
+          "passed": true,
+          "details": [
+            "http://127.0.0.1:57403/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+          ]
+        },
+        {
+          "label": "已保存准确加载与更新来源",
+          "passed": true
+        },
+        {
+          "label": "已保存真实 API 已恢复内容",
+          "passed": true
+        },
+        {
+          "label": "已保存无自动备份",
+          "passed": true
+        },
+        {
+          "label": "已保存成功反馈实际版本名",
+          "passed": true,
+          "details": [
+            "已加载版本：指定加载版本"
+          ]
+        },
+        {
+          "label": "已保存保留有效 API",
+          "passed": true
+        },
+        {
+          "label": "已保存刷新保留加载内容与来源",
+          "passed": true
+        },
+        {
+          "label": "有未保存先准确确认名称和无自动备份",
+          "passed": true,
+          "details": "×\n加载并覆盖当前工作区？\n\n当前有未保存改动。加载「指定加载版本」将直接覆盖当前工作区，系统不会自动创建恢复备份。若要保留当前成果，请先取消并另存为版本。\n\n取消\n加载并覆盖"
+        },
+        {
+          "label": "有未保存未保存警告准确",
+          "passed": true,
+          "details": "×\n加载并覆盖当前工作区？\n\n当前有未保存改动。加载「指定加载版本」将直接覆盖当前工作区，系统不会自动创建恢复备份。若要保留当前成果，请先取消并另存为版本。\n\n取消\n加载并覆盖"
+        },
+        {
+          "label": "有未保存默认焦点是取消",
+          "passed": true
+        },
+        {
+          "label": "有未保存确认焦点限制在弹窗",
+          "passed": true
+        },
+        {
+          "label": "有未保存取消无恢复请求",
+          "passed": true,
+          "details": [
+            "http://127.0.0.1:57403/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+          ]
+        },
+        {
+          "label": "有未保存取消不覆盖 live/API",
+          "passed": true
+        },
+        {
+          "label": "有未保存取消返回触发加载按钮焦点",
+          "passed": true
+        },
+        {
+          "label": "有未保存确认只恢复一次",
+          "passed": true,
+          "details": [
+            "http://127.0.0.1:57403/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+          ]
+        },
+        {
+          "label": "有未保存准确加载与更新来源",
+          "passed": true
+        },
+        {
+          "label": "有未保存真实 API 已恢复内容",
+          "passed": true
+        },
+        {
+          "label": "有未保存无自动备份",
+          "passed": true
+        },
+        {
+          "label": "有未保存成功反馈实际版本名",
+          "passed": true,
+          "details": [
+            "已加载版本：指定加载版本"
+          ]
+        },
+        {
+          "label": "有未保存保留有效 API",
+          "passed": true
+        },
+        {
+          "label": "有未保存刷新保留加载内容与来源",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 2.57
+    },
+    {
+      "code": "A02",
+      "title": "加载 HTTP/网络失败保留现场并可再次操作",
+      "assertions": [
+        {
+          "label": "clean / http失败保留 live/API",
+          "passed": true
+        },
+        {
+          "label": "clean / http明确失败原因",
+          "passed": true,
+          "details": [
+            "加载失败：验收恢复服务失败"
+          ]
+        },
+        {
+          "label": "clean / http无加载成功反馈",
+          "passed": true,
+          "details": [
+            "加载失败：验收恢复服务失败"
+          ]
+        },
+        {
+          "label": "clean / http加载按钮恢复",
+          "passed": true
+        },
+        {
+          "label": "clean / http可再次打开确认",
+          "passed": true
+        },
+        {
+          "label": "clean / network失败保留 live/API",
+          "passed": true
+        },
+        {
+          "label": "clean / network明确失败原因",
+          "passed": true,
+          "details": [
+            "加载失败：Failed to fetch"
+          ]
+        },
+        {
+          "label": "clean / network无加载成功反馈",
+          "passed": true,
+          "details": [
+            "加载失败：Failed to fetch"
+          ]
+        },
+        {
+          "label": "clean / network加载按钮恢复",
+          "passed": true
+        },
+        {
+          "label": "clean / network可再次打开确认",
+          "passed": true
+        },
+        {
+          "label": "dirty / http失败保留 live/API",
+          "passed": true
+        },
+        {
+          "label": "dirty / http明确失败原因",
+          "passed": true,
+          "details": [
+            "加载失败：验收恢复服务失败"
+          ]
+        },
+        {
+          "label": "dirty / http无加载成功反馈",
+          "passed": true,
+          "details": [
+            "加载失败：验收恢复服务失败"
+          ]
+        },
+        {
+          "label": "dirty / http加载按钮恢复",
+          "passed": true
+        },
+        {
+          "label": "dirty / http可再次打开确认",
+          "passed": true
+        },
+        {
+          "label": "dirty / network失败保留 live/API",
+          "passed": true
+        },
+        {
+          "label": "dirty / network明确失败原因",
+          "passed": true,
+          "details": [
+            "加载失败：Failed to fetch"
+          ]
+        },
+        {
+          "label": "dirty / network无加载成功反馈",
+          "passed": true,
+          "details": [
+            "加载失败：Failed to fetch"
+          ]
+        },
+        {
+          "label": "dirty / network加载按钮恢复",
+          "passed": true
+        },
+        {
+          "label": "dirty / network可再次打开确认",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 3.1
+    },
+    {
+      "code": "A03",
+      "title": "行内/顶栏命名 Enter/Escape/失焦和显式动作",
+      "assertions": [
+        {
+          "label": "行内失焦保留草稿和编辑态",
+          "passed": true
+        },
+        {
+          "label": "行内失焦不提交",
+          "passed": true
+        },
+        {
+          "label": "行内重挂载保留草稿",
+          "passed": true
+        },
+        {
+          "label": "行内显式按键说明",
+          "passed": true
+        },
+        {
+          "label": "行内Esc 不更名并退出编辑",
+          "passed": true
+        },
+        {
+          "label": "行内空白拒绝且保留输入",
+          "passed": true
+        },
+        {
+          "label": "行内Enter 真正写入名称",
+          "passed": true,
+          "details": {
+            "id": "named_行内Enter后实际名字",
+            "name": "行内Enter后实际名字",
+            "type": "named",
+            "created_at": 1791257057.4671617
+          }
+        },
+        {
+          "label": "行内取消按钮不提交",
+          "passed": true
+        },
+        {
+          "label": "行内保存按钮与 Enter 一致",
+          "passed": true
+        },
+        {
+          "label": "顶栏失焦保留草稿和编辑态",
+          "passed": true
+        },
+        {
+          "label": "顶栏失焦不提交",
+          "passed": true
+        },
+        {
+          "label": "顶栏重挂载保留草稿",
+          "passed": true
+        },
+        {
+          "label": "顶栏显式按键说明",
+          "passed": true
+        },
+        {
+          "label": "顶栏Esc 不更名并退出编辑",
+          "passed": true
+        },
+        {
+          "label": "顶栏空白拒绝且保留输入",
+          "passed": true
+        },
+        {
+          "label": "顶栏Enter 真正写入名称",
+          "passed": true,
+          "details": {
+            "id": "named_顶栏Enter后实际名字",
+            "name": "顶栏Enter后实际名字",
+            "type": "named",
+            "created_at": 1791257057.4671617
+          }
+        },
+        {
+          "label": "顶栏取消按钮不提交",
+          "passed": true
+        },
+        {
+          "label": "顶栏保存按钮与 Enter 一致",
+          "passed": true
+        },
+        {
+          "label": "来源名称跟随真实重命名",
+          "passed": true
+        },
+        {
+          "label": "来源名称真实保存到 API",
+          "passed": true
+        },
+        {
+          "label": "刷新来源名称正确",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 3.28
+    },
+    {
+      "code": "A04",
+      "title": "保存/重命名同名冲突的全部三动作",
+      "assertions": [
+        {
+          "label": "save / 覆盖旧版本三动作均明确可见",
+          "passed": true
+        },
+        {
+          "label": "save / 覆盖旧版本冲突说明覆盖与保留后缀",
+          "passed": true
+        },
+        {
+          "label": "save / 覆盖旧版本目标被正确内容覆盖",
+          "passed": true
+        },
+        {
+          "label": "save / 覆盖旧版本覆盖后版本数量",
+          "passed": true,
+          "details": [
+            {
+              "id": "named_终版",
+              "name": "终版",
+              "type": "named",
+              "created_at": 1791257060.881036
+            }
+          ]
+        },
+        {
+          "label": "save / 覆盖旧版本实际覆盖反馈",
+          "passed": true,
+          "details": [
+            "已覆盖版本：终版"
+          ]
+        },
+        {
+          "label": "save / 另存为新版本三动作均明确可见",
+          "passed": true
+        },
+        {
+          "label": "save / 另存为新版本冲突说明覆盖与保留后缀",
+          "passed": true
+        },
+        {
+          "label": "save / 另存为新版本实际新增一条后缀版本",
+          "passed": true,
+          "details": [
+            {
+              "id": "named_终版(1)",
+              "name": "终版(1)",
+              "type": "named",
+              "created_at": 1791257061.9159477
+            }
+          ]
+        },
+        {
+          "label": "save / 另存为新版本原同名目标保留",
+          "passed": true
+        },
+        {
+          "label": "save / 另存为新版本复制正确内容",
+          "passed": true
+        },
+        {
+          "label": "save / 另存为新版本实际名称反馈",
+          "passed": true,
+          "details": [
+            "已另存为：终版(1)"
+          ]
+        },
+        {
+          "label": "save / 取消此次操作三动作均明确可见",
+          "passed": true
+        },
+        {
+          "label": "save / 取消此次操作冲突说明覆盖与保留后缀",
+          "passed": true
+        },
+        {
+          "label": "save / 取消此次操作取消版本库完全不变",
+          "passed": true
+        },
+        {
+          "label": "save / 取消此次操作取消无成功反馈",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "rename / 覆盖旧版本三动作均明确可见",
+          "passed": true
+        },
+        {
+          "label": "rename / 覆盖旧版本冲突说明覆盖与保留后缀",
+          "passed": true
+        },
+        {
+          "label": "rename / 覆盖旧版本目标被正确内容覆盖",
+          "passed": true
+        },
+        {
+          "label": "rename / 覆盖旧版本覆盖后版本数量",
+          "passed": true,
+          "details": [
+            {
+              "id": "named_终版",
+              "name": "终版",
+              "type": "named",
+              "created_at": 1791257063.8687167
+            }
+          ]
+        },
+        {
+          "label": "rename / 覆盖旧版本源旧名不残留且实际来源跟随",
+          "passed": true
+        },
+        {
+          "label": "rename / 覆盖旧版本实际覆盖反馈",
+          "passed": true,
+          "details": [
+            "已覆盖版本：终版"
+          ]
+        },
+        {
+          "label": "rename / 另存为新版本三动作均明确可见",
+          "passed": true
+        },
+        {
+          "label": "rename / 另存为新版本冲突说明覆盖与保留后缀",
+          "passed": true
+        },
+        {
+          "label": "rename / 另存为新版本实际新增一条后缀版本",
+          "passed": true,
+          "details": [
+            {
+              "id": "named_终版(1)",
+              "name": "终版(1)",
+              "type": "named",
+              "created_at": 1791257066.0154068
+            }
+          ]
+        },
+        {
+          "label": "rename / 另存为新版本原同名目标保留",
+          "passed": true
+        },
+        {
+          "label": "rename / 另存为新版本复制正确内容",
+          "passed": true
+        },
+        {
+          "label": "rename / 另存为新版本实际名称反馈",
+          "passed": true,
+          "details": [
+            "已另存为：终版(1)"
+          ]
+        },
+        {
+          "label": "rename / 另存为新版本源保留且来源不变",
+          "passed": true
+        },
+        {
+          "label": "rename / 取消此次操作三动作均明确可见",
+          "passed": true
+        },
+        {
+          "label": "rename / 取消此次操作冲突说明覆盖与保留后缀",
+          "passed": true
+        },
+        {
+          "label": "rename / 取消此次操作取消版本库完全不变",
+          "passed": true
+        },
+        {
+          "label": "rename / 取消此次操作取消无成功反馈",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "rename / 取消此次操作取消结束重命名",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 7.78
+    },
+    {
+      "code": "A05",
+      "title": "命名写入失败、重试与服务端实际后缀",
+      "assertions": [
+        {
+          "label": "save false准确失败阶段",
+          "passed": true
+        },
+        {
+          "label": "save false版本名保留且可重试",
+          "passed": true
+        },
+        {
+          "label": "save false不新增档案",
+          "passed": true
+        },
+        {
+          "label": "save false不显示已存档",
+          "passed": true,
+          "details": [
+            "保存当前内容失败：当前内容尚未持久化，请重试"
+          ]
+        },
+        {
+          "label": "save false重新保存成功且永久命名",
+          "passed": true
+        },
+        {
+          "label": "save throw准确失败阶段",
+          "passed": true
+        },
+        {
+          "label": "save throw版本名保留且可重试",
+          "passed": true
+        },
+        {
+          "label": "save throw不新增档案",
+          "passed": true
+        },
+        {
+          "label": "save throw不显示已存档",
+          "passed": true,
+          "details": [
+            "保存当前内容失败：验收保存异常"
+          ]
+        },
+        {
+          "label": "save throw重新保存成功且永久命名",
+          "passed": true
+        },
+        {
+          "label": "archive throw准确失败阶段",
+          "passed": true
+        },
+        {
+          "label": "archive throw版本名保留且可重试",
+          "passed": true
+        },
+        {
+          "label": "archive throw不新增档案",
+          "passed": true
+        },
+        {
+          "label": "archive throw不显示已存档",
+          "passed": true,
+          "details": [
+            "创建历史版本失败：验收命名写入失败"
+          ]
+        },
+        {
+          "label": "archive throw重新保存成功且永久命名",
+          "passed": true
+        },
+        {
+          "label": "invalid metadata准确失败阶段",
+          "passed": true
+        },
+        {
+          "label": "invalid metadata版本名保留且可重试",
+          "passed": true
+        },
+        {
+          "label": "invalid metadata不新增档案",
+          "passed": true
+        },
+        {
+          "label": "invalid metadata不显示已存档",
+          "passed": true,
+          "details": [
+            "创建历史版本失败：服务端未返回有效版本信息"
+          ]
+        },
+        {
+          "label": "invalid metadata重新保存成功且永久命名",
+          "passed": true
+        },
+        {
+          "label": "重命名写入失败保留草稿与源",
+          "passed": true
+        },
+        {
+          "label": "重命名失败没有成功反馈",
+          "passed": true,
+          "details": [
+            "重命名失败：验收重命名失败"
+          ]
+        },
+        {
+          "label": "服务端绕过占用后缀",
+          "passed": true,
+          "details": [
+            {
+              "id": "named_终版(3)",
+              "name": "终版(3)",
+              "type": "named",
+              "created_at": 1791257072.2325037
+            },
+            {
+              "id": "named_终版(2)",
+              "name": "终版(2)",
+              "type": "named",
+              "created_at": 1791257071.6166604
+            },
+            {
+              "id": "named_终版(1)",
+              "name": "终版(1)",
+              "type": "named",
+              "created_at": 1791257071.085593
+            },
+            {
+              "id": "named_终版",
+              "name": "终版",
+              "type": "named",
+              "created_at": 1791257070.618671
+            },
+            {
+              "id": "named_复制源",
+              "name": "复制源",
+              "type": "named",
+              "created_at": 1791257070.1530814
+            }
+          ]
+        },
+        {
+          "label": "后缀反馈是实际返回名",
+          "passed": true,
+          "details": [
+            "已另存为：终版(3)"
+          ]
+        },
+        {
+          "label": "复制不误改当前来源",
+          "passed": true
+        },
+        {
+          "label": "后缀复制的是源内容",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 4.68
+    },
+    {
+      "code": "A12",
+      "title": "重置/导入/W5 四类前置故障和真实重试",
+      "assertions": [
+        {
+          "label": "重置确认包含五坊和 API 保留范围",
+          "passed": true
+        },
+        {
+          "label": "reset / save false阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。保存当前内容失败：保存未成功，请检查连接后重试。\n重试"
+        },
+        {
+          "label": "reset / save false保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "reset / save false提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "reset / save false无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。保存当前内容失败：保存未成功，请检查连接后重试。"
+          ]
+        },
+        {
+          "label": "reset / save false重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "reset / save false重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "reset / save false刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "重置确认包含五坊和 API 保留范围",
+          "passed": true
+        },
+        {
+          "label": "reset / save throw阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。保存当前内容失败：验收前置保存异常。\n重试"
+        },
+        {
+          "label": "reset / save throw保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "reset / save throw提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "reset / save throw无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。保存当前内容失败：验收前置保存异常。"
+          ]
+        },
+        {
+          "label": "reset / save throw重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "reset / save throw重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "reset / save throw刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "重置确认包含五坊和 API 保留范围",
+          "passed": true
+        },
+        {
+          "label": "reset / archive throw阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。创建覆盖前版本失败：验收前置存档失败。\n重试"
+        },
+        {
+          "label": "reset / archive throw保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "reset / archive throw提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "reset / archive throw无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。创建覆盖前版本失败：验收前置存档失败。"
+          ]
+        },
+        {
+          "label": "reset / archive throw重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "reset / archive throw重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "reset / archive throw刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "重置确认包含五坊和 API 保留范围",
+          "passed": true
+        },
+        {
+          "label": "reset / invalid metadata阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。创建覆盖前版本失败：未收到有效版本信息。\n重试"
+        },
+        {
+          "label": "reset / invalid metadata保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "reset / invalid metadata提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "reset / invalid metadata无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。创建覆盖前版本失败：未收到有效版本信息。"
+          ]
+        },
+        {
+          "label": "reset / invalid metadata重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "reset / invalid metadata重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "reset / invalid metadata刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "导入确认包含文件名和五坊范围",
+          "passed": true
+        },
+        {
+          "label": "import / save false阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。保存当前内容失败：保存未成功，请检查连接后重试。\n重试"
+        },
+        {
+          "label": "import / save false保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "import / save false提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "import / save false无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。保存当前内容失败：保存未成功，请检查连接后重试。"
+          ]
+        },
+        {
+          "label": "import / save false重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "import / save false重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "import / save false刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "导入确认包含文件名和五坊范围",
+          "passed": true
+        },
+        {
+          "label": "import / save throw阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。保存当前内容失败：验收前置保存异常。\n重试"
+        },
+        {
+          "label": "import / save throw保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "import / save throw提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "import / save throw无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。保存当前内容失败：验收前置保存异常。"
+          ]
+        },
+        {
+          "label": "import / save throw重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "import / save throw重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "import / save throw刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "导入确认包含文件名和五坊范围",
+          "passed": true
+        },
+        {
+          "label": "import / archive throw阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。创建覆盖前版本失败：验收前置存档失败。\n重试"
+        },
+        {
+          "label": "import / archive throw保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "import / archive throw提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "import / archive throw无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。创建覆盖前版本失败：验收前置存档失败。"
+          ]
+        },
+        {
+          "label": "import / archive throw重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "import / archive throw重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "import / archive throw刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "导入确认包含文件名和五坊范围",
+          "passed": true
+        },
+        {
+          "label": "import / invalid metadata阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。创建覆盖前版本失败：未收到有效版本信息。\n重试"
+        },
+        {
+          "label": "import / invalid metadata保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "import / invalid metadata提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "import / invalid metadata无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。创建覆盖前版本失败：未收到有效版本信息。"
+          ]
+        },
+        {
+          "label": "import / invalid metadata重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "import / invalid metadata重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "import / invalid metadata刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save false阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。保存当前内容失败：保存未成功，请检查连接后重试。\n重试"
+        },
+        {
+          "label": "w5-sync / save false保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save false提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save false无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。保存当前内容失败：保存未成功，请检查连接后重试。"
+          ]
+        },
+        {
+          "label": "w5-sync / save falseW5 可阅读并说明未同步",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save false重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save false重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save false刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save throw阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。保存当前内容失败：验收前置保存异常。\n重试"
+        },
+        {
+          "label": "w5-sync / save throw保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save throw提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save throw无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。保存当前内容失败：验收前置保存异常。"
+          ]
+        },
+        {
+          "label": "w5-sync / save throwW5 可阅读并说明未同步",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save throw重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save throw重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / save throw刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / archive throw阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。创建覆盖前版本失败：验收前置存档失败。\n重试"
+        },
+        {
+          "label": "w5-sync / archive throw保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / archive throw提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / archive throw无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。创建覆盖前版本失败：验收前置存档失败。"
+          ]
+        },
+        {
+          "label": "w5-sync / archive throwW5 可阅读并说明未同步",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / archive throw重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / archive throw重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / archive throw刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / invalid metadata阻止覆盖且准确阶段",
+          "passed": true,
+          "details": "未完成：当前内容未被覆盖。创建覆盖前版本失败：未收到有效版本信息。\n重试"
+        },
+        {
+          "label": "w5-sync / invalid metadata保留 live/API 及版本库",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / invalid metadata提供真正重试入口",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / invalid metadata无覆盖成功反馈",
+          "passed": true,
+          "details": [
+            "未完成：当前内容未被覆盖。创建覆盖前版本失败：未收到有效版本信息。"
+          ]
+        },
+        {
+          "label": "w5-sync / invalid metadataW5 可阅读并说明未同步",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / invalid metadata重试完成且真实存档",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / invalid metadata重试结果持久化",
+          "passed": true
+        },
+        {
+          "label": "w5-sync / invalid metadata刷新恢复真实结果",
+          "passed": true
+        },
+        {
+          "label": "无效导入先解析且无确认/存档/覆盖",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 11.32
+    },
+    {
+      "code": "A13",
+      "title": "三类覆盖后保存失败与 W5 备份期间输入保护",
+      "assertions": [
+        {
+          "label": "重置确认包含五坊和 API 保留范围",
+          "passed": true
+        },
+        {
+          "label": "reset后置失败说明已更新",
+          "passed": true,
+          "details": "内容已更新但未保存。保存未成功，请重试保存\n重试保存"
+        },
+        {
+          "label": "reset后置失败保持 dirty",
+          "passed": true,
+          "details": {
+            "dirty": true,
+            "status": "未保存 · 有更改",
+            "saves": 2,
+            "creates": 0
+          }
+        },
+        {
+          "label": "reset前置备份真实存在",
+          "passed": true
+        },
+        {
+          "label": "reset未保存的结果尚未写入 API",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "reset结果确已应用",
+          "passed": true
+        },
+        {
+          "label": "reset后置失败无全部完成反馈",
+          "passed": true,
+          "details": [
+            "内容已更新但未保存。保存未成功，请重试保存"
+          ]
+        },
+        {
+          "label": "reset重试保存不重复备份",
+          "passed": true
+        },
+        {
+          "label": "reset重试保存实际持久化并清 dirty",
+          "passed": true
+        },
+        {
+          "label": "reset保存重试后刷新一致",
+          "passed": true
+        },
+        {
+          "label": "导入确认包含文件名和五坊范围",
+          "passed": true
+        },
+        {
+          "label": "import后置失败说明已更新",
+          "passed": true,
+          "details": "内容已更新但未保存。保存未成功，请重试保存\n重试保存"
+        },
+        {
+          "label": "import后置失败保持 dirty",
+          "passed": true,
+          "details": {
+            "dirty": true,
+            "status": "未保存 · 有更改",
+            "saves": 2,
+            "creates": 0
+          }
+        },
+        {
+          "label": "import前置备份真实存在",
+          "passed": true
+        },
+        {
+          "label": "import未保存的结果尚未写入 API",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "import结果确已应用",
+          "passed": true
+        },
+        {
+          "label": "import后置失败无全部完成反馈",
+          "passed": true,
+          "details": [
+            "内容已更新但未保存。保存未成功，请重试保存"
+          ]
+        },
+        {
+          "label": "import重试保存不重复备份",
+          "passed": true
+        },
+        {
+          "label": "import重试保存实际持久化并清 dirty",
+          "passed": true
+        },
+        {
+          "label": "import保存重试后刷新一致",
+          "passed": true
+        },
+        {
+          "label": "导入确认包含文件名和五坊范围",
+          "passed": true
+        },
+        {
+          "label": "import / 部分旧 schema后置失败说明已更新",
+          "passed": true,
+          "details": "内容已更新但未保存。保存未成功，请重试保存\n重试保存"
+        },
+        {
+          "label": "import / 部分旧 schema后置失败保持 dirty",
+          "passed": true,
+          "details": {
+            "dirty": true,
+            "status": "未保存 · 有更改",
+            "saves": 2,
+            "creates": 0
+          }
+        },
+        {
+          "label": "import / 部分旧 schema前置备份真实存在",
+          "passed": true
+        },
+        {
+          "label": "import / 部分旧 schema未保存的结果尚未写入 API",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "import / 部分旧 schema结果确已应用",
+          "passed": true
+        },
+        {
+          "label": "import / 部分旧 schema后置失败无全部完成反馈",
+          "passed": true,
+          "details": [
+            "内容已更新但未保存。保存未成功，请重试保存"
+          ]
+        },
+        {
+          "label": "旧 schema 导入迁移没有虚报已保存",
+          "passed": true,
+          "details": [
+            "内容已更新但未保存。保存未成功，请重试保存"
+          ]
+        },
+        {
+          "label": "旧 schema 伙伴迁移保留来源内容",
+          "passed": true
+        },
+        {
+          "label": "import / 部分旧 schema重试保存不重复备份",
+          "passed": true
+        },
+        {
+          "label": "import / 部分旧 schema重试保存实际持久化并清 dirty",
+          "passed": true
+        },
+        {
+          "label": "import / 部分旧 schema保存重试后刷新一致",
+          "passed": true
+        },
+        {
+          "label": "w5-sync后置失败说明已更新",
+          "passed": true,
+          "details": "内容已更新但未保存。保存未成功，请重试保存\n重试保存"
+        },
+        {
+          "label": "w5-sync后置失败保持 dirty",
+          "passed": true,
+          "details": {
+            "dirty": true,
+            "status": "未保存 · 有更改",
+            "saves": 2,
+            "creates": 0
+          }
+        },
+        {
+          "label": "w5-sync前置备份真实存在",
+          "passed": true
+        },
+        {
+          "label": "w5-sync未保存的结果尚未写入 API",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "w5-sync结果确已应用",
+          "passed": true
+        },
+        {
+          "label": "w5-sync后置失败无全部完成反馈",
+          "passed": true,
+          "details": [
+            "内容已更新但未保存。保存未成功，请重试保存"
+          ]
+        },
+        {
+          "label": "w5-sync重试保存不重复备份",
+          "passed": true
+        },
+        {
+          "label": "w5-sync重试保存实际持久化并清 dirty",
+          "passed": true
+        },
+        {
+          "label": "w5-sync保存重试后刷新一致",
+          "passed": true
+        },
+        {
+          "label": "W5 存档期间新增正文受保护",
+          "passed": true
+        },
+        {
+          "label": "W5 读取最新上游而非旧 patch",
+          "passed": true
+        },
+        {
+          "label": "输入改变后重新存档",
+          "passed": true
+        },
+        {
+          "label": "新存档保护最新上游和新增正文",
+          "passed": true
+        },
+        {
+          "label": "保护后的最终结果实际持久化",
+          "passed": true
+        },
+        {
+          "label": "并发输入保护刷新后保留",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 5.36
+    },
+    {
+      "code": "A14",
+      "title": "W5 证据只读和精确上游修改导航",
+      "assertions": [
+        {
+          "label": "W5 显示真实上游市场和卖点点位",
+          "passed": true
+        },
+        {
+          "label": "证据点击不写上游：circle[data-pid=\"market-2\"]",
+          "passed": true
+        },
+        {
+          "label": "证据点击不写上游：circle[data-pid=\"point-2\"]",
+          "passed": true
+        },
+        {
+          "label": "证据点击不写上游：.pain-tbl tbody tr",
+          "passed": true
+        },
+        {
+          "label": "证据点击不写上游：.value-tbl tbody tr",
+          "passed": true
+        },
+        {
+          "label": "证据点击不写上游：.channel-tree svg",
+          "passed": true
+        },
+        {
+          "label": "证据区不提供战略编辑或删除",
+          "passed": true
+        },
+        {
+          "label": "W5 文案没有实现术语",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去目标市场修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去目标市场修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去目标市场修改",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去卖点评分与矩阵修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去卖点评分与矩阵修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去卖点评分与矩阵修改",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去品牌指标与评分修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去品牌指标与评分修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去品牌指标与评分修改",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去痛点与语料修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去痛点与语料修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去痛点与语料修改",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去渠道结构与伙伴修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去渠道结构与伙伴修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去渠道结构与伙伴修改",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去传播预算与媒介修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去传播预算与媒介修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去传播预算与媒介修改",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去三档市场决策修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去三档市场决策修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去三档市场决策修改",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去指标与收敛权重修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去指标与收敛权重修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去指标与收敛权重修改",
+          "passed": true
+        },
+        {
+          "label": "证据提供精确上游入口：去语料建模与主题修改",
+          "passed": true
+        },
+        {
+          "label": "精确导航：去语料建模与主题修改",
+          "passed": true
+        },
+        {
+          "label": "上游跳转不改变决策：去语料建模与主题修改",
+          "passed": true
+        },
+        {
+          "label": "API 上游未被证据交互写入",
+          "passed": true
+        },
+        {
+          "label": "刷新后战略仍相同",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 2.8
+    },
+    {
+      "code": "A15",
+      "title": "当前来源重命名/复制/删除及持久化",
+      "assertions": [
+        {
+          "label": "实际源更名更新 id/name 和顶栏",
+          "passed": true
+        },
+        {
+          "label": "来源另存新增版本并保持来源",
+          "passed": true
+        },
+        {
+          "label": "来源另存复制快照不复制 live",
+          "passed": true
+        },
+        {
+          "label": "源删除确认范围准确",
+          "passed": true,
+          "details": "×\n删除历史版本？\n\n将删除历史版本「来源已重命名」。此操作不可恢复；只删除这一份历史快照，不删除当前工作区内容。\n\n取消\n删除历史版本"
+        },
+        {
+          "label": "取消删除来源不变",
+          "passed": true
+        },
+        {
+          "label": "源快照已删除但当前内容完整",
+          "passed": true
+        },
+        {
+          "label": "源删除清来源和顶栏",
+          "passed": true
+        },
+        {
+          "label": "删除源之后 API 内容与无来源一致",
+          "passed": true
+        },
+        {
+          "label": "刷新不恢复已删来源",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 1.73
+    },
+    {
+      "code": "A21",
+      "title": "案例导航豁免与键盘/档案/AI/导出锁",
+      "assertions": [
+        {
+          "label": "实际进入只读案例",
+          "passed": true
+        },
+        {
+          "label": "案例导航可用 W1",
+          "passed": true
+        },
+        {
+          "label": "案例导航可用 W2",
+          "passed": true
+        },
+        {
+          "label": "案例导航可用 W3",
+          "passed": true
+        },
+        {
+          "label": "案例导航可用 W4",
+          "passed": true
+        },
+        {
+          "label": "案例导航可用 W5",
+          "passed": true
+        },
+        {
+          "label": "案例步间 CTA 可用",
+          "passed": true
+        },
+        {
+          "label": "案例键盘不能修改编辑字段",
+          "passed": true,
+          "details": {
+            "tab_reached_editor": true
+          }
+        },
+        {
+          "label": "案例鼠标不能修改编辑字段",
+          "passed": true
+        },
+        {
+          "label": "案例策划书正文有键盘只读语义",
+          "passed": true
+        },
+        {
+          "label": "案例策划书点击和键盘不写内容",
+          "passed": true
+        },
+        {
+          "label": "案例中存在代表性 AI 按钮",
+          "passed": true
+        },
+        {
+          "label": "案例 AI 不启动任务或请求",
+          "passed": true
+        },
+        {
+          "label": "案例不能打开存档写入",
+          "passed": true
+        },
+        {
+          "label": "案例档案写入锁：load",
+          "passed": true
+        },
+        {
+          "label": "案例档案写入锁：rename",
+          "passed": true
+        },
+        {
+          "label": "案例档案写入锁：delete",
+          "passed": true
+        },
+        {
+          "label": "案例导出有禁用语义",
+          "passed": true
+        },
+        {
+          "label": "案例导出菜单不可打开",
+          "passed": true
+        },
+        {
+          "label": "案例重置无覆盖确认",
+          "passed": true
+        },
+        {
+          "label": "案例导入没有启动保护流",
+          "passed": true
+        },
+        {
+          "label": "案例 API 管理豁免正常",
+          "passed": true
+        },
+        {
+          "label": "案例中真实工作区与版本库不被污染",
+          "passed": true
+        },
+        {
+          "label": "退出案例恢复原内容和位置",
+          "passed": true
+        },
+        {
+          "label": "退出案例真实 API 保留原内容",
+          "passed": true
+        },
+        {
+          "label": "退出并刷新原工作区持续存在",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 3.06
+    }
+  ],
+  "passed": 10,
+  "failed": 0,
+  "api_requests": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A01"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A02"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E5%8E%9F%E5%A7%8B%E5%90%8D%E5%AD%97/restore?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E5%8E%9F%E5%A7%8B%E5%90%8D%E5%AD%97/rename?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E8%A1%8C%E5%86%85Enter%E5%90%8E%E5%AE%9E%E9%99%85%E5%90%8D%E5%AD%97/rename?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E8%A1%8C%E5%86%85%E6%98%BE%E5%BC%8F%E4%BF%9D%E5%AD%98/rename?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E9%A1%B6%E6%A0%8FEnter%E5%90%8E%E5%AE%9E%E9%99%85%E5%90%8D%E5%AD%97/rename?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A03"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E6%BA%90%E7%89%88%E6%9C%AC/rename?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E6%BA%90%E7%89%88%E6%9C%AC/rename?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A04"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E5%A4%8D%E5%88%B6%E6%BA%90/rename?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A05"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A12"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A12"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A13"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A13"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A14"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A14"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A14"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A14"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A14"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E5%BD%93%E5%89%8D%E6%9D%A5%E6%BA%90/restore?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E5%BD%93%E5%89%8D%E6%9D%A5%E6%BA%90/rename?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_%E6%9D%A5%E6%BA%90%E5%B7%B2%E9%87%8D%E5%91%BD%E5%90%8D/rename?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/snapshots/named_%E6%9D%A5%E6%BA%90%E5%B7%B2%E9%87%8D%E5%91%BD%E5%90%8D?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A15"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A21"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A21"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A21"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A21"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A21"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A21"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A21"
+    }
+  ],
+  "uncaught_errors": []
+}

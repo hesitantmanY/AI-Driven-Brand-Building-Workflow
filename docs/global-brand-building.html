@@ -62,12 +62,15 @@ textarea{resize:vertical;min-height:0;font-family:var(--font-body);font-style:no
 @supports (field-sizing:content){textarea{field-sizing:content}}
 input[type=number],input[type=range]{font-family:var(--font-mono)}
 input[type=file]{padding:6px 0;font-family:var(--font-mono);font-size:12px}
+/* Checkbox/radio must not inherit the full-width text-input geometry. */
+input[type=checkbox],input[type=radio]{width:18px;height:18px;padding:0;border:1px solid var(--color-rule);background:var(--color-paper);flex:0 0 auto;accent-color:var(--color-accent)}
+input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}
 
 /* ============================================================
    BUTTONS — Grid 01 voice
    Default: ink-fill, paper text, 13px mono caps
-   Hover : translateY(-2px) + 2px accent bottom bar reveal (NO color flip)
-   Press : translateY(0) — physical push-back
+   Hover : border emphasis; selection stays visible
+   Press : inset outline, no movement (interaction.css, direction B)
    ============================================================ */
 button{
   position:relative;
@@ -84,7 +87,7 @@ button::after{
   transform:scaleX(0);transform-origin:left center;
   transition:transform 200ms var(--ease-out);
 }
-button:hover{transform:translateY(-2px)}
+button:hover{border-color:var(--color-ink)}
 button:hover::after{transform:scaleX(1)}
 button:active{transform:translateY(0)}
 button:active::after{transform:scaleX(1);transition-duration:60ms}
@@ -95,14 +98,17 @@ button:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}
 button.primary{background:var(--color-ink);color:var(--color-paper);border:none}
 /* "primary" still ink-fill — accent is reserved for the bar reveal.
    If a stronger "do it now" is needed, use .accent (link with weight). */
-button.ghost{
-  background:transparent;color:var(--color-ink);
-  border:none;border-bottom:1px solid var(--color-rule);
-  padding:8px 4px 9px;
+button.ghost,label.ghost{
+  min-height:40px;
+  background:var(--color-paper);
+  color:var(--color-ink);
+  border:1px solid var(--color-rule);
+  padding:10px 14px;
 }
-button.ghost::after{height:1px;background:var(--color-ink);bottom:-1px}
-button.ghost:hover{color:var(--color-ink);border-bottom-color:transparent;background:transparent}
-button.small{padding:9px 14px;font-size:11px;letter-spacing:.16em}
+button.ghost::after,label.ghost::after{height:2px;background:var(--color-accent);bottom:-1px}
+button.ghost:hover,label.ghost:hover{color:var(--color-ink);border-color:var(--color-ink);background:var(--color-paper-2)}
+button.small{min-height:36px;padding:10px 14px;font-size:12px;letter-spacing:.14em}
+button.ghost.small,label.ghost.small{min-height:36px}
 /* 历史记录「加载」两步行内确认的武装态 */
 button.small[data-armed="1"]{background:var(--color-ink);color:var(--color-paper)}
 button.icon-btn{padding:0;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;line-height:0;background:transparent;color:var(--color-ink);border:1px solid var(--color-rule)}
@@ -978,6 +984,7 @@ footer.doc-foot .doc{display:flex;justify-content:space-between;flex-wrap:wrap;g
 }
 .mvo-card-head .mvo-toggle{margin-left:auto;font-size:11px;color:var(--color-ink-2);font-family:var(--font-mono)}
 .mvo-card-body{display:flex;flex-direction:column;gap:7px}
+.mvo-flow-hint{font-family:var(--font-body);font-size:12px;line-height:1.5;color:var(--color-ink-2);margin:0 0 4px}
 .mvo-card.collapsed .mvo-card-body{display:none}
 .build-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:var(--color-ink-2);opacity:.7;cursor:help}
 .mvo-check--alert{background:rgba(139,58,26,.08);border-left:3px solid var(--color-warn);padding-left:8px;margin-left:-8px}
@@ -1405,6 +1412,7 @@ table.data textarea{font-family:var(--font-body);font-style:normal;font-size:14p
 .ai-settings-body{padding:10px 12px 12px;border-top:1px solid var(--color-rule)}
 .ai-settings-group{margin-bottom:12px}
 .ai-settings-check{display:flex;gap:8px;align-items:center;padding:3px 0;font-family:var(--font-body);text-transform:none;letter-spacing:0;font-size:12px}
+.ai-settings-check input[type=checkbox]{width:18px;height:18px}
 .ai-settings-meta{font-size:11px;color:var(--color-ink-2);margin-bottom:4px}
 .ai-settings-preview{max-height:240px;overflow:auto;background:var(--color-paper-2);border:1px solid var(--color-rule);padding:10px;font-family:var(--font-mono);font-size:11px;white-space:pre-wrap;line-height:1.6;margin:0}
 .ai-box.ai-box-step1 .ai-box-top{
@@ -1477,12 +1485,25 @@ table.data textarea{font-family:var(--font-body);font-style:normal;font-size:14p
 }
 /* 运行态：进度直接做进大按钮内部（标题 + 秒数 + 中止 + 滑动进度条），
    任务结束后 Runner.finish() 用 innerHTML 原样还原子节点。 */
-.ai-draft-btn.running{
+.ai-draft-btn.running,
+button.primary.running{
   flex-direction:column;align-items:stretch;gap:14px;
   cursor:wait;
 }
 .ai-draft-btn.running:hover{background:var(--color-paper)}
 .ai-draft-btn.running:hover .ai-draft-title{color:var(--color-ink)}
+/* 暂停态：进度条动画冻结，鼠标恢复指针；点按钮=继续，「中止」仍可用 */
+.ai-draft-btn.running.paused,
+button.primary.running.paused{cursor:default}
+.ai-draft-btn.running.paused .ai-draft-progress-fill,
+button.primary.running.paused .ai-draft-progress-fill{animation-play-state:paused;opacity:.45}
+button.primary.running{display:flex;text-align:left;gap:12px;padding:14px 18px}
+button.primary.running .abort-inline{
+  background:transparent;color:var(--color-paper);border:1px solid var(--color-paper);
+  padding:7px 16px;font-size:12px;letter-spacing:.16em;line-height:1;
+  cursor:pointer;-webkit-user-select:none;user-select:none;font-family:var(--font-mono);
+}
+button.primary.running .abort-inline:hover{color:var(--color-warn);border-color:var(--color-warn)}
 .ai-draft-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .ai-draft-right{display:flex;align-items:center;gap:14px}
 .ai-draft-state-time{
@@ -1615,12 +1636,12 @@ table.data textarea{font-family:var(--font-body);font-style:normal;font-size:14p
   transform:scaleX(0);transform-origin:left center;
   transition:transform 200ms var(--ease-out);
 }
-.ai-box.ai-box-step1 button.primary:hover{transform:translateY(-2px);background:var(--color-ink);color:var(--color-paper)}
+.ai-box.ai-box-step1 button.primary:hover{border-color:var(--color-ink);background:var(--color-ink);color:var(--color-paper)}
 .ai-box.ai-box-step1 button.primary:hover::after{transform:scaleX(1)}
 .ai-box.ai-box-step1 button.primary:active{transform:translateY(0)}
 /* Step 3 personas primary — same ink-fill behavior as the rest of the system */
 .step[data-step="personas"] button.primary{background:var(--color-ink);color:var(--color-paper);border:none}
-.step[data-step="personas"] button.primary:hover{transform:translateY(-2px)}
+.step[data-step="personas"] button.primary:hover{border-color:var(--color-ink)}
 .ai-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .progress-bar{height:2px;background:var(--color-rule);overflow:hidden;margin:14px 0}
 .progress-bar>div{height:100%;width:100%;background:var(--color-ink);
@@ -2526,8 +2547,11 @@ body[data-w4-entry="greenfield"] .x-entry-heavy { display:block; }
   padding:12px 16px;border-top:1px solid var(--color-rule);
 }
 </style>
+<link rel="stylesheet" href="interaction.css?v=1">
 </head>
 <body>
+
+<aside class="narrow-width-notice" role="note">当前窗口宽度小于 1024px，不在支持范围内。建议使用电脑或扩大窗口；下方保留桌面界面，可横向滚动。</aside>
 
 <div class="demo-banner" id="demoBanner"><span id="demoBannerText">— 已载入案例 · 可编辑可保存 · 点「退出案例」回到进入前的内容 —</span></div>
 
@@ -2571,7 +2595,7 @@ body[data-w4-entry="greenfield"] .x-entry-heavy { display:block; }
           </div>
         </div>
       </div>
-      <button class="ghost" onclick="App.reset()">重置</button>
+      <button class="ghost danger" onclick="App.reset()">重置工作区</button>
       <div class="mode-switch" id="modeSwitch" title="切换 AI 调用模式">
         <button type="button" data-mode="api" onclick="Settings.setMode('api')">API 自动</button>
         <button type="button" data-mode="manual" onclick="Settings.setMode('manual')">手动模式</button>
@@ -2624,7 +2648,7 @@ body[data-w4-entry="greenfield"] .x-entry-heavy { display:block; }
 <!-- Settings modal -->
 <div class="modal-backdrop" id="settingsModal">
   <div class="modal">
-    <button class="modal-close" onclick="Settings.close()">×</button>
+    <button class="modal-close" aria-label="关闭设置面板" title="关闭设置面板" onclick="Settings.close()">×</button>
     <h2>设置</h2>
     <p class="muted">配置 LLM 提供商与本地服务。API Key 不会离开本机。每家厂商各有自己的 Key；「保存」会把当前厂商设为激活。</p>
     <div class="warning" id="legacyKeyBanner" style="display:none;margin:0 0 12px">检测到旧 key，请到设置中重新配置 <button type="button" class="ghost small" onclick="Settings.discardLegacy()">丢弃旧 Key</button></div>
@@ -2683,9 +2707,10 @@ body[data-w4-entry="greenfield"] .x-entry-heavy { display:block; }
 <!-- History modal -->
 <div class="modal-backdrop" id="historyModal">
   <div class="modal">
-    <button class="modal-close" onclick="History.close()">×</button>
+    <button class="modal-close" aria-label="关闭历史记录面板" title="关闭历史记录面板" onclick="History.close()">×</button>
     <h2>历史记录.</h2>
-    <p class="muted">自定义名版本永久保留；时间名版本保留最近 10 个。加载前会把当前内容自动备份为「恢复前备份 …」。</p>
+    <p class="muted">加载会直接覆盖当前工作区，不会自动创建恢复备份；如需保留当前内容，请先保存版本。</p>
+    <p class="muted">自定义名版本永久保留；时间名版本保留最近 10 个。</p>
     <input type="text" id="snapSearch" class="snap-search" placeholder="检索版本名…" aria-label="检索版本名" autocomplete="off"
            oninput="History.render()">
     <hr class="rule">
@@ -2696,7 +2721,7 @@ body[data-w4-entry="greenfield"] .x-entry-heavy { display:block; }
 <!-- Print / PDF picker modal -->
 <div class="modal-backdrop" id="printModal">
   <div class="modal">
-    <button class="modal-close" onclick="ExportMenu.closePrint()">×</button>
+    <button class="modal-close" aria-label="关闭导出 PDF 面板" title="关闭导出 PDF 面板" onclick="ExportMenu.closePrint()">×</button>
     <h2>导出 PDF</h2>
     <p class="muted">选择要纳入PDF 的工作坊（可多选；Work5 策划书成稿会放在最后，前序工作坊只提炼关键结论）。</p>
     <div class="print-pick-list" id="printPickList"></div>
@@ -2800,7 +2825,7 @@ function showToast(msg, ms=1800){
 /* ============================================================
    PERSISTENCE — server-backed store (replaces localStorage)
    State lives in server/data/default/current.json; every save
-   also creates a throttled auto snapshot server-side.
+   overwrites the current workspace; named versions are created explicitly.
    ============================================================ */
 // Absolute backend URL for API calls — works whether the page is served by
 // the backend (http://localhost:8765/) or opened from disk (file://), because
@@ -2819,55 +2844,74 @@ function runSchemaMigrations(st){
     ? SchemaMigrate.run(st, [Work1,Work2,Work3,Work4,Work5].filter(Boolean))
     : false;
 }
-function mergeWithDefaults(parsed){
+function mergeWithDefaults(parsed, options){
+  options=options||{};
+  // Nested defaults must survive partial saved state. Arrays are values and are
+  // replaced by the saved array; plain objects are recursively merged so newly
+  // added fields do not depend on a migration being present.
+  const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+  const mergeObj = (defVal, parsedVal) => {
+    if(!isObj(defVal)) return parsedVal === undefined ? defVal : parsedVal;
+    if(!isObj(parsedVal)) return defVal;
+    const out = {...defVal};
+    Object.keys(parsedVal).forEach(k=>{
+      if(parsedVal[k] === undefined) return;
+      out[k] = isObj(defVal[k]) && isObj(parsedVal[k])
+        ? mergeObj(defVal[k], parsedVal[k])
+        : parsedVal[k];
+    });
+    return out;
+  };
   const def = defaultState();
   const merged = {
-    ...def, ...parsed,
-    meta: {...def.meta, ...(parsed.meta||{})},
-    settings: {...def.settings, ...(parsed.settings||{}),
-      api: {...DEFAULT_SETTINGS, ...(parsed.settings?.api||{})}},
-    work1: {...def.work1, ...(parsed.work1||{})},
-    work2: {...def.work2, ...(parsed.work2||{})},
-    work3: {...def.work3, ...(parsed.work3||{}),
-      // 嵌套合并 mining：新默认字段（如 includeNegative）对老档案直接生效，
-      // 不用靠 migrate 补字段。
-      mining: {...def.work3.mining, ...(parsed.work3?.mining||{})},
-      // 2026-09-01 wayfinder map：matrix 嵌套合并——旧档案只有 sectorAngle/sectorRadius，
-      // 新默认 sectorWidth:1.5 直接生效（旧字段自然作废，不迁移不弹窗）。
-      matrix: {...def.work3.matrix, ...(parsed.work3?.matrix||{})}},
-    work4: {...def.work4, ...(parsed.work4||{})},
-    work5: {...def.work5, ...(parsed.work5||{}),
-      // 2026-09-01：W5 新默认字段嵌套合并（老档案缺 cover/ch2_environment/
-      // ch3_strategy/ch4_mix 时补齐，AGENTS.md「新默认字段优先嵌套合并」）。
-      cover: {...def.work5.cover, ...((parsed.work5&&parsed.work5.cover)||{})},
-      ch2_environment: {...def.work5.ch2_environment, ...((parsed.work5&&parsed.work5.ch2_environment)||{})},
-      ch3_strategy: {...def.work5.ch3_strategy, ...((parsed.work5&&parsed.work5.ch3_strategy)||{})},
-      ch4_mix: {...def.work5.ch4_mix, ...((parsed.work5&&parsed.work5.ch4_mix)||{})}}
+    ...def, ...(parsed||{}),
+    meta: mergeObj(def.meta, parsed && parsed.meta),
+    settings: mergeObj(def.settings, parsed && parsed.settings),
+    work1: mergeObj(def.work1, parsed && parsed.work1),
+    work2: mergeObj(def.work2, parsed && parsed.work2),
+    work3: mergeObj(def.work3, parsed && parsed.work3),
+    work4: mergeObj(def.work4, parsed && parsed.work4),
+    work5: mergeObj(def.work5, parsed && parsed.work5)
   };
   const changed = runSchemaMigrations(merged);
-  // 迁移必须落盘：只改内存会在下次刷新重跑迁移并重复弹窗。
-  if(changed){
-    try{ Store.save(merged); }catch(e){ console.warn('[schema migrate persist]', e); }
-    if(typeof showToast==='function') showToast('旧档案已自动迁移到最新结构，已保存；请复核关键数据。', 3200);
+  // 导入/历史加载由调用方统一 await 保存；不能另起未等待的请求，
+  // 否则覆盖后的保存失败会被迁移请求的「已保存」状态掩盖。
+  if(changed && options.persistMigrations!==false){
+    try{
+      Promise.resolve(Store.save(merged)).then(saved=>{
+        if(typeof state!=='undefined' && state!==merged)return;
+        if(saved===true){
+          if(typeof showToast==='function')showToast('旧档案已迁移并保存，请复核关键数据。',3200);
+        }else{
+          if(typeof markDirty==='function')markDirty();
+          const status=typeof $==='function'?$('#saveStatus'):null;
+          if(status)status.textContent='未保存 · 迁移后的保存失败';
+          if(typeof Interaction!=='undefined')Interaction.notice({key:'migration-save',message:'旧档案已迁移，但尚未保存。',actionLabel:'重试保存',onAction:()=>Interaction.retrySave('migration-save')});
+        }
+      }).catch(e=>{if(typeof markDirty==='function')markDirty();console.warn('[schema migrate persist]',e);});
+    }catch(e){if(typeof markDirty==='function')markDirty();console.warn('[schema migrate persist]',e);}
   }
   return merged;
 }
+
 
 // 手动保存 + 未保存追踪。autosave() 只标记 dirty（状态栏「未保存」）；
 // 实际写服务器由两种路径触发：显式 saveNow()（保存/载入案例/重置等），
 // 以及 init 里每 2 分钟的周期保存（有改动时覆盖原档案，不新建版本）。
 // 刷新/关闭时由 beforeunload 弹原生确认窗兜底。
 let dirty = false;
+let changeRevision = 0;
 let lastServerStamp = null;  // BIZ03：本页签上次写入后服务器上的 savedAt（对账基准）
 function markDirty(){
-  if(!state || state.meta?.isDemo) return;
+  if(!state || state.meta?.isDemo || state.meta?.demoCase) return;
+  changeRevision++;
   dirty = true;
   const ss=$('#saveStatus');
   if(ss) ss.textContent='未保存 · 有更改';
 }
 async function saveNow(){
   // BIZ02：案例浏览（isDemo）为只读，任何路径都不写盘（退出案例会先清标志再保存）。
-  if(state && state.meta && state.meta.isDemo) return true;
+  if(state && state.meta && (state.meta.isDemo || state.meta.demoCase)) return true;
   // BIZ03：写前对账——另一页签/恢复操作已把服务器推到更新的版本时先问。
   // 静默覆盖会让「恢复旧版本」几分钟后又被别页签的旧内存内容顶掉。
   try{
@@ -2878,21 +2922,28 @@ async function saveNow(){
       const go = confirm('这份档案在另一个页签（或恢复操作）中已被更新。\n\n「确定」→ 用本页内容覆盖服务器版本\n「取消」→ 放弃本页未保存改动，载入服务器最新内容');
       if(!go){
         dirty = false;
+        if(typeof Interaction!=='undefined')Interaction.invalidateUndo();
         state = cur;
         if(typeof App!=='undefined'){ App.renderAll(); App.updateSummary(); }
-        return true;
+        return false; // 本次写入未完成，依赖保存成功的后续覆盖必须停止。
       }
     }
   }catch(_){ /* 服务器不可达/首存无档案：跳过对账 */ }
+  const savingState=state, revision=changeRevision;
   try{
-    const ok = await Store.save(state);
+    const ok = await Store.save(savingState);
     if(ok){
-      dirty=false;
-      lastServerStamp = (state.meta && state.meta.savedAt) || null;
+      if(savingState!==state)return false;
+      dirty=revision!==changeRevision;
+      lastServerStamp = (savingState.meta && savingState.meta.savedAt) || null;
+      if(dirty){const ss=$('#saveStatus');if(ss)ss.textContent='未保存 · 有更改';}
+    }else{
+      dirty=true;const ss=$('#saveStatus');if(ss)ss.textContent='未保存 · 保存失败';
     }
     return ok;
   }catch(e){
     /* 保存失败时保持 dirty，状态栏仍显示未保存 */
+    dirty=true;const ss=$('#saveStatus');if(ss)ss.textContent='未保存 · 保存失败';
     return false;
   }
 }
@@ -2926,7 +2977,7 @@ const API = {
   // never reaches the browser. Backend returns the provider response plus
   // a normalized `_text` field with the extracted content.
   async call(messages, opts={}){
-    if(state && state.meta && state.meta.isDemo) throw new Error('案例浏览中，不可调用 AI'); // BIZ02
+    if(state && state.meta && (state.meta.isDemo || state.meta.demoCase)) throw new Error('案例浏览中，不可调用 AI'); // BIZ02
     const res = await fetch(apiUrl('/api/llm'), {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -2950,7 +3001,7 @@ const API = {
 
   // Call with JSON mode and parse. Falls back to extracting JSON from text.
   async callJson(messages, opts={}){
-    if(state && state.meta && state.meta.isDemo) throw new Error('案例浏览中，不可调用 AI'); // BIZ02
+    if(state && state.meta && (state.meta.isDemo || state.meta.demoCase)) throw new Error('案例浏览中，不可调用 AI'); // BIZ02
     const opts2={...opts};
     const provider=this.config().provider, model=this.config().model;
     const mode=(typeof Providers!=='undefined' && Providers.getMode)
@@ -2964,7 +3015,7 @@ const API = {
     if(typeof CallJsonStrict!=='undefined' && CallJsonStrict.run){
       const r = await CallJsonStrict.run({
         messages,
-        schema: null,
+        schema: opts.schema || null,
         call: (msgs, o) => this.call(msgs, {...opts2, ...o}),
         extractJson: text => this.extractJson(text),
         lastExtractError: (typeof JsonExtract!=='undefined') ? JsonExtract.lastError : null,
@@ -3051,17 +3102,23 @@ const API = {
     return panel;
   },
 
+  _workspaceGuard(){
+    const workspace=state,works=['work1','work2','work3','work4','work5'].map(k=>state[k]);
+    return ()=>state===workspace && !(state.meta?.isDemo || state.meta?.demoCase) && works.every((w,i)=>state['work'+(i+1)]===w);
+  },
+
   // One-button AI helper with progress + manual fallback + abort.
   async aiButton(opts){
-    if(state && state.meta && state.meta.isDemo){ showToast('案例浏览中，不可用 AI'); return; } // BIZ02
+    if(state && state.meta && (state.meta.isDemo || state.meta.demoCase)){ showToast('案例浏览中，不可用 AI'); return; } // BIZ02
     const { button, container, buildPrompt, onResult, jsonMode=true, label='用 AI 生成' } = opts;
+    const isCurrent=this._workspaceGuard();
     const useManual = state.settings.manualMode || !this.config().apiKey;
     if(useManual){
       // Manual mode: copy prompt, paste result. No background process, no Runner.
       const promptText = typeof buildPrompt==='function' ? buildPrompt() : buildPrompt;
       const fullPrompt = Array.isArray(promptText) ? promptText.map(m=>m.content).join('\n\n') : String(promptText);
       API.manualBox(container, fullPrompt, (parsed, raw)=>{
-        onResult(parsed, raw, 'manual');
+        if(isCurrent())onResult(parsed, raw, 'manual');
       }, {title: label, rawOnly: !jsonMode});
       return;
     }
@@ -3070,18 +3127,19 @@ const API = {
     try{
       const messages = typeof buildPrompt==='function' ? buildPrompt() : buildPrompt;
       const result = jsonMode
-        ? await this.callJson(messages, {signal: task.controller.signal})
+        ? await this.callJson(messages, {signal: task.controller.signal, schema: opts.schema || null})
         : await this.call(messages, {signal: task.controller.signal});
-      if(task.aborted) return;
+      if(task.aborted || Runner.current!==task || !isCurrent()) return;
       onResult(result, null, 'api');
     }catch(e){
       if(task.aborted || (e && e.name==='AbortError')){ showToast('已中止'); return; }
+      if(Runner.current!==task || !isCurrent())return;
       showToast('AI 失败: '+e.message);
       const promptText = typeof buildPrompt==='function' ? buildPrompt() : buildPrompt;
       const fullPrompt = Array.isArray(promptText) ? promptText.map(m=>m.content).join('\n\n') : String(promptText);
-      API.manualBox(container, fullPrompt, (parsed,raw)=>onResult(parsed,raw,'manual'), {title: label, rawOnly: !jsonMode});
+      API.manualBox(container, fullPrompt, (parsed,raw)=>{if(isCurrent())onResult(parsed,raw,'manual');}, {title: label, rawOnly: !jsonMode});
     }finally{
-      Runner.finish();
+      if(Runner.current===task)Runner.finish();
     }
   },
 
@@ -3121,6 +3179,7 @@ const API = {
       await this.aiButton({
         button:btn, container:mid, buildPrompt,
         jsonMode:cfg.jsonMode!==false, label:cfg.label||'用 AI 生成',
+        schema:cfg.schema || null,
         onResult:cfg.onResult
       });
     });
@@ -3133,40 +3192,43 @@ const API = {
   // opts: {button, container, label, units:[{key,label,buildPrompt(fn),
   //        onResult(r,raw,mode), jsonMode}], store:{get,set} 完成单元持久化}
   async aiPipeline(opts){
-    if(state && state.meta && state.meta.isDemo){ showToast('案例浏览中，不可用 AI'); return; } // BIZ02
+    if(state && state.meta && (state.meta.isDemo || state.meta.demoCase)){ showToast('案例浏览中，不可用 AI'); return; } // BIZ02
     const {button, container, label, units, store} = opts;
+    const isCurrent=this._workspaceGuard();
     const done = new Set(store ? (store.get()||[]) : []);
-    const markDone = k => { done.add(k); if(store){ store.set([...done]); } autosave(); };
+    const markDone = k => { if(!isCurrent())return;done.add(k); if(store){ store.set([...done]); } autosave(); };
     const useManual = state.settings.manualMode || !this.config().apiKey;
-    if(useManual) return this._manualPipeline(container, label, units, done, markDone);
+    if(useManual) return this._manualPipeline(container, label, units, done, markDone,isCurrent);
     let startIdx = units.findIndex(u=>!done.has(u.key));
     if(startIdx<0){ showToast('流水线已全部完成'); return; }
     let i = startIdx;
     const runBatch = async ()=>{
+      if(!isCurrent())return false;
       const remaining = units.length - i;
       const task = Runner.start({id:label, label, button, total:remaining, pausable:true});
       if(!task) return false;
       try{
         while(i<units.length){
-          if(task.aborted) break;
+          if(task.aborted || Runner.current!==task || !isCurrent()) break;
           const u = units[i];
           if(done.has(u.key)){ i++; task.done++; Runner.renderUI(); continue; }
           try{
             const messages = u.buildPrompt();
             const r = u.jsonMode===false
               ? await this.call(messages,{signal:task.controller.signal})
-              : await this.callJson(messages,{signal:task.controller.signal});
-            if(task.aborted) break;
+              : await this.callJson(messages,{signal:task.controller.signal, schema:u.schema || null});
+            if(task.aborted || Runner.current!==task || !isCurrent()) break;
             u.onResult(r, null, 'api');
             markDone(u.key);
           }catch(e){
-            if(task.aborted || (e&&e.name==='AbortError')) break;
+            if(task.aborted || (e&&e.name==='AbortError') || Runner.current!==task || !isCurrent()) break;
             showToast(label+' · 单元失败：'+e.message);
-            Runner.finish();
+            if(Runner.current===task)Runner.finish();
             // 降级手动箱：完成/跳过后从下一单元继续（新 Runner 批次）。
             // AI04：跳过 ≠ 放弃整条流水线——跳过不 markDone，
             // 后续单元照跑，下次运行会回到被跳过的单元。
-            const ok = await this._manualUnit(container, u, () => markDone(u.key), `${label} · ${u.label}`);
+            const ok = await this._manualUnit(container, u, () => markDone(u.key), `${label} · ${u.label}`,isCurrent);
+            if(!isCurrent())return false;
             i++;
             if(i>=units.length) return ok;
             return runBatch();
@@ -3176,12 +3238,12 @@ const API = {
           try{ await Runner.checkpoint(); }catch{ break; }
         }
       }finally{
-        Runner.finish();
+        if(Runner.current===task)Runner.finish();
       }
-      return !task.aborted;
+      return !task.aborted && isCurrent();
     };
     const finished = await runBatch();
-    if(finished && i>=units.length){
+    if(finished && i>=units.length && isCurrent()){
       showToast(label+' 完成');
       if(opts.onDone) opts.onDone();
     }
@@ -3189,21 +3251,25 @@ const API = {
 
   // 手动模式流水线：逐单元「复制提示词 → 粘贴 → 解析填入 → 下一单元」，
   // 可跳过；无后台进程（沿用 manualBox 语义）。
-  _manualPipeline(container, label, units, done, markDone){
+  _manualPipeline(container, label, units, done, markDone,isCurrent){
+    isCurrent=isCurrent || this._workspaceGuard();
     let idx = units.findIndex(u=>!done.has(u.key));
     if(idx<0){ showToast('流水线已全部完成'); return; }
     const advance = ()=>{
+      if(!isCurrent())return;
       idx++;
       while(idx<units.length && done.has(units[idx].key)) idx++;
       if(idx>=units.length){ showToast(label+' 完成'); return; }
       show();
     };
-    const show = ()=>{ this._manualUnit(container, units[idx], ()=>markDone(units[idx].key), `${label} · ${units[idx].label}（${idx+1}/${units.length}）`).then(advance); };
+    const show = ()=>{ if(isCurrent())this._manualUnit(container, units[idx], ()=>markDone(units[idx].key), `${label} · ${units[idx].label}（${idx+1}/${units.length}）`,isCurrent).then(advance); };
     show();
   },
 
   // 单单元手动箱。返回 Promise<filled:boolean>（粘贴解析成功与否；跳过为 false）。
-  _manualUnit(container, unit, onDone, title){
+  _manualUnit(container, unit, onDone, title,isCurrent){
+    isCurrent=isCurrent || this._workspaceGuard();
+    if(!isCurrent())return Promise.resolve(false);
     return new Promise(resolve=>{
       container.innerHTML='';
       const panel=el('div',{class:'ai-panel'});
@@ -3217,6 +3283,7 @@ const API = {
       const ta=el('textarea',{class:'ai-paste',rows:3,placeholder:'把 AI 的回答粘贴到这里…'});
       const finish = filled => { container.innerHTML=''; resolve(filled); };
       const parseBtn=el('button',{type:'button',class:'ai-parse',onclick:()=>{
+        if(!isCurrent()){finish(false);return;}
         let parsed=null;
         try{ parsed=JSON.parse(ta.value); }catch{ parsed=this.extractJson(ta.value); }
         if(!parsed){ showToast('未能解析 JSON'); return; }
@@ -3228,6 +3295,7 @@ const API = {
       }},'解析并填入');
       panel.appendChild(el('div',{class:'ai-paste-row'}, ta, parseBtn,
         unit.jsonMode===false ? el('button',{type:'button',class:'ai-parse-ghost',onclick:()=>{
+          if(!isCurrent()){finish(false);return;}
           unit.onResult(ta.value, ta.value, 'manual'); onDone(); finish(true);
         }},'作为文本填入') : null,
         el('button',{type:'button',class:'ai-parse-ghost',onclick:()=>finish(false)},'跳过此单元')
@@ -3377,6 +3445,7 @@ var Work5={steps:[],defaultData:()=>({})};
 <script src="lib/call_json_strict.js?v=1"></script>
 <script src="lib/likert_parse.js?v=2"></script>
 <script src="lib/providers.js?v=2"></script>
+<script src="lib/interaction.js?v=1"></script>
 <script src="lib/archive.js?v=2"></script>
 <script src="lib/runner.js?v=2"></script>
 <script src="lib/backend.js?v=1"></script>

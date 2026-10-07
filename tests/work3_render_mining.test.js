@@ -87,6 +87,7 @@ const sandbox = {
 };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(root, 'lib', 'interaction.js'), 'utf8'), sandbox, {filename:'lib/interaction.js'});
 vm.runInContext(fs.readFileSync(path.join(root, 'workshop2.js'), 'utf8'), sandbox, {filename:'workshop2.js'});
 vm.runInContext(fs.readFileSync(path.join(root, 'workshop3.js'), 'utf8'), sandbox, {filename:'workshop3.js'});
 const W3 = sandbox.Work3;
@@ -128,7 +129,7 @@ function findNode(n, pred){
 {
   const st = freshState();
   const txt = renderMining(st);
-  ok('render: 真实 <3 时显示补足提示', txt.includes('真实语料不足 3 条'));
+  ok('render: 实际纳入 <3 时显示补足提示', txt.includes('共 0 条，不足 3 条'));
   ok('render: 显示生成模拟语料按钮', txt.includes('生成模拟语料（基于画像）'));
   ok('render: 负面反馈勾选框默认显示', txt.includes('语料包含负面反馈/抱怨'));
   ok('render: 无语料时不显示模拟语料卡', !txt.includes('模拟语料（画像生成'));
@@ -140,7 +141,7 @@ function findNode(n, pred){
   st.work3.mining.documents = ['真实1','真实2','真实3'];
   st.work3.mining.simulatedDocuments = ['模拟1','模拟2','模拟3'];
   const txt = renderMining(st);
-  ok('render: 语料卡显示构成 真实3+模拟3', txt.includes('真实 3 条 + 模拟 3 条'));
+  ok('render: 语料卡显示本地库存构成 真实3+模拟3', txt.includes('本地真实 3 条 + 模拟 3 条'));
   ok('render: 模拟语料卡标题', txt.includes('模拟语料（画像生成 3 条）'));
   ok('render: 「模拟」tag', txt.includes('模拟'));
   ok('render: 包含勾选文案', txt.includes('建模时包含模拟语料'));
@@ -187,7 +188,7 @@ function findNode(n, pred){
   ok('cand: 自定义痛点显示输入框', !!customInput);
 }
 
-// ---- 评分与矩阵：persona 子分回填维度列 + MVO 判分 ----
+// ---- 评分与矩阵：persona 子分只读显示 + MVO 判分 ----
 {
   const st = freshState();
   st.work3.mining.painMap = [];
@@ -200,16 +201,17 @@ function findNode(n, pred){
       desirabilityScores:{}, extraDims:{} }
   ];
   sandbox.state = st;
-  ok('matrix: 回填前维度列为空', st.work3.candidates[0].importance == null);
-  ok('matrix: ensureDesirabilityAggregates 回填 importance 均值', (()=>{ W3.ensureDesirabilityAggregates(); return Math.abs(st.work3.candidates[0].importance-9)<1e-9; })());
-  ok('matrix: 回填幂等（二次无变更）', W3.ensureDesirabilityAggregates()===false);
+  const snapshot=JSON.stringify(st.work3.candidates);
+  ok('matrix: 原始维度列为空', st.work3.candidates[0].importance == null);
+  ok('matrix: 聚合视图显示 importance 均值且不回写', W3.ensureDesirabilityAggregates()[0].importance===9 && JSON.stringify(st.work3.candidates)===snapshot);
+  ok('matrix: 重复求值稳定且不回写', W3.ensureDesirabilityAggregates()[0].importance===9 && JSON.stringify(st.work3.candidates)===snapshot);
   const checks = W3.mvo.matrix().checks;
   ok('matrix MVO: 缺可实施性时不通过', checks[0].test()===false);
   st.work3.candidates.forEach(c=>{ c.feasibility=8; c.communicability=8; c.sustainability=8; });
   ok('matrix MVO: c2 缺合意性仍不通过', checks[0].test()===false);
   st.work3.candidates[1].desirabilityScores = { p1:{importance:7, uniqueness:7, credibility:8} };
   ok('matrix MVO: 全部有分 → 通过（下一步 CTA 出现）', checks[0].test()===true);
-  // 渲染：维度列出现回填值，逐 persona 子分显示均值
+  // 渲染：维度列显示只读求值，逐 persona 子分显示均值
   const sec = sandbox.el('section');
   const plate = sandbox.el('div',{class:'plate'});
   sec.querySelector = () => plate;
@@ -217,7 +219,7 @@ function findNode(n, pred){
   const txt = collectText(plate);
   ok('matrix render: 逐 persona 子分显示均值 小明:8.7', !!findNode(plate, n=>n.textContent && n.textContent.includes('小明:8.7')));
   const val9 = findNode(plate, n=>n.tagName==='INPUT' && n.attrs && n.attrs.value==='9');
-  ok('matrix render: 重要性列出现回填值 9', !!val9);
+  ok('matrix render: 重要性列显示均值 9 且原字段仍空', !!val9 && st.work3.candidates[0].importance==null);
 }
 
 // ---- 主张与定位：入选卖点拖拽排序（draggable 必须是字符串 'true'） ----
@@ -301,6 +303,7 @@ function findNode(n, pred){
 {
   // pain
   const st=freshState();
+  st.work3._painMapGenerated=true;
   st.work3.mining.painMap=[{id:'p1',pain:'痛',evidence:'e',frequency:'高',linkedNeeds:[],type:'痛点',scenarioId:''}];
   st.work3.context.personas=[];
   sandbox.state=st;
@@ -328,6 +331,20 @@ function findNode(n, pred){
   const sec5=sandbox.el('section');const plate5=sandbox.el('div',{class:'plate'});sec5.querySelector=()=>plate5;
   W3.render.mining(sec5);
   ok('pain: 未生成 → 按钮为「AI 起草痛点地图」', collectText(plate5).includes('AI 起草痛点地图') && !collectText(plate5).includes('重新生成痛点地图'));
+}
+
+// ---- 手动数据不得提前把 AI 按钮切成“重新生成” ----
+{
+  const st=freshState();
+  st.work3.scenarios=[{id:'s1',name:'手动场景',description:'手填',personaIds:[],needStrength:{pain:5,willingness:5,frequency:5},selected:false}];
+  sandbox.state=st;
+  let sec=sandbox.el('section'); let plate=sandbox.el('div',{class:'plate'}); sec.querySelector=()=>plate;
+  W3.render.scenarios(sec);
+  ok('scenario: 手动添加后仍为 AI 起草场景细分', collectText(plate).includes('AI 起草场景细分') && !collectText(plate).includes('重新生成场景细分'));
+  st.work3._scenariosGenerated=true;
+  sec=sandbox.el('section'); plate=sandbox.el('div',{class:'plate'}); sec.querySelector=()=>plate;
+  W3.render.scenarios(sec);
+  ok('scenario: AI 已生成后变重新生成场景细分', collectText(plate).includes('重新生成场景细分'));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

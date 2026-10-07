@@ -39,44 +39,131 @@ Work2.defaultTemplate = function(axis){
   }));
 };
 
-/* 误删自救（2026-09-11）：一级维度只能整块删，删掉后它名下二级指标的锚点、
-   收敛权重与已打的分一起没了，且 id 不可复原。所以删除前把影响面摊开，
-   并给每轴一个「恢复默认 4×2 模板」的兜底入口。 */
+Work2.afterRemoval = function(step){
+  autosave();Work2.rerender(step);
+  if(typeof App!=='undefined' && typeof App.updateSummary==='function')App.updateSummary();
+};
+Work2.focusAction = function(step,label,accessibleLabel){
+  const sec=document.querySelector('#steps2 .step[data-step="'+step+'"]');
+  if(!sec)return;
+  const target=Array.from(sec.querySelectorAll('button')).find(b=>accessibleLabel?b.getAttribute('aria-label')===accessibleLabel:b.textContent.trim()===label)||sec.querySelector('h2,h3');
+  if(target){if(target.tagName!=='BUTTON')target.setAttribute('tabindex','-1');target.focus?.();}
+};
+Work2.clearIndicatorReferences = function(ids){
+  const d=state.work2.delphi;
+  Object.values(state.work2.scoring||{}).forEach(row=>ids.forEach(id=>{delete row[id];}));
+  (d.personas||[]).forEach(p=>['attractiveness','competitiveness'].forEach(axis=>{
+    ids.forEach(id=>{if(p.ratings?.[axis])delete p.ratings[axis][id];});
+  }));
+  Work2.invalidateDelphi(false);
+  if(state.work2.decision)state.work2.decision.cutsChanged=true;
+};
+Work2.invalidateDelphi = function(resetPersonas){
+  const d=state.work2.delphi;
+  if(resetPersonas)d.personas=[];
+  d.finalWeights=null;d.summary='';d.phase=null;d.drifted=false;
+  d.status=(d.personas||[]).length?'hosted':((d.recruitment?.perspectives||[]).length?'recruiting':'idle');
+  // 旧版本的 Delphi 产物也不再保留失效的指标/视角引用。
+  d.panel=[];['round1','round2','synthesis','finalSynthesis','weights'].forEach(k=>{d[k]=null;});
+};
+/* 一级删除包含其全部二级指标，评分和赋权引用随对象实际清理。 */
 Work2.catImpact = function(cat){
   const inds = cat.indicators||[];
   let scored = 0;
-  (state.work2.retained||[]).forEach(m=>{
-    const row = (state.work2.scoring||{})[m.id]||{};
+  Object.values(state.work2.scoring||{}).forEach(row=>{
     inds.forEach(i=>{ if(row[i.id] && row[i.id].score!=null) scored++; });
   });
-  return {indCount: inds.length, scored};
+  const weighted=(state.work2.delphi.personas||[]).filter(p=>inds.some(i=>
+    ['attractiveness','competitiveness'].some(axis=>Object.prototype.hasOwnProperty.call(p.ratings?.[axis]||{},i.id)))).length;
+  return {indCount: inds.length, scored, weighted};
 };
 Work2.catDeleteMsg = function(cat, axisLabel, leftAfter){
-  const {indCount, scored} = Work2.catImpact(cat);
+  const {indCount, scored, weighted} = Work2.catImpact(cat);
   const bits = ['删除「'+axisLabel+'」下的一级维度「'+(cat.name||'未命名')+'」？',
     '连带删除 '+indCount+' 个二级指标及其高/中/低锚点。'];
-  if(scored) bits.push('已打的 '+scored+' 格评分会失去关联，矩阵图会缺这一块。');
+  if(scored) bits.push('已打的 '+scored+' 格评分会删除，矩阵按剩余指标重新计算。');
+  bits.push(weighted+' 位 persona 的相关赋权引用会清除，旧收敛记录和总结失效；剩余指标与其存储权重保留，需重新收敛。');
   if(!leftAfter) bits.push('这是本轴最后一个一级维度——删完本轴为空，评分表与矩阵无轴可比。');
   bits.push('此操作不可撤销；「恢复默认 4×2 模板」只重建模板文案，你写过的锚点与评分不会回来。');
   return bits.join('\n');
 };
+Work2.removeCategory = function(axis,index,trigger){
+  const categories=state.work2[axis].categories||[],cat=categories[index];if(!cat)return Promise.resolve(false);
+  const axisLabel=axis==='attractiveness'?'市场吸引力':'业务竞争力',ids=(cat.indicators||[]).map(i=>i.id);
+  return Interaction.removeItem({list:()=>state.work2[axis].categories,index,type:'一级维度',name:cat.name,trigger,
+    impact:Work2.catDeleteMsg(cat,axisLabel,categories.length-1),
+    onChange:()=>{Work2.clearIndicatorReferences(ids);Work2.afterRemoval('framework');}});
+};
+Work2.removeIndicator = function(axis,catId,index,trigger){
+  const cat=state.work2[axis].categories.find(c=>c.id===catId),ind=cat?.indicators?.[index];if(!ind)return Promise.resolve(false);
+  const impact=Work2.catImpact({indicators:[ind]}),axisLabel=axis==='attractiveness'?'市场吸引力':'业务竞争力';
+  return Interaction.removeItem({list:()=>state.work2[axis].categories.find(c=>c.id===catId)?.indicators,index,type:'二级指标',name:ind.name,trigger,
+    impact:'所属轴为「'+axisLabel+'」，将删除该指标的高/中/低锚点、二级权重及 '+impact.scored+' 格已打评分。'+
+      impact.weighted+' 位 persona 的该指标赋权引用会清除，旧收敛记录和总结失效；其它指标、锚点、评分和存储权重保留，矩阵按剩余指标重新计算，需重新收敛。',
+    onChange:()=>{Work2.clearIndicatorReferences([ind.id]);Work2.afterRemoval('framework');}});
+};
+Work2.removeRetained = function(index,trigger){
+  const m=state.work2.retained[index];if(!m)return Promise.resolve(false);
+  const d=state.work2.decision,scoreCount=Object.values(state.work2.scoring?.[m.id]||{}).filter(c=>c.score!=null).length;
+  const sharedExplanation=state.work2.retained.some(x=>x.id!==m.id&&x.name===m.name);
+  const tiers=[d.tier1?.marketId===m.id?'主战场':'',(d.tier2?.marketIds||[]).includes(m.id)?'观察期':'',(d.tier3?.marketIds||[]).includes(m.id)?'放弃档':''].filter(Boolean);
+  return Interaction.removeItem({list:()=>state.work2.retained,index,type:'保留市场',name:m.name,trigger,
+    impact:'该市场详情和 '+scoreCount+' 格评分会删除；'+(sharedExplanation?'同名保留市场共享的矩阵解释会保留。':'该市场的矩阵解释会删除。')+
+      (tiers.length?tiers.join('、')+'中的该市场关联会清除。':'该市场的三档引用会清除。')+
+      '矩阵和排名按剩余市场重新计算；候选市场及其它保留市场的评分、决策内容保留。',
+    onChange:()=>{
+      if(state.work2.scoring)delete state.work2.scoring[m.id];
+      if(!state.work2.retained.some(x=>x.name===m.name)&&d.explanations)delete d.explanations[m.name];
+      Work2.pruneStaleTiers();d.cutsChanged=true;Work2.afterRemoval('framework');
+    }});
+};
+Work2.removeCriterion = function(index,trigger){
+  const c=state.work2.screening.criteria[index];if(!c)return Promise.resolve(false);
+  const retained=state.work2.retained.length,derived=retained>0||(state.work2._pipeDone||[]).includes('fw:retained');
+  return Interaction.removeItem({list:()=>state.work2.screening.criteria,index,type:'筛选标准',name:c.name,trigger,
+    impact:derived?'该标准及其数据源会删除；'+retained+' 个已保留市场的筛选依据需要复核。保留市场、评分和三档决策会保留，已完成的应用筛选记录会清除。':'',
+    onChange:()=>{if(derived)state.work2._pipeDone=(state.work2._pipeDone||[]).filter(key=>key!=='fw:retained');Work2.afterRemoval('framework');}});
+};
+Work2.removePerspective = function(index,trigger){
+  const d=state.work2.delphi,p=d.recruitment.perspectives[index];if(!p)return Promise.resolve(false);
+  const matches=(d.personas||[]).filter(x=>x.perspectiveName===p.name).length;
+  const derived=matches>0||d.finalWeights!=null||!!d.summary||d.status==='done'||d.phase!=null;
+  return Interaction.removeItem({list:()=>state.work2.delphi.recruitment.perspectives,index,type:'招聘视角',name:p.name,trigger,
+    impact:derived?'该视角及其 '+matches+' 条同名 persona 赋权记录会删除；旧收敛记录、总结及断点会清除。其它视角和赋权保留；当前指标的存储权重和市场评分保留，需重新收敛。':'',
+    onChange:()=>{
+      if(derived){d.personas=(d.personas||[]).filter(x=>x.perspectiveName!==p.name);Work2.invalidateDelphi(false);}
+      Work2.afterRemoval('framework');
+    }});
+};
+Work2.restartRecruitment = async function(trigger){
+  if(state.meta?.isDemo||state.meta?.demoCase)return false;
+  const workspace=state,d=state.work2.delphi;
+  if(!await Interaction.confirm({title:'清空招聘与赋权记录？',confirmLabel:'清空并重新招聘',trigger,
+    message:'将清空 '+d.recruitment.perspectives.length+' 个招聘视角和 '+(d.personas||[]).length+' 条 persona 赋权记录，以及旧收敛记录、总结和断点。当前两级指标、存储权重及市场评分保留，后续需重新招聘、赋权和收敛。此操作不可撤销。'}))return false;
+  if(state!==workspace||state.meta?.isDemo||state.meta?.demoCase)return false;
+  d.recruitment.perspectives=[];Work2.invalidateDelphi(true);Work2.afterRemoval('framework');Work2.focusAction('framework','AI 招聘：该听哪 5 个视角');return true;
+};
 // 整轴换回默认模板：指标 id 全变 → persona 赋权与收敛权重失去指向，按「指标变了就重置」
 // 处理（同 AI 推导指标体系）。另一轴的一级/二级指标与存储权重不动。
-Work2.restoreAxisTemplate = function(axis){
+Work2.restoreAxisTemplate = async function(axis,trigger){
+  if(state.meta?.isDemo||state.meta?.demoCase)return false;
+  const workspace=state;
   const axisLabel = axis==='attractiveness'?'市场吸引力':'业务竞争力';
   const cur = state.work2[axis].categories||[];
-  const filled = cur.filter(c=>(c.name||'').trim() || (c.indicators||[]).some(i=>(i.name||'').trim())).length;
+  const filled = cur.length,ids=cur.flatMap(c=>(c.indicators||[]).map(i=>i.id));
+  const impact=Work2.catImpact({indicators:cur.flatMap(c=>c.indicators||[])});
   const msg = ['把「'+axisLabel+'」整轴换回默认 4×2 模板？',
     filled ? '当前 '+filled+' 个一级维度会被整体替换：你写过的锚点、手改的一级/二级权重与已打的分都不会回来。'
            : '本轴现在是空的，恢复后可直接改名、补锚点。',
-    '权重需要重定：persona 赋权与收敛会重置为未运行。'].join('\n');
-  if(!confirm(msg)) return;
+    '本轴 '+ids.length+' 个二级指标和 '+impact.scored+' 格已打评分会删除；模板不会恢复被删除的自填内容。',
+    '权重需要重定：persona 赋权、收敛记录、总结和断点会重置为未运行。另一轴的指标、锚点、存储权重与评分保留。此操作不可撤销。'].join('\n');
+  if(!await Interaction.confirm({title:'恢复「'+axisLabel+'」默认模板？',message:msg,confirmLabel:'恢复默认模板',trigger})) return false;
+  if(state!==workspace||state.meta?.isDemo||state.meta?.demoCase)return false;
   state.work2[axis].categories = Work2.defaultTemplate(axis);
-  state.work2.delphi.finalWeights = null; state.work2.delphi.personas = [];
-  state.work2.delphi.status = 'idle'; state.work2.delphi.drifted = false;
-  autosave();
-  Work2.rerender('framework');
+  Work2.clearIndicatorReferences(ids);Work2.invalidateDelphi(true);state.work2.delphi.status='idle';
+  Work2.afterRemoval('framework');Work2.focusAction('framework','恢复默认 4×2 模板','恢复'+axisLabel+'默认模板');
   showToast('已恢复「'+axisLabel+'」默认 4×2 模板');
+  return true;
 };
 
 /* AI 只补缺失的一级维度（2026-09-11）。与「重新推导评估体系」的关键区别：
@@ -262,7 +349,8 @@ Work2.defaultData = () => ({
   },
   // ===== 跨 tab 元信息 =====
   meta: { schemaVersion: 2, work1Linked: false },
-  _pipeDone: []   // Tab 1 主流水线断点
+  _pipeDone: [],  // Tab 1 主流水线断点
+  _frameworkGenerated: false
 });
 
 /* ---------- 数据迁移（schemaVersion 1 → 2） ---------- */
@@ -345,7 +433,7 @@ Work2.migrateWork2 = function(old){
   };
   delete migrated.markets;
   delete migrated.scope;
-  if(typeof showToast === 'function') showToast('Workshop 2 已重构，老数据已迁移，请复核。', 3200);
+  // 迁移函数禁止 showToast（AGENTS.md）：统一提示/落盘由 mergeWithDefaults 负责。
   return migrated;
 };
 
@@ -517,7 +605,7 @@ Work2.render.framework = function(sec){
   // 主按键：AI 从 work1 推导评估体系（4 单元流水线：候选→标准→筛选→指标）
   const ai = el('div',{class:'ai-box'});
   const mid = el('div',{class:'ai-box-mid'});
-  const fwGenerated = (state.work2.candidates||[]).length>0 || (state.work2._pipeDone||[]).length>0;
+  const fwGenerated = (state.work2._pipeDone||[]).length>0 || state.work2._frameworkGenerated===true;
   const mainBtn = el('button',{class:'primary'}, fwGenerated ? '重新推导评估体系' : 'AI 从 work1 推导评估体系');
   mid.appendChild(mainBtn);
   const needsAll = ['sbu','environment','personas','competitors'];
@@ -539,7 +627,9 @@ Work2.render.framework = function(sec){
     ctb.appendChild(el('tr',{},
       el('td',{},el('input',{value:c.name,oninput:e=>{c.name=e.target.value;autosave()}})),
       el('td',{},el('input',{value:c.reason,oninput:e=>{c.reason=e.target.value;autosave()}})),
-      el('td',{},el('button',{class:'ghost small',onclick:()=>{w2.candidates.splice(i,1);autosave();Work2.rerender('framework')}},'×'))
+      el('td',{},el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Interaction.removeItem({
+        list:()=>state.work2.candidates,index:i,type:'候选市场',name:c.name,trigger:e.currentTarget,
+        onChange:()=>Work2.afterRemoval('framework')})},'候选市场',()=>c.name,i,()=>state.work2.candidates),'×'))
     ));
   });
   ctbl.appendChild(ctb); ct.appendChild(ctbl); plate.appendChild(ct);
@@ -555,7 +645,8 @@ Work2.render.framework = function(sec){
     stb.appendChild(el('tr',{},
       el('td',{},el('input',{value:c.name,oninput:e=>{c.name=e.target.value;autosave()}})),
       el('td',{},el('input',{value:c.source||'',oninput:e=>{c.source=e.target.value;autosave()}})),
-      el('td',{},el('button',{class:'ghost small',onclick:()=>{w2.screening.criteria.splice(i,1);autosave();Work2.rerender('framework')}},'×'))
+      el('td',{},el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work2.removeCriterion(i,e.currentTarget)},
+        '筛选标准',()=>c.name,i,()=>state.work2.screening.criteria),'×'))
     ));
   });
   stbl.appendChild(stb); st.appendChild(stbl); plate.appendChild(st);
@@ -573,7 +664,8 @@ Work2.render.framework = function(sec){
     } else {
       card.appendChild(el('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},
         el('input',{value:m.name,style:{fontFamily:'var(--font-display)',fontStyle:'normal',fontSize:'16px'},oninput:e=>{m.name=e.target.value;autosave();App.updateSummary()}}),
-        el('button',{class:'ghost small',onclick:()=>{w2.retained.splice(i,1);Work2.pruneStaleTiers();autosave();Work2.rerender('framework')}},'×')));
+        el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work2.removeRetained(i,e.currentTarget)},
+          '保留市场',()=>m.name,i,()=>state.work2.retained),'×')));
       [['region','地区'],['population','人口/规模'],['gdpPerCapita','人均 GDP']].forEach(([k,lb])=>{
         card.appendChild(el('div',{class:'field'},el('label',{},lb),el('input',{value:m[k]||'',oninput:e=>{m[k]=e.target.value;autosave()}})));
       });
@@ -627,7 +719,8 @@ Work2.render.framework = function(sec){
               effSpan.textContent='有效 '+effPct();
               autosave();
             }}),
-            el('button',{class:'ghost small',onclick:()=>{cat.indicators.splice(ii,1);autosave();Work2.rerender('framework')}},'×'))
+            el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work2.removeIndicator(axis,cat.id,ii,e.currentTarget)},
+              '二级指标',()=>ind.name,ii,()=>state.work2[axis].categories.find(c=>c.id===cat.id)?.indicators||[]),'×'))
         );
         const rub = el('div',{class:'grid3',style:'margin-top:6px'});
         ['high','mid','low'].forEach(a=>{
@@ -648,10 +741,8 @@ Work2.render.framework = function(sec){
             cat.indicators.push({id:uid('ind'),name:'',rubric:{high:'',mid:'',low:''},weight:0.5,support:0,source:'user'});
             autosave();Work2.rerender('framework');
           }},'+ 二级指标'),
-        el('button',{class:'small ghost',onclick:()=>{
-          if(!confirm(Work2.catDeleteMsg(cat, axisLabel, (w2[axis].categories||[]).length-1))) return;
-          w2[axis].categories.splice(ci,1);autosave();Work2.rerender('framework');
-        }},'删除整个一级')));
+        el('button',Interaction.deleteButton({class:'small ghost',onclick:e=>Work2.removeCategory(axis,ci,e.currentTarget)},
+          '一级维度',()=>cat.name,ci,()=>state.work2[axis].categories),'删除整个一级')));
       plate.appendChild(det);
     });
     const footRow = el('div',{class:'row',style:{gap:'8px',flexWrap:'wrap'}});
@@ -673,8 +764,8 @@ Work2.render.framework = function(sec){
         : '本轴 4 个一级维度都在；点了只提示无需补齐，不会调 AI',
       onclick:e=>Work2.fillMissingCats(axis, e.currentTarget, footRow)},
       missingCats.length ? 'AI 补齐一级：'+missingCats.map(t=>t[0]).join(' / ') : 'AI 补齐缺失的一级'));
-    footRow.appendChild(el('button',{class:'small ghost',title:'把本轴整轴换回默认模板（另一轴不动）',
-      onclick:()=>Work2.restoreAxisTemplate(axis)},'恢复默认 4×2 模板'));
+    footRow.appendChild(el('button',{class:'small ghost danger delete-control','aria-label':'恢复'+axisLabel+'默认模板',title:'恢复'+axisLabel+'默认模板','data-tooltip':'恢复'+axisLabel+'默认模板',
+      onclick:e=>Work2.restoreAxisTemplate(axis,e.currentTarget)},'恢复默认 4×2 模板'));
     plate.appendChild(footRow);
   });
 
@@ -686,7 +777,7 @@ Work2.render.framework = function(sec){
 Work2.runFrameworkPipeline = function(button, container, cfg){
   if(!Work2.guardWork1()) return;
   // 2026-08-29 重新生成语义：已生成 → 清断点，4 单元完整重跑（直接覆盖）
-  if((state.work2.candidates||[]).length>0 || (state.work2._pipeDone||[]).length>0) state.work2._pipeDone=[];
+  if((state.work2._pipeDone||[]).length>0 || state.work2._frameworkGenerated===true) state.work2._pipeDone=[];
   const w1 = state.work1;
   const sections = cfg?.sections || ['sbu','environment','personas','competitors'];
   const pick = needs => sections.filter(s=>needs.includes(s));
@@ -703,13 +794,13 @@ Work2.runFrameworkPipeline = function(button, container, cfg){
       '你是国际市场进入策略顾问。基于 SBU 特征，列出 5-10 个值得评估的海外候选市场。',
       '目标客群分布：' + (w1.personas||[]).map(p=>p.region).filter(Boolean).join('、') +
       '\n输出: {"candidates": [{"name": "", "reason": "1 句, 含 需求/规模/趋势 之一"}]}',
-      r=>{ if(!r?.candidates){ showToast('AI 返回缺少候选市场，已保留原值'); return; }
+      r=>{ if(!r || !Array.isArray(r.candidates) || !r.candidates.length) throw new Error('AI 返回缺少候选市场');
         state.work2.candidates = r.candidates.map(c=>({id:uid('cand'),name:c.name||'',reason:c.reason||'',source:'ai'}));
         state.work2.meta.work1Linked = true; autosave(); }),
     mk('fw:criteria','筛选标准','work2.criteria',['sbu','environment'],
       '你是市场进入策略顾问。基于业务特征，建议 3-5 个可观测、可量化的初筛淘汰标准。每条标准必须能从一个公开数据源查到。',
       '输出: {"criteria": [{"name": "", "source": "数据源名称"}]}',
-      r=>{ if(!r?.criteria){ showToast('AI 返回缺少评估标准，已保留原值'); return; }
+      r=>{ if(!r || !Array.isArray(r.criteria) || !r.criteria.length) throw new Error('AI 返回缺少评估标准');
         state.work2.screening.criteria = r.criteria.map(c=>({id:uid('crit'),name:c.name||'',source:c.source||'',kind:'ai'}));
         autosave(); }),
     mk('fw:retained','应用筛选','work2.retained',['sbu'],
@@ -719,7 +810,7 @@ Work2.runFrameworkPipeline = function(button, container, cfg){
       '\n只能从上面的候选清单里选，不得引入清单外的市场。' +
       // 2026-09-01：三个事实字段必须填——空串占位示例会被模型照抄成空值（1.3 卡片全空的根因）
       '\n输出: {"retained": [{"name": "清单中的市场名", "reason": "为什么留", "region": "所属地区如 欧洲/东亚", "population": "人口或规模量级如 约 6700 万", "gdpPerCapita": "人均 GDP 量级如 约 4.9 万美元"}]}，region/population/gdpPerCapita 按真实近似值填写，不得留空。',
-      r=>{ if(!r?.retained){ showToast('AI 返回缺少保留市场，已保留原值'); return; }
+      r=>{ if(!r || !Array.isArray(r.retained) || !r.retained.length) throw new Error('AI 返回缺少保留市场');
         state.work2.retained = r.retained.slice(0,3).map(m=>({id:uid('m'),name:m.name||'',region:m.region||'',population:m.population||'',gdpPerCapita:m.gdpPerCapita||'',notes:'',reason:m.reason||'',source:'ai'}));
         state.work2.scoring = {};
         // 保留市场换了 id：三档决策里的旧 marketId 当场消毒，不留悬空选择
@@ -739,7 +830,7 @@ Work2.runFrameworkPipeline = function(button, container, cfg){
       r=>Work2.acceptAxisIndicators('competitiveness', r))
   ];
   API.aiPipeline({button, container, label:'AI 推导评估体系', units, store:Work2.pipeStore,
-    onDone: ()=>Work2.rerender('framework')});
+    onDone: ()=>{ state.work2._frameworkGenerated=true; autosave(); Work2.rerender('framework'); }});
 };
 
 /* ---------- Hybrid 2 Delphi ---------- */
@@ -775,7 +866,8 @@ Work2.renderDelphi = function(plate){
   d.recruitment.perspectives.forEach((p,i)=>{
     const chip = el('span',{class:'chip',title:p.rationale},
       p.name,
-      el('button',{class:'ghost small',style:'margin-left:6px',onclick:()=>{d.recruitment.perspectives.splice(i,1);autosave();Work2.rerender('framework')}},'×'));
+      el('button',Interaction.deleteButton({class:'ghost small',style:'margin-left:6px',onclick:e=>Work2.removePerspective(i,e.currentTarget)},
+        '招聘视角',()=>p.name,i,()=>state.work2.delphi.recruitment.perspectives),'×'));
     chipRow.appendChild(chip);
   });
   plate.appendChild(chipRow);
@@ -783,9 +875,10 @@ Work2.renderDelphi = function(plate){
   // 5 persona 并行赋权（Runner 可暂停，d.phase 记录已完成 persona 数）
   if(!(d.personas||[]).length || d.status==='personas'){
     const runBtn = el('button',{class:'primary',onclick:e=>Work2.runPersonas(e.currentTarget)},
-      (d.personas||[]).length ? '继续 persona 并行赋权' : '运行 ' + d.recruitment.perspectives.length + ' persona 并行赋权');
+      (d.personas||[]).length ? '补全 persona 赋权' : '运行 ' + d.recruitment.perspectives.length + ' persona 并行赋权');
     plate.appendChild(el('div',{class:'ai-actions'}, runBtn,
-      el('button',{class:'ghost',onclick:()=>{d.recruitment.perspectives=[];d.personas=[];d.status='idle';d.drifted=false;autosave();Work2.rerender('framework')}},'重新招聘')));
+      el('button',{class:'ghost danger delete-control','aria-label':'清空招聘与赋权记录并重新招聘',title:'清空招聘与赋权记录并重新招聘','data-tooltip':'清空招聘与赋权记录并重新招聘',
+        onclick:e=>Work2.restartRecruitment(e.currentTarget)},'重新招聘')));
     return;
   }
 
@@ -850,8 +943,11 @@ Work2.runPersonas = async function(button){
   const inds = Work2.allIndicators();
   if(inds.length<2){ showToast('请先完成指标体系（至少 2 个二级指标）'); return; }
   const pers = d.recruitment.perspectives;
-  const doneN = (d.personas||[]).length;
-  const pending = pers.slice(doneN);
+  // 并行完成顺序可能与招聘顺序不同；按名称和出现次数匹配，避免删除后漏跑或重复。
+  const completed=new Map();
+  (d.personas||[]).forEach(p=>completed.set(p.perspectiveName,(completed.get(p.perspectiveName)||0)+1));
+  const pending=pers.filter(p=>{const count=completed.get(p.name)||0;if(!count)return true;completed.set(p.name,count-1);return false;});
+  const doneN = pers.length-pending.length;
   if(!pending.length){ showToast('persona 已全部完成'); return; }
   const task = Runner.start({id:'work2-delphi-personas', label:'Delphi persona 赋权', button,
     total: pers.length, pausable: true,
@@ -976,15 +1072,20 @@ Work2.migrateDelphiWeights = function(w2Data){
 
 /* 收敛：本地均值（确定性）+ 回填两级 + 可选 1 call AI 总结 */
 Work2.converge = async function(btn, container){
-  const d = state.work2.delphi;
+  const workspace=state,work=state.work2,d=work.delphi;
+  const isCurrent=()=>state===workspace && state.work2===work && state.work2.delphi===d && !(state.meta?.isDemo||state.meta?.demoCase);
+  if(!isCurrent())return false;
+  const task=Runner.start({id:'work2-converge',label:'权重收敛',button:btn,pausable:false});
+  if(!task)return false;
   const inds = Work2.allIndicators();
   const weights = Work2.convergeWeights(d.personas, inds);
-  if(!Work2.backfillWeightsInto(state.work2, weights)){
+  if(!Work2.backfillWeightsInto(work, weights)){
     showToast('无可收敛权重：请先让视角给出有效权重');
-    return;
+    Runner.finish();return false;
   }
+  // Local convergence is a completed result; aborting the optional summary keeps it.
   d.drifted = false;
-  btn.disabled = true; btn.textContent = '收敛中…';
+  d.finalWeights=null;d.status='done';autosave();
   try{
     const messages = AiContext.buildPrompt({
       workId:'work2', sections:['sbu','indicators'],
@@ -994,18 +1095,19 @@ Work2.converge = async function(btn, container){
         '\n输出: {"summary": "<1段>"}',
       fewShot:'delphi.converge'
     });
-    const r = await API.callJson(messages);
+    const r = await API.callJson(messages,{signal:task.controller.signal});
+    if(task.aborted || !isCurrent())return false;
     d.summary = r?.summary || '';
   }catch(e){
+    if(task.aborted || e?.name==='AbortError' || !isCurrent())return false;
     // 降级：本地总结，不阻断权重落地（0-1 call 语义）
     d.summary = '（AI 总结不可用）权重取 ' + d.personas.length + ' 位视角均值并归一化。';
+  }finally{
+    if(Runner.current===task)Runner.finish();
+    if(isCurrent()){autosave();Work2.rerender('framework');}
   }
-  d.finalWeights = null;
-  d.status = 'done';
-  autosave();
-  btn.disabled = false; btn.textContent = 'AI 收敛（取均值归一化）';
   showToast('已回填到指标体系');
-  Work2.rerender('framework');
+  return true;
 };
 
 /* ---------- TAB 2: 评估候选市场 ---------- */
@@ -1073,16 +1175,24 @@ Work2.render.evaluate = function(sec){
   });
 };
 
-/* AI 评分：每市场 1 call，Promise.all 并行 */
-Work2.aiScore = function(btn, container, scope, cfg){
-  if(!Work2.guardWork1()) return;
-  const mks = scope==='all' ? state.work2.retained : state.work2.retained.filter(m=>m.id===scope);
-  if(!mks.length){ showToast('没有可评分的市场'); return; }
+/* AI 评分：每市场一个单元，调用边界可暂停；已完成市场在中止后保留。 */
+Work2.aiScore = async function(btn, container, scope, cfg){
+  if(!Work2.guardWork1()) return false;
+  const workspace=state,work=state.work2;
+  const isCurrent=()=>state===workspace && state.work2===work && !(state.meta?.isDemo||state.meta?.demoCase);
+  if(!isCurrent())return false;
+  const mks=(scope==='all' ? work.retained : work.retained.filter(m=>m.id===scope)).slice();
+  if(!mks.length){ showToast('没有可评分的市场'); return false; }
   const inds = Work2.allIndicators();
+  const task=Runner.start({id:'work2-score',label:'市场评分',button:btn,total:mks.length,pausable:mks.length>1});
+  if(!task)return false;
+  let emptyResults = 0;
   const indBlock = inds.map(i=>'[' + i.id + '] (' + i.axis + ') ' + i.name +
     '\n  高分(8-10): ' + (i.rubric?.high||'—') + '\n  中分(4-7): ' + (i.rubric?.mid||'—') + '\n  低分(0-3): ' + (i.rubric?.low||'—')).join('\n');
-  btn.disabled = true; btn.textContent = '评分中…';
-  Promise.all(mks.map(async mk=>{
+  try{
+   for(const mk of mks){
+    await Runner.checkpoint();
+    if(task.aborted || !isCurrent())return false;
     const messages = AiContext.buildPrompt({
       workId:'work2', sections:(cfg?.sections||[]),
       system:'你是市场进入评分员。根据 SBU 与 rubric，对给定市场在每个指标上打 0-10 分（保留一位小数），并给 10-30 字依据。严格输出 JSON。',
@@ -1092,25 +1202,45 @@ Work2.aiScore = function(btn, container, scope, cfg){
       fewShot: cfg?.fewShot
     });
     try{
-      const r = await API.callJson(messages);
-      if(r?.scores){
-        state.work2.scoring[mk.id] = state.work2.scoring[mk.id] || {};
-        Object.entries(r.scores).forEach(([k,v])=>{
-          state.work2.scoring[mk.id][k] = {
-            score: clamp(Number(v),0,10),
-            evidence: r.evidence?.[k] || '',
-            url: r.sources?.[k] || '',
-            source: 'ai'
-          };
-        });
-        autosave();
+      const r = await API.callJson(messages,{signal:task.controller.signal});
+      if(task.aborted || !isCurrent())return false;
+      if(!work.retained.some(m=>m===mk))continue;
+      if(!r || !r.scores || !Object.keys(r.scores).length){
+        emptyResults++;
+      }else{
+      // 有效结果整体替换该市场的评分，避免旧结果与新结果拼接。
+      const validIds=new Set(Work2.allIndicators().map(i=>i.id));
+      work.scoring[mk.id] = {};
+      Object.entries(r.scores).forEach(([k,v])=>{
+        if(!validIds.has(k))return;
+        work.scoring[mk.id][k] = {
+          score: clamp(Number(v),0,10),
+          evidence: r.evidence?.[k] || '',
+          url: r.sources?.[k] || '',
+          source: 'ai'
+        };
+      });
+      autosave();
       }
-    }catch(e){ console.warn('score failed', mk.name, e); }
-  })).then(()=>{
-    btn.disabled = false; btn.textContent = Work2.hasAnyScore() ? '重新生成' : 'AI 评分';
-    Work2.rerender('evaluate');
-    showToast('评分完成');
-  });
+    }catch(e){
+      if(task.aborted || e?.name==='AbortError' || !isCurrent())return false;
+      emptyResults++;
+    }
+    Runner.tick();
+   }
+    await Runner.checkpoint();
+    if(task.aborted || !isCurrent())return false;
+    if(emptyResults) showToast(emptyResults===mks.length ? 'AI 未返回评分，已保留原值' : '评分完成，'+emptyResults+' 个市场未返回评分');
+    else showToast('评分完成');
+    return emptyResults<mks.length;
+  }catch(e){
+    if(!(task.aborted || e?.name==='AbortError') && isCurrent())showToast('评分失败：'+e.message);
+    return false;
+  }finally{
+    if(task.aborted && isCurrent())showToast('已中止，已完成市场评分保留');
+    if(Runner.current===task)Runner.finish();
+    if(isCurrent())Work2.rerender('evaluate');
+  }
 };
 
 /* 是否已有任何评分（驱动「AI 评分」→「重新生成」按钮语义，同 887 决策卡模式） */
@@ -1163,7 +1293,9 @@ Work2.render.decision = function(sec){
       (hasStar ? '' : '\n当前无明星市场：tier1 选非明星市场时，rationale 必须写明取舍（选它要补什么能力、放弃什么）。') +
       '\n输出: explanations / tier1 / tier2 / tier3 四段 JSON（marketId 用上面给出的 id）。',
     onResult:r=>{
-      if(!r) return;
+      if(!r || typeof r!=='object' || !(r.explanations || r.tier1 || r.tier2 || r.tier3)){
+        showToast('AI 未返回三档决策，已保留原值'); return;
+      }
       if(r.explanations) d.explanations = r.explanations;
       ['tier1','tier2','tier3'].forEach(t=>{
         if(!r[t]) return;
@@ -1239,7 +1371,9 @@ Work2.render.decision = function(sec){
   (d.tier1.milestones||[]).forEach((ms,i)=>{
     c1.appendChild(el('div',{style:{display:'flex',gap:'6px',marginBottom:'4px'}},
       el('input',{value:ms,style:{flex:1},oninput:e=>{d.tier1.milestones[i]=e.target.value;autosave()}}),
-      el('button',{class:'ghost small',onclick:()=>{d.tier1.milestones.splice(i,1);autosave();Work2.rerender('decision')}},'×')));
+      el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Interaction.removeItem({
+        list:()=>state.work2.decision.tier1.milestones,index:i,type:'里程碑',name:state.work2.decision.tier1.milestones[i],trigger:e.currentTarget,
+        onChange:()=>Work2.afterRemoval('decision')})},'里程碑',()=>state.work2.decision.tier1.milestones[i],i,()=>state.work2.decision.tier1.milestones),'×')));
   });
   c1.appendChild(el('button',{class:'small ghost',onclick:()=>{d.tier1.milestones.push('');autosave();Work2.rerender('decision')}},'+ 里程碑'));
   c1.appendChild(el('div',{class:'field'},el('label',{},'触发再评估条件'),el('input',{value:d.tier1.reEvalTrigger||'',oninput:e=>{d.tier1.reEvalTrigger=e.target.value;autosave()}})));
@@ -1264,7 +1398,10 @@ Work2.render.decision = function(sec){
       (d.tier2.observationMetrics||[]).forEach((om,i)=>{
         card.appendChild(el('div',{style:{display:'flex',gap:'6px',marginBottom:'4px'}},
           el('input',{value:om,style:{flex:1},oninput:e=>{d.tier2.observationMetrics[i]=e.target.value;autosave()}}),
-          el('button',{class:'ghost small',onclick:()=>{d.tier2.observationMetrics.splice(i,1);autosave();Work2.rerender('decision')}},'×')));
+          el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Interaction.removeItem({
+            list:()=>state.work2.decision.tier2.observationMetrics,index:i,type:'观察指标',name:state.work2.decision.tier2.observationMetrics[i],trigger:e.currentTarget,
+            impact:'该条观察指标会从观察期决策卡和导出中删除；其它观察指标、市场选择与评分保留。',
+            onChange:()=>Work2.afterRemoval('decision')})},'观察指标',()=>state.work2.decision.tier2.observationMetrics[i],i,()=>state.work2.decision.tier2.observationMetrics),'×')));
       });
       card.appendChild(el('button',{class:'small ghost',onclick:()=>{d.tier2.observationMetrics.push('');autosave();Work2.rerender('decision')}},'+ 观察指标'));
     }

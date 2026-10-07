@@ -31,6 +31,7 @@ const JE = require(path.join(__dirname, '..', 'docs', 'lib', 'json_extract.js'))
 sandbox.JsonExtract = JE;
 sandbox.window = sandbox;
 vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'docs', 'lib', 'interaction.js'), 'utf8'), sandbox, {filename:'lib/interaction.js'});
 vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'docs', 'workshop4.js'), 'utf8'), sandbox, {filename:'workshop4.js'});
 const W4 = sandbox.Work4;
 

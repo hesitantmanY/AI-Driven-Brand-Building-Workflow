@@ -74,7 +74,8 @@ Work1.defaultData = () => ({
   //  品牌资产指标体系（Step 4：CBBE 4 层骨架，AI 起草；自评 1-10，实测调研回填）
   metrics: {
     dimensions: [],   // AI 起草 / 模板点选生成；{id, name, secondaries:[{id, name, measure, selfScore, actual}]}
-    disclaimerAcknowledged: false
+    disclaimerAcknowledged: false,
+    _aiGenerated: false
   },
   //  合成调研
   survey: {
@@ -102,7 +103,7 @@ Work1.defaultData = () => ({
     rationale:''
   },
   //  改进建议
-  recommendations: { short:'', mid:'', long:'', risks:[] }
+  recommendations: { short:'', mid:'', long:'', risks:[], _aiGenerated:false }
 });
 
 const LIKERT5 = ['非常不同意','不同意','一般','同意','非常同意'];
@@ -295,6 +296,144 @@ Work1.backfillScores = function(){
 };
 
 Work1.render = {};
+
+// 删除只清当前对象的引用；单项撤销由 Interaction 恢复原对象，不回放旧工作区。
+Work1.afterRemoval = function(step){
+  autosave(); Work1.rerender(step);
+  if(typeof App!=='undefined'){
+    if(App.currentWork===1 && typeof App.renderSubtabs==='function') App.renderSubtabs(1);
+    if(typeof App.updateSummary==='function') App.updateSummary();
+  }
+};
+Work1.focusAction = function(step, label){
+  const sec=document.querySelector('#steps1 .step[data-step="'+step+'"]');
+  if(!sec) return;
+  const target=Array.from(sec.querySelectorAll('button')).find(b=>b.textContent.trim()===label) || sec.querySelector('h2,h3');
+  if(target){ if(target.tagName!=='BUTTON') target.setAttribute('tabindex','-1'); target.focus?.(); }
+};
+Work1.personaRemovalImpact = function(ids){
+  const set=new Set(ids);
+  return {
+    scenes:(state.work1.scenarios||[]).filter(s=>(s.personaIds||[]).some(id=>set.has(id))).length,
+    downstreamScenes:(state.work3?.scenarios||[]).filter(s=>(s.personaIds||[]).some(id=>set.has(id))).length,
+    responses:(state.work1.survey?.responses||[]).filter(r=>set.has(r.personaId)).length,
+    downstreamScores:(state.work3?.candidates||[]).filter(c=>ids.some(id=>Object.prototype.hasOwnProperty.call(c.desirabilityScores||{},id))).length
+  };
+};
+Work1.detachPersonas = function(ids){
+  const set=new Set(ids), survey=state.work1.survey;
+  [...(state.work1.scenarios||[]),...(state.work3?.scenarios||[])].forEach(s=>{
+    s.personaIds=(s.personaIds||[]).filter(id=>!set.has(id));
+  });
+  (survey?.responses||[]).forEach(r=>{ if(set.has(r.personaId)) r.personaId=null; });
+  if(Array.isArray(survey?._doneKeys)) survey._doneKeys=survey._doneKeys.filter(key=>!ids.some(id=>String(key).startsWith(id+':')));
+  (state.work1.personas||[]).forEach((p,i)=>{p.name='P'+(i+1);});
+  const w3=state.work3;
+  (w3?.candidates||[]).forEach(c=>{
+    const affected=ids.some(id=>Object.prototype.hasOwnProperty.call(c.desirabilityScores||{},id));
+    ids.forEach(id=>{if(c.desirabilityScores)delete c.desirabilityScores[id];});
+    if(affected)(w3.dimensions?.desirability||[]).forEach(d=>{
+      if(c['src_'+d.key]==='personas'){delete c[d.key];delete c['src_'+d.key];}
+    });
+  });
+  if(Array.isArray(w3?._scoreDone))w3._scoreDone=w3._scoreDone.filter(key=>!ids.some(id=>String(key).startsWith('d:'+id+':')));
+  if(Array.isArray(w3?.context?.personas))w3.context.personas=w3.context.personas.filter(p=>!set.has(p.id)).map(p=>{
+    const live=state.work1.personas.find(x=>x.id===p.id);return live?{...p,name:live.name}:p;
+  });
+};
+Work1.removePersona = function(index,trigger){
+  const p=state.work1.personas[index]; if(!p) return Promise.resolve(false);
+  const impact=Work1.personaRemovalImpact([p.id]);
+  return Interaction.removeItem({list:()=>state.work1.personas,index,type:'画像',name:p.name,trigger,
+    impact:impact.scenes+' 个 Work1 场景会取消对它的关联勾选；'+impact.downstreamScenes+' 个 Work3 场景会取消关联。'+
+      '已完成的 '+impact.responses+' 份调研答卷会失去画像指向（历史答卷及答案保留，不重跑）。对应完成记录会清除；'+
+      impact.downstreamScores+' 个 Work3 备选卖点的该画像子分、旧画像均值缓存及相关评分断点会清除，其它画像子分和人工维度分保留。剩余画像编号会重排（P1、P2…）。',
+    onChange:()=>{Work1.detachPersonas([p.id]);Work1.afterRemoval('personas');}});
+};
+Work1.removeScenario = function(index,trigger){
+  const s=state.work1.scenarios[index]; if(!s) return Promise.resolve(false);
+  const count=(s.personaIds||[]).length;
+  return Interaction.removeItem({list:()=>state.work1.scenarios,index,type:'场景',name:s.name,trigger,
+    impact:count ? count+' 个画像关联会随该场景一并取消；画像、历史答卷及分析结果保留。' : '',
+    onChange:()=>Work1.afterRemoval('personas')});
+};
+Work1.clearAdoptedPersonas = async function(trigger){
+  if(state.meta?.isDemo || state.meta?.demoCase) return false;
+  const workspace=state, personas=state.work1.personas.slice(),scenarios=state.work1.scenarios.slice();
+  const ids=personas.map(p=>p.id),impact=Work1.personaRemovalImpact(ids);
+  if(!await Interaction.confirm({title:'清空采纳？',confirmLabel:'清空画像和场景',trigger,
+    message:'将清空当前页面全部 '+personas.length+' 个已采纳画像和 '+scenarios.length+' 个场景。'+
+      impact.downstreamScenes+' 个 Work3 场景会取消画像关联；'+impact.responses+' 份历史调研答卷保留但会失去画像指向，对应完成记录会清除。'+
+      impact.downstreamScores+' 个 Work3 备选卖点的相关画像子分、旧画像均值缓存和评分断点会清除，人工维度分保留。此操作不可撤销。'})) return false;
+  if(state!==workspace || state.meta?.isDemo || state.meta?.demoCase) return false;
+  if(state.work1.personas.length!==personas.length || state.work1.scenarios.length!==scenarios.length ||
+      !personas.every((p,i)=>state.work1.personas[i]===p) || !scenarios.every((s,i)=>state.work1.scenarios[i]===s)){
+    showToast('画像或场景已变化，请重新确认清空范围'); return false;
+  }
+  state.work1.personas=[];state.work1.scenarios=[];Work1.detachPersonas(ids);
+  Work1.personaDraft.clear();Work1.personaDraft.close(false);
+  Work1.afterRemoval('personas');Work1.focusAction('personas','+ 添加画像');
+  showToast('已清空画像 '+personas.length+' 个、场景 '+scenarios.length+' 个');return true;
+};
+Work1.questionRemovalImpact = function(questions){
+  const ids=new Set(questions.map(q=>q.id)),a=state.work1.analysis,s=state.work1.survey;
+  return {
+    answers:(s.responses||[]).reduce((n,r)=>n+(r.answers||[]).filter(x=>ids.has(x.questionId)).length,0),
+    stats:questions.filter(q=>Object.prototype.hasOwnProperty.call(a.likertStats||{},q.id)).length,
+    themes:(a.openThemes||[]).filter(x=>ids.has(x.questionId)).length,
+    linked:questions.filter(q=>q.sourceIndicatorId!=null).length
+  };
+};
+Work1.clearQuestionReferences = function(questions){
+  const ids=new Set(questions.map(q=>q.id)),s=state.work1.survey,a=state.work1.analysis;
+  const impact=Work1.questionRemovalImpact(questions);
+  (s.responses||[]).forEach(r=>{r.answers=(r.answers||[]).filter(x=>!ids.has(x.questionId));});
+  questions.forEach(q=>{if(a.likertStats)delete a.likertStats[q.id];});
+  a.openThemes=(a.openThemes||[]).filter(x=>!ids.has(x.questionId));
+  // 每题的统计仍有效；重建均值来源即可，保留其它开放题的主题和引文。
+  a.indicatorMeans=(s.questions||[]).filter(q=>q.type==='likert' && a.likertStats?.[q.id]?.n>0).map(q=>{
+    const st=a.likertStats[q.id];
+    return {label:(q.text||'').length>22?q.text.slice(0,22)+'…':q.text||'',value:st.mean,mean:st.mean,sourceIndicatorId:q.sourceIndicatorId||null,n:st.n};
+  });
+  if(impact.answers || impact.stats || impact.themes) a.insights='';
+  Work1.backfillScores();
+};
+Work1.removeMetric = function(dimIndex,secondaryIndex,trigger){
+  const dim=state.work1.metrics.dimensions[dimIndex];if(!dim)return Promise.resolve(false);
+  const isSecondary=secondaryIndex!=null,item=isSecondary?dim.secondaries[secondaryIndex]:dim;
+  if(!item)return Promise.resolve(false);
+  const secondaries=isSecondary?[item]:(dim.secondaries||[]),ids=new Set(secondaries.map(s=>s.id));
+  const questions=(state.work1.survey.questions||[]).filter(q=>ids.has(q.sourceIndicatorId)),impact=Work1.questionRemovalImpact(questions);
+  return Interaction.removeItem({list:()=>isSecondary?state.work1.metrics.dimensions.find(d=>d.id===dim.id)?.secondaries:state.work1.metrics.dimensions,
+    index:isSecondary?secondaryIndex:dimIndex,type:isSecondary?'测评点':'一级指标',name:item.name,trigger,
+    impact:(isSecondary?'该测评点':secondaries.length+' 个下级测评点')+'的量化口径、自评和实测分会删除。'+
+      questions.length+' 道关联生成题及其 '+impact.answers+' 条答案会删除，历史答卷和其它题目保留；相关 '+impact.stats+' 项统计、'+impact.themes+' 项开放题主题会清除，实测回填重新计算。'+
+      ((impact.answers||impact.stats||impact.themes)?'综合洞察会清除，请按剩余数据重新生成。':''),
+    onChange:()=>{
+      state.work1.survey.questions=(state.work1.survey.questions||[]).filter(q=>!ids.has(q.sourceIndicatorId));
+      Work1.clearQuestionReferences(questions);Work1.afterRemoval('metrics');
+    }});
+};
+Work1.removeQuestion = function(index,trigger){
+  const q=state.work1.survey.questions[index];if(!q)return Promise.resolve(false);
+  const impact=Work1.questionRemovalImpact([q]),dependent=impact.answers||impact.stats||impact.themes||impact.linked;
+  return Interaction.removeItem({list:()=>state.work1.survey.questions,index,type:'问卷题目',name:q.text,trigger,
+    impact:dependent ? '该题的 '+impact.answers+' 条答案、'+impact.stats+' 项统计和 '+impact.themes+' 项主题会删除；历史答卷及其它题目的答案保留。'+
+      (impact.linked?'测评点实测回填将按剩余关联题重新计算。':'')+
+      ((impact.answers||impact.stats||impact.themes)?'综合洞察会清除，请按剩余数据重新生成。':'') : '',
+    onChange:()=>{if(dependent)Work1.clearQuestionReferences([q]);Work1.afterRemoval('survey');}});
+};
+Work1.clearResponses = async function(trigger){
+  if(state.meta?.isDemo || state.meta?.demoCase)return false;
+  const workspace=state,s=state.work1.survey,a=state.work1.analysis,count=s.responses.length;
+  const answers=s.responses.reduce((n,r)=>n+(r.answers||[]).length,0),done=(s._doneKeys||[]).length;
+  if(!await Interaction.confirm({title:'清空回答？',confirmLabel:'清空回答',trigger,
+    message:'将清空 '+count+' 份调研答卷、'+answers+' 条答案和 '+done+' 条已完成记录；分析统计、开放题主题与引文、综合洞察会清空，全部指标实测回填归空。问卷题目、指标自评及调研设置保留。此操作不可撤销。'}))return false;
+  if(state!==workspace || state.meta?.isDemo || state.meta?.demoCase)return false;
+  s.responses=[];s._doneKeys=[];s.status='idle';s.progress={done:0,total:0};s.error=null;
+  a.likertStats={};a.openThemes=[];a.indicatorMeans=[];a.insights='';Work1.backfillScores();
+  Work1.afterRemoval('survey');Work1.focusAction('survey','清空回答');showToast('已清空回答 '+count+' 份');return true;
+};
 
 /* ---------- SBU 样本（顶层，跨函数可用） ----------
    暴露到 Work1 命名空间，方便 Work5 等其他模块在未渲染 SBU 步骤时
@@ -1127,7 +1266,9 @@ Work1.render.environment = function(sec){
       el('td',{}, txa('strengths','优势')),
       el('td',{}, txa('weaknesses','劣势')),
       el('td',{}, txa('position','相对位置')),
-      el('td',{}, el('button',{class:'ghost small',onclick:()=>{d.competitors.splice(i,1);autosave();Work1.rerender('environment')}},'×'))
+      el('td',{}, el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Interaction.removeItem({
+        list:()=>state.work1.environment.competitors,index:i,type:'竞品',name:c.name,trigger:e.currentTarget,
+        onChange:()=>Work1.afterRemoval('environment')})},'竞品',()=>c.name,i,()=>state.work1.environment.competitors),'×'))
     );
     tbody.appendChild(tr);
   });
@@ -1280,7 +1421,7 @@ Work1.render.personas = function(sec){
       el('input',{type:'text',value:s.name||'',placeholder:'场景名（如：自用购买 / 送礼 / 复购）',
         style:{flex:'1',fontFamily:'var(--font-body)',fontSize:'18px',fontStyle:'normal',border:'none',borderBottom:'1px solid var(--color-rule)',background:'transparent'},
         oninput:e=>{s.name=e.target.value;autosave();}}),
-      el('button',{class:'ghost small',onclick:()=>{sc.splice(i,1);autosave();Work1.rerender('personas')}},'删除场景'));
+      el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work1.removeScenario(i,e.currentTarget)},'场景',()=>s.name,i,()=>state.work1.scenarios),'删除场景'));
     card.appendChild(head);
     // persona association
     if(state.work1.personas.length){
@@ -1366,22 +1507,8 @@ Work1.personaCard = function(p, i){
   nameRow.appendChild(nameLabel);
   // 2026-09-11：去掉 small——删除是破坏性操作，11px + 一条下划线太小点不中；
   // 尺寸与轮廓交给 .hallmark-persona .persona-del 的 CSS。
-  const delBtn = el('button',{class:'ghost persona-del', onclick:()=>{
-    // 2026-09-11 修复「删不掉」：原来调 renderStep，被 RENDER_VERSION 守卫拦下
-    // （已渲染只走 refreshDynamic，而它只认 survey）→ 界面不动、数据却已删并随
-    // autosave 落盘，用户以为删除失效还会连点，连点期间状态与界面彻底错位。
-    const linkedSc = (state.work1.scenarios||[]).filter(s=>(s.personaIds||[]).includes(p.id)).length;
-    const respN = (state.work1.survey?.responses||[]).filter(r=>r.personaId===p.id).length;
-    const bits = ['删除画像 #'+num+'？'];
-    if(linkedSc) bits.push(linkedSc+' 个场景会取消对它的关联勾选。');
-    if(respN) bits.push('已完成的 '+respN+' 份调研答卷会失去画像指向（历史答卷保留，不重跑）。');
-    bits.push('剩余画像编号会重排（P1、P2…）。');
-    if(!confirm(bits.join('\n'))) return;
-    state.work1.personas = state.work1.personas.filter(x=>x.id!==p.id);
-    // 场景里的关联勾选同步清掉，不留悬空 personaId
-    (state.work1.scenarios||[]).forEach(s=>{ s.personaIds=(s.personaIds||[]).filter(x=>x!==p.id); });
-    autosave(); Work1.rerender('personas');
-  }}, '删除');
+  const delBtn = el('button',Interaction.deleteButton({class:'ghost persona-del',onclick:e=>Work1.removePersona(idx,e.currentTarget)},
+    '画像',()=>p.name,idx,()=>state.work1.personas), '删除');
   nameRow.appendChild(delBtn);
   mid.appendChild(nameRow);
 
@@ -1410,16 +1537,14 @@ Work1.personaCard = function(p, i){
 
   // 核心价值观 tags
   mid.appendChild(el('label',{class:'persona-row-label'}, '核心价值观'));
-  const ti = UI.tagsInput(p.values||[]);
+  const ti = UI.tagsInput(()=>p.values||(p.values=[]), '输入后回车添加', next=>{p.values=next;autosave()});
   ti.el.querySelector('input').setAttribute('placeholder','输入后回车添加');
-  ti.el.querySelector('input').addEventListener('blur',()=>{p.values=ti.get();autosave()});
   mid.appendChild(ti.el);
 
   // 常用渠道 tags
   mid.appendChild(el('label',{class:'persona-row-label'}, '常用渠道'));
-  const tc = UI.tagsInput(p.channels||[]);
+  const tc = UI.tagsInput(()=>p.channels||(p.channels=[]), '输入后回车添加', next=>{p.channels=next;autosave()});
   tc.el.querySelector('input').setAttribute('placeholder','输入后回车添加');
-  tc.el.querySelector('input').addEventListener('blur',()=>{p.channels=tc.get();autosave()});
   mid.appendChild(tc.el);
 
   bodyItem.appendChild(mid);
@@ -1641,7 +1766,7 @@ Work1.personaDraft.mountInput = function(){
   // 标题栏
   dlg.appendChild(el('div',{class:'pd-head'},
     el('span',{class:'pd-title'},'一键生成使用场景和用户画像'),
-    el('button',{class:'pd-close', onclick:()=>Work1.personaDraft.close(true), title:'关闭'},'×')
+    el('button',{class:'pd-close',onclick:()=>Work1.personaDraft.close(true),'aria-label':'关闭画像生成面板',title:'关闭画像生成面板','data-tooltip':'关闭画像生成面板'},'×')
   ));
   // 上游摘要（只读）
   const up = Work1.personaDraft.collectUpstream();
@@ -1731,7 +1856,7 @@ Work1.personaDraft.mountPreview = function(){
   const dlg = el('div',{class:'pd-modal pd-modal--wide', role:'dialog'});
   dlg.appendChild(el('div',{class:'pd-head'},
     el('span',{class:'pd-title'},'生成结果预览 · v', String(Work1.personaDraft.version + 1), '/', String(Work1.personaDraft.versions.length || 1)),
-    el('button',{class:'pd-close', onclick:()=>Work1.personaDraft.close(true), title:'关闭'},'×')
+    el('button',{class:'pd-close',onclick:()=>Work1.personaDraft.close(true),'aria-label':'关闭画像预览面板',title:'关闭画像预览面板','data-tooltip':'关闭画像预览面板'},'×')
   ));
   // 三个区块 —— 可编辑（直接改当前版本数据）
   dlg.appendChild(Work1.personaDraft.previewBlock('personas', '客户画像', v.personas, (item, idx) => {
@@ -1851,15 +1976,8 @@ Work1.personaDraft.mountDrawer = function(){
     ...(v.scenarios||[]).map(s => el('div',{class:'pd-drawer-row'}, s.name, ' · 短板：', s.decisiveGap || '—'))
   ));
   drawer.appendChild(el('div',{class:'pd-drawer-foot'},
-    el('button',{class:'ghost small', onclick:()=>{
-      if(!confirm('清空已采纳的画像和场景？')) return;
-      state.work1.personas = [];
-      state.work1.scenarios = [];
-      autosave();
-      Work1.personaDraft.clear();
-      Work1.personaDraft.close(false);
-      Work1.rerender('personas');
-    }},'清空采纳')
+    el('button',{class:'ghost small danger delete-control','aria-label':'清空已采纳画像和场景',title:'清空已采纳画像和场景','data-tooltip':'清空已采纳画像和场景',
+      onclick:e=>Work1.clearAdoptedPersonas(e.currentTarget)},'清空采纳')
   ));
   mount.appendChild(drawer);
 };
@@ -1993,7 +2111,8 @@ Work1.render.metrics = function(sec){
         el('td',{}, numIn(s2,'selfScore','1-10')),
         actualTd,
         deltaCell,
-        el('td',{}, el('button',{class:'ghost small',onclick:()=>{dim.secondaries.splice(j,1);autosave();Work1.rerender('metrics')}},'×'))
+        el('td',{}, el('button',Interaction.deleteButton({class:'ghost small',onclick:e=>Work1.removeMetric(i,j,e.currentTarget)},
+          '测评点',()=>s2.name,j,()=>state.work1.metrics.dimensions.find(d=>d.id===dim.id)?.secondaries||[]),'×'))
       );
       tbody.appendChild(tr);
     });
@@ -2008,8 +2127,8 @@ Work1.render.metrics = function(sec){
     const right=el('div',{class:'hallmark-right'});
     right.appendChild(el('span',{class:'hallmark-label'},'测评点'));
     right.appendChild(el('div',{class:'hallmark-count'}, el('span',{class:'hallmark-count-num'},dim.secondaries.length), document.createTextNode(' items')));
-    right.appendChild(el('button',{class:'ghost small',style:'margin-top:8px',
-      onclick:()=>{ if(confirm('删除一级指标「'+(dim.name||'')+'」及其测评点？')){ m.dimensions.splice(i,1); autosave(); Work1.rerender('metrics'); }}},'删除'));
+    right.appendChild(el('button',Interaction.deleteButton({class:'ghost small',style:'margin-top:8px',onclick:e=>Work1.removeMetric(i,null,e.currentTarget)},
+      '一级指标',()=>dim.name,i,()=>state.work1.metrics.dimensions),'删除'));
     item.appendChild(right);
     list.appendChild(item);
   });
@@ -2060,7 +2179,7 @@ Work1.metricsHeadRow = function(sec){
   const headRow=el('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px',marginBottom:'10px'}});
   headRow.appendChild(el('p',{class:'muted',style:'font-size:13px;margin:0;flex:1'},'按 CBBE 金字塔搭层级指标：显著性 / 功效 / 形象 / 共鸣。每层恰好 3 个测评点（共 12 个），每个测评点打 1-10 自评分 + 量化口径；调研后回填实测分并对照偏差。'));
   const btns=el('div',{style:{display:'flex',gap:'8px',flexShrink:0}});
-  const aiBtn=el('button',{class:'primary', onclick:()=>Work1.draftMetrics(aiBtn, sec)},'一键生成指标体系');
+  const aiBtn=el('button',{class:'primary', onclick:()=>Work1.draftMetrics(aiBtn, sec)}, state.work1.metrics._aiGenerated ? '重新生成指标体系' : '一键生成指标体系');
   const addBtn=el('button',{class:'ghost',onclick:()=>{ const m=state.work1.metrics; m.dimensions.push({id:uid('m'),name:'',secondaries:[]}); autosave(); Work1.rerender('metrics'); }},'+ 添加一级指标');
   btns.appendChild(aiBtn); btns.appendChild(addBtn);
   headRow.appendChild(btns);
@@ -2094,11 +2213,9 @@ Work1.normalizeMetricDims = function(rawDims){
 };
 
 // AI 起草 CBBE 4 层指标体系（决策 2：显著性/功效/形象/共鸣，每层恰好 3 测评点 + 自评分）
-// 决策 7：已有内容时二次确认（起草会整体替换）；空白时不打扰
+// 2026-10-04：AI 生成类按钮直接覆盖上次 AI 结果，不追加、不 confirm。
 Work1.draftMetrics = function(btn, container){
   const m=state.work1.metrics;
-  const filledCount=(m.dimensions||[]).filter(d=>(d.name||'').trim() || (d.secondaries||[]).some(s=>(s.name||'').trim()||s.selfScore!=null)).length;
-  if(filledCount>0 && !confirm('用 AI 起草会整体替换当前指标体系（现有 '+filledCount+' 个一级指标），确定？')) return;
   API.aiButton({button:btn, container,
     buildPrompt:Work1._ctx(container, ['sbu','personas'], ()=>[{role:'system',content:'你是品牌资产管理专家（CBBE，Keller 1998）。为给定 SBU 设计品牌资产指标体系：严格输出 4 个一级指标，按 CBBE 金字塔——品牌显著性 / 品牌功效 / 品牌形象 / 品牌共鸣，每层必须恰好 3 个二级测评点（共 12 个，不多不少）。每个测评点给出：量化口径（用什么数据衡量、什么算高分）与自评分（1-10，基于前文资料对品牌现状的主观估计；1-3 行业中下游 / 4-6 行业平均 / 7-8 行业前列 / 9-10 品类标杆）。测评点要具体可感知，不用"品质好"这类空话。输出 JSON: {"dimensions":[{"name":"一级指标名","secondaries":[{"name":"测评点","measure":"量化口径","selfScore":6}]}]}'},
       {role:'user',content:`SBU:${state.work1.sbu.name}\n品类:${state.work1.sbu.category}\n概述:${state.work1.sbu.summary}\n场景短板:\n${(state.work1.scenarios||[]).map(s=>s.name+': '+(s.decisiveGap||'')).join('\n')}\n画像痛点:\n${state.work1.personas.map(p=>p.name+':'+p.painPoints).join('\n')}`}]),
@@ -2106,6 +2223,7 @@ Work1.draftMetrics = function(btn, container){
       if(!r||!Array.isArray(r.dimensions)){showToast('生成失败');return;}
       const {dimensions, patched}=Work1.normalizeMetricDims(r.dimensions);
       m.dimensions=dimensions;
+      m._aiGenerated=true;
       autosave(); Work1.rerender('metrics');
       if(patched) showToast('AI 少给了 '+patched+' 个测评点，已按 4×3 结构补空行，请补全名称与评分');
     }});
@@ -2116,13 +2234,19 @@ Work1.questionTextFor = s2 => '我认可该品牌在「'+(s2.name||'')+'」方�
 
 // 重建全部题目：删除所有由指标生成的题（sourceIndicatorId!=null），按当前指标重新生成。
 // 手动添加的题（sourceIndicatorId===null）保留。
-Work1.rebuildQuestionsFromMetrics = function(){
+Work1.rebuildQuestionsFromMetrics = async function(trigger){
+  if(state.meta?.isDemo || state.meta?.demoCase) return false;
+  const workspace=state;
   const s=state.work1.survey, m=state.work1.metrics;
   const dims=m.dimensions||[];
   const totalSec=dims.reduce((n,d)=>n+(d.secondaries||[]).length,0);
   if(!totalSec){ showToast('请先在「指标体系」中建立二级指标'); return; }
-  const genCount=(s.questions||[]).filter(q=>q.sourceIndicatorId!=null).length;
-  if(!confirm('重建会删除全部由指标生成的题目（'+genCount+' 道）并按当前指标重新生成（'+totalSec+' 道），手动添加的题目保留。确定？')) return;
+  const generated=(s.questions||[]).filter(q=>q.sourceIndicatorId!=null),manualCount=s.questions.length-generated.length;
+  const impact=Work1.questionRemovalImpact(generated);
+  if(!await Interaction.confirm({title:'重建全部指标生成题？',confirmLabel:'重建指标生成题',trigger,
+    message:'将删除全部 '+generated.length+' 道指标生成题，并按当前测评点重建 '+totalSec+' 道。'+manualCount+' 道手动题及其答案保留。'+
+      '旧指标题的 '+impact.answers+' 条答案、相关统计/主题会清除，实测回填重新计算；已完成记录和进度会重置，综合洞察如受影响需重新生成。此操作不可撤销。'})) return false;
+  if(state!==workspace || state.meta?.isDemo || state.meta?.demoCase)return false;
   s.questions=(s.questions||[]).filter(q=>q.sourceIndicatorId==null);
   let added=0;
   dims.forEach(d=>(d.secondaries||[]).forEach(s2=>{
@@ -2131,8 +2255,11 @@ Work1.rebuildQuestionsFromMetrics = function(){
       options:[],anchors:[...LIKERT5],sourceIndicatorId:s2.id});
     added++;
   }));
-  autosave(); Work1.rerender('survey');
+  Work1.clearQuestionReferences(generated);
+  s._doneKeys=[];s.status='idle';s.progress={done:0,total:0};s.error=null;
+  Work1.afterRemoval('survey');Work1.focusAction('survey','重建全部题目');
   showToast('已重建 '+added+' 道题目');
+  return true;
 };
 
 // 决策 8：为没有对应调研题的测评点一键生成缺题
@@ -2237,8 +2364,8 @@ Work1.render.survey = function(sec){
     const head=el('header');
     head.appendChild(el('span',{class:'q-num'},'Q'+String(i+1).padStart(2,'0')));
     head.appendChild(el('span',{class:'q-type-tag'},'李克特 5 级'));
-    head.appendChild(el('button',{class:'q-del ghost small',
-      onclick:()=>{s.questions.splice(i,1);autosave();Work1.rerender('survey')}},'删除'));
+    head.appendChild(el('button',Interaction.deleteButton({class:'q-del ghost small',onclick:e=>Work1.removeQuestion(i,e.currentTarget)},
+      '问卷题目',()=>q.text,i,()=>state.work1.survey.questions,q=>q.text),'删除'));
     card.appendChild(head);
 
     // question text — 陈述句式（李克特量表要求同一构念的陈述加总计分）
@@ -2278,7 +2405,8 @@ Work1.render.survey = function(sec){
     autosave(); Work1.rerender('survey');
     showToast(added? ('已根据指标生成 '+added+' 道李克特题'):((state.work1.metrics.dimensions||[]).reduce((n,d)=>n+(d.secondaries||[]).length,0)+' 个测评点都已有对应题目；指标有变化时用「重建全部题目」同步'));
   }},' 从指标体系生成李克特题目'));
-  designerActions.appendChild(el('button',{class:'ghost',onclick:()=>Work1.rebuildQuestionsFromMetrics()},'重建全部题目'));
+  designerActions.appendChild(el('button',{class:'ghost danger delete-control','aria-label':'重建全部指标生成题',title:'重建全部指标生成题','data-tooltip':'重建全部指标生成题',
+    onclick:e=>Work1.rebuildQuestionsFromMetrics(e.currentTarget)},'重建全部题目'));
   designerActions.appendChild(el('button',{class:'ghost',onclick:()=>{
     s.questions.push({id:uid('q'),type:'likert',text:'',options:[],anchors:[...LIKERT5],sourceIndicatorId:null});
     autosave(); Work1.rerender('survey');
@@ -2343,14 +2471,11 @@ Work1.render.survey = function(sec){
   const statusLine=el('p',{class:'mono',style:'font-size:11px;color:var(--color-ink-2)'}, Work1.surveyStatus());
   plate.appendChild(statusLine);
   const runBtn=el('button',{class:'primary',onclick:e=>Work1.runSurvey(e.currentTarget)},
-    (s.status==='paused'||s.status==='aborted')?'继续合成调研':'运行合成调研');
+    (s.status==='paused'||s.status==='aborted')?'补全合成调研':'运行合成调研');
   const actions=el('div',{class:'ai-actions'}, runBtn,
     el('button',{class:'ghost',onclick:()=>Work1.analyzeResponses()},'重新分析'),
-    el('button',{class:'ghost',onclick:()=>{ if(confirm('清空已有回答？')){s.responses=[];s._doneKeys=[];s.status='idle';
-      // BIZ05：统计/主题/实测回填源在 analysis 侧，一并清空并重算（actual 归 null）
-      const a=state.work1.analysis||(state.work1.analysis={});a.likertStats={};a.openThemes=[];a.indicatorMeans=[];
-      Work1.backfillScores();autosave();Work1.rerender('survey');
-      if(typeof App!=='undefined' && App.currentWork===1) App.renderSubtabs(1);}}},'清空回答')
+    el('button',{class:'ghost danger delete-control','aria-label':'清空调研回答',title:'清空调研回答','data-tooltip':'清空调研回答',
+      onclick:e=>Work1.clearResponses(e.currentTarget)},'清空回答')
   );
   plate.appendChild(actions);
   if(s.error) plate.appendChild(el('div',{class:'warning'},s.error));
@@ -2519,7 +2644,10 @@ Work1.render.analysis = function(sec){
       button:insightBtn, container:insightAi,
       buildPrompt:Work1._ctx(insightAi, ['sbu','metrics'], ()=>[{role:'system',content:'你是市场研究总监。根据给定的描述性统计与开放题主题，撰写 5-8 条可执行洞察。输出 JSON: {"insights":"..."}'},
         {role:'user',content:Work1.surveyDigest()}]),
-      onResult:r=>{ if(r?.insights){ a.insights=r.insights; autosave(); Work1.renderStep('analysis'); } }
+      onResult:r=>{
+        if(!r || typeof r.insights !== 'string' || !r.insights.trim()){ showToast('AI 未返回综合洞察，已保留原值'); return; }
+        a.insights=r.insights; autosave(); Work1.renderStep('analysis');
+      }
     });
   }}, hasInsights ? '重新生成综合洞察' : '用 AI 综合洞察');
   insightAi.appendChild(insightBtn);
@@ -2662,7 +2790,8 @@ Work1.extractThemes = function(ot, btn, plate){
     buildPrompt:Work1._ctx(plate, ['sbu'], ()=>[{role:'system',content:'你是定性研究分析师。从开放题答案中归纳 4-6 个主题。输出 JSON: {"themes":[{"label":"","count":0}],"quotes":[""]}'},
       {role:'user',content:`题目：${ot.question}\n\n回答：\n${ot.texts.map((t,i)=>`${i+1}. ${t}`).join('\n')}`}]),
     onResult:r=>{
-      if(r?.themes){ ot.themes=r.themes; ot.quotes=r.quotes||[]; autosave(); Work1.renderStep('analysis'); }
+      if(!r || !Array.isArray(r.themes)){ showToast('AI 未返回主题，已保留原值'); return; }
+      ot.themes=r.themes; ot.quotes=Array.isArray(r.quotes)?r.quotes:[]; autosave(); Work1.renderStep('analysis');
     }
   });
 };
@@ -2698,8 +2827,10 @@ Work1.render.values = function(sec){
       buildPrompt:Work1._ctx(aiBox, ['sbu','personas','insights'], ()=>[{role:'system',content:'你是品牌价值框架专家。根据 SBU、客户画像、调研洞察，提出功能/情感/社会/认知/条件 5 类价值要素，并从中选出三条主轴。输出 JSON: {"functional":[],"emotional":[],"social":[],"epistemic":[],"conditional":[],"chosenFunctional":"","chosenEmotional":"","chosenSocial":"","rationale":""}'},
         {role:'user',content:`SBU:${state.work1.sbu.name}\n画像:${state.work1.personas.map(p=>p.name+':'+p.painPoints).join('\n')}\n洞察:\n${state.work1.analysis.insights}`}]),
       onResult:r=>{
-        if(!r)return;
-        ['functional','emotional','social','epistemic','conditional','chosenFunctional','chosenEmotional','chosenSocial','rationale'].forEach(k=>{ if(r[k]!=null) v[k]=r[k]; });
+        if(!r || typeof r!=='object'){ showToast('AI 未返回价值框架，已保留原值'); return; }
+        // 有效结果整体替换：缺失字段清空，避免旧结果与新结果拼接。
+        ['functional','emotional','social','epistemic','conditional'].forEach(k=>{ v[k]=Array.isArray(r[k])?r[k].slice():[]; });
+        ['chosenFunctional','chosenEmotional','chosenSocial','rationale'].forEach(k=>{ v[k]=typeof r[k]==='string'?r[k]:''; });
         autosave(); Work1.renderStep('values');
       }
     });
@@ -2721,8 +2852,11 @@ Work1.render.values = function(sec){
     const mid = el('div',{class:'hallmark-mid'});
     mid.appendChild(el('h4',{class:'hallmark-headline'}, title));
     mid.appendChild(el('p',{class:'hallmark-hint'}, desc));
-    const ti = UI.tagsInput(v[k] || []);
-    ti.el.querySelector('input').addEventListener('blur',()=>{v[k]=ti.get();autosave()});
+    const ti = UI.tagsInput(()=>v[k]||(v[k]=[]), '输入后回车添加', next=>{
+      v[k]=next;autosave();
+      const counter=item.querySelector('.hallmark-count-num');
+      if(counter)counter.textContent=next.length;
+    });
     // Re-render counter when tags change so KEY POINTS count updates
     ti.el.addEventListener('click',(e)=>{
       if(e.target.tagName==='BUTTON'){
@@ -2787,24 +2921,22 @@ Work1.render.recommendations = function(sec){
   headRow.appendChild(el('p',{class:'muted',style:'font-size:13px;margin:0;flex:1'},'把价值主轴与调研洞察转化为行动路线：短 / 中 / 长期三段 + 关键风险；Δ >1.5 的认知断点优先在建议中处理。'));
   const ai=el('div',{class:'ai-box'});
   const btn=el('button',{class:'primary',onclick:()=>{
-    // 覆盖规则对齐 step4 决策 7：任一非空 → confirm 后整体替换；空白直接起草
-    const filled=['short','mid','long'].filter(k=>(r[k]||'').trim()).length+((r.risks||[]).some(x=>(x||'').trim())?1:0);
-    if(filled>0 && !confirm('用 AI 起草会整体替换当前建议（短/中/长/风险 已有 '+filled+' 项内容），继续？')) return;
     API.aiButton({
       button:btn,container:ai,
       buildPrompt:Work1._ctx(ai, ['sbu','valueFramework','insights'], ()=>[{role:'system',content:'你是品牌战略顾问。根据价值框架与洞察，输出短中长期建议与关键风险。JSON: {"short":"","mid":"","long":"","risks":[""]}'},
         {role:'user',content:`SBU:${state.work1.sbu.name}\n价值: 功能=${state.work1.values.chosenFunctional} 情感=${state.work1.values.chosenEmotional} 社会=${state.work1.values.chosenSocial}\n洞察:\n${state.work1.analysis.insights}`}]),
       onResult:res=>{
-        if(!res)return;
+        if(!res || typeof res!=='object'){ showToast('AI 未返回建议，已保留原值'); return; }
         // 整体替换四项（AI 没给的字段清空）
         r.short=typeof res.short==='string'?res.short:'';
         r.mid=typeof res.mid==='string'?res.mid:'';
         r.long=typeof res.long==='string'?res.long:'';
         r.risks=Array.isArray(res.risks)?res.risks.map(x=>String(x)):[];
+        r._aiGenerated=true;
         autosave(); Work1.renderStep('recommendations');
       }
     });
-  }},'用 AI 起草建议');
+  }}, r._aiGenerated ? '重新生成建议' : '用 AI 起草建议');
   headRow.appendChild(btn);
   plate.appendChild(headRow);
   plate.appendChild(ai);
@@ -2837,9 +2969,8 @@ Work1.render.recommendations = function(sec){
   risksHead.appendChild(el('span',{class:'rec-time'}, '关键风险'));
   risksHead.appendChild(el('span',{class:'rec-title'}, '关键风险 / 假设'));
   risksMid.appendChild(risksHead);
-  const risks = UI.tagsInput(r.risks||[]);
+  const risks = UI.tagsInput(()=>r.risks||(r.risks=[]), '输入后回车添加', next=>{r.risks=next;autosave()});
   risks.el.querySelector('input').setAttribute('placeholder','输入后回车添加');
-  risks.el.querySelector('input').addEventListener('blur',()=>{r.risks=risks.get();autosave()});
   risksMid.appendChild(risks.el);
   risksItem.appendChild(risksMid);
   risksItem.appendChild(el('div',{class:'hallmark-right'}));
@@ -2857,6 +2988,9 @@ Work1.refreshDynamic = function(id){
     }
     const sl=document.querySelector('#steps1 .step[data-step="survey"] p.mono');
     if(sl) sl.textContent=Work1.surveyStatus();
+    // Runner 任务期间按钮归 Runner 所有（暂停/继续/中止都在同一按钮上），
+    // 整步重绘会卸掉它并把单任务锁卡死；进度行已在上面轻量更新。
+    if(typeof Runner!=='undefined' && Runner.current) return;
   }
   // Global: always re-render on any state change to guarantee UI reflects state.
   // The old conditional logic (only metrics/analysis/others) was incomplete — e.g.

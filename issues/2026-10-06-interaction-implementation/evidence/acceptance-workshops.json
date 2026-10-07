@@ -1,0 +1,2752 @@
+{
+  "group": "workshops",
+  "isolation": "Temporary server source and empty data; no real archives or provider keys",
+  "browser": "154.0.8037.95",
+  "cases": [
+    {
+      "code": "A11",
+      "title": "真实10秒暂停导航替换撤销",
+      "assertions": [
+        {
+          "label": "A11 10秒内撤销有效",
+          "passed": true
+        },
+        {
+          "label": "A11 真实10秒后入口过期",
+          "passed": true,
+          "details": {
+            "elapsed_seconds": 10.31
+          }
+        },
+        {
+          "label": "A11 hover真实10秒暂停",
+          "passed": true,
+          "details": {
+            "before": "9 秒",
+            "after": "9 秒"
+          }
+        },
+        {
+          "label": "A11 hover移出后续计过期",
+          "passed": true
+        },
+        {
+          "label": "A11 focus真实10秒暂停",
+          "passed": true,
+          "details": {
+            "before": "9 秒",
+            "after": "9 秒"
+          }
+        },
+        {
+          "label": "A11 focus移出后续计过期",
+          "passed": true
+        },
+        {
+          "label": "A11 跨步骤工作坊导航保留入口",
+          "passed": true
+        },
+        {
+          "label": "A11 整体替换取消保留旧撤销",
+          "passed": true
+        },
+        {
+          "label": "A11 前置保存失败保留旧撤销",
+          "passed": true
+        },
+        {
+          "label": "A11 成功整体替换结束所有旧撤销",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 56.65
+    },
+    {
+      "code": "A16",
+      "title": "按钮稳定选中焦点禁用状态",
+      "assertions": [
+        {
+          "label": "A16 顶栏选中模式 hover/按下/键盘焦点无位移缩放",
+          "passed": true,
+          "details": {
+            "base": {
+              "x": 1269.953125,
+              "y": 50.484375,
+              "w": 83.046875,
+              "h": 34,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": "true"
+            },
+            "hover": {
+              "x": 1269.953125,
+              "y": 50.484375,
+              "w": 83.046875,
+              "h": 34,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": "true"
+            },
+            "pressed": {
+              "x": 1269.953125,
+              "y": 50.484375,
+              "w": 83.046875,
+              "h": 34,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": "true"
+            },
+            "focus": {
+              "x": 1269.953125,
+              "y": 50.484375,
+              "w": 83.046875,
+              "h": 34,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(44, 95, 179)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": "true"
+            }
+          }
+        },
+        {
+          "label": "A16 顶栏选中模式键盘蓝色焦点可见",
+          "passed": true,
+          "details": {
+            "x": 1269.953125,
+            "y": 50.484375,
+            "w": 83.046875,
+            "h": 34,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(44, 95, 179)",
+            "outlineWidth": 2,
+            "outlineStyle": "solid",
+            "disabled": false,
+            "current": null,
+            "pressed": "true"
+          }
+        },
+        {
+          "label": "A16 顶栏选中模式 hover选中颜色和语义保留",
+          "passed": true,
+          "details": {
+            "x": 1269.953125,
+            "y": 50.484375,
+            "w": 83.046875,
+            "h": 34,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(255, 255, 255)",
+            "outlineWidth": 3,
+            "outlineStyle": "none",
+            "disabled": false,
+            "current": null,
+            "pressed": "true"
+          }
+        },
+        {
+          "label": "A16 选中工作坊 hover/按下/键盘焦点无位移缩放",
+          "passed": true,
+          "details": {
+            "base": {
+              "x": 0,
+              "y": 160,
+              "w": 288,
+              "h": 81,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": "page",
+              "pressed": null
+            },
+            "hover": {
+              "x": 0,
+              "y": 160,
+              "w": 288,
+              "h": 81,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": "page",
+              "pressed": null
+            },
+            "pressed": {
+              "x": 0,
+              "y": 160,
+              "w": 288,
+              "h": 81,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": "page",
+              "pressed": null
+            },
+            "focus": {
+              "x": 0,
+              "y": 160,
+              "w": 288,
+              "h": 81,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(44, 95, 179)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": "page",
+              "pressed": null
+            }
+          }
+        },
+        {
+          "label": "A16 选中工作坊键盘蓝色焦点可见",
+          "passed": true,
+          "details": {
+            "x": 0,
+            "y": 160,
+            "w": 288,
+            "h": 81,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(44, 95, 179)",
+            "outlineWidth": 2,
+            "outlineStyle": "solid",
+            "disabled": false,
+            "current": "page",
+            "pressed": null
+          }
+        },
+        {
+          "label": "A16 选中工作坊 hover选中颜色和语义保留",
+          "passed": true,
+          "details": {
+            "x": 0,
+            "y": 160,
+            "w": 288,
+            "h": 81,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(255, 255, 255)",
+            "outlineWidth": 3,
+            "outlineStyle": "none",
+            "disabled": false,
+            "current": "page",
+            "pressed": null
+          }
+        },
+        {
+          "label": "A16 选中步骤 hover/按下/键盘焦点无位移缩放",
+          "passed": true,
+          "details": {
+            "base": {
+              "x": 146,
+              "y": 242,
+              "w": 100.34375,
+              "h": 62,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": "step",
+              "pressed": null
+            },
+            "hover": {
+              "x": 146,
+              "y": 242,
+              "w": 100.34375,
+              "h": 62,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": "step",
+              "pressed": null
+            },
+            "pressed": {
+              "x": 146,
+              "y": 242,
+              "w": 100.34375,
+              "h": 62,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": "step",
+              "pressed": null
+            },
+            "focus": {
+              "x": 146,
+              "y": 242,
+              "w": 100.34375,
+              "h": 62,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(44, 95, 179)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": "step",
+              "pressed": null
+            }
+          }
+        },
+        {
+          "label": "A16 选中步骤键盘蓝色焦点可见",
+          "passed": true,
+          "details": {
+            "x": 146,
+            "y": 242,
+            "w": 100.34375,
+            "h": 62,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(44, 95, 179)",
+            "outlineWidth": 2,
+            "outlineStyle": "solid",
+            "disabled": false,
+            "current": "step",
+            "pressed": null
+          }
+        },
+        {
+          "label": "A16 选中步骤 hover选中颜色和语义保留",
+          "passed": true,
+          "details": {
+            "x": 146,
+            "y": 242,
+            "w": 100.34375,
+            "h": 62,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(255, 255, 255)",
+            "outlineWidth": 3,
+            "outlineStyle": "none",
+            "disabled": false,
+            "current": "step",
+            "pressed": null
+          }
+        },
+        {
+          "label": "A16 ghost保存 hover/按下/键盘焦点无位移缩放",
+          "passed": true,
+          "details": {
+            "base": {
+              "x": 989.59375,
+              "y": 46.984375,
+              "w": 60.6875,
+              "h": 41,
+              "transform": "none",
+              "bg": "rgb(255, 255, 255)",
+              "color": "rgb(26, 26, 26)",
+              "border": "rgb(220, 220, 220)",
+              "outline": "rgb(26, 26, 26)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "hover": {
+              "x": 989.59375,
+              "y": 46.984375,
+              "w": 60.6875,
+              "h": 41,
+              "transform": "none",
+              "bg": "rgb(255, 255, 255)",
+              "color": "rgb(26, 26, 26)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(26, 26, 26)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "pressed": {
+              "x": 989.59375,
+              "y": 46.984375,
+              "w": 60.6875,
+              "h": 41,
+              "transform": "none",
+              "bg": "rgb(255, 255, 255)",
+              "color": "rgb(26, 26, 26)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(26, 26, 26)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "focus": {
+              "x": 989.59375,
+              "y": 46.984375,
+              "w": 60.6875,
+              "h": 41,
+              "transform": "none",
+              "bg": "rgb(255, 255, 255)",
+              "color": "rgb(26, 26, 26)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(44, 95, 179)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            }
+          }
+        },
+        {
+          "label": "A16 ghost保存键盘蓝色焦点可见",
+          "passed": true,
+          "details": {
+            "x": 989.59375,
+            "y": 46.984375,
+            "w": 60.6875,
+            "h": 41,
+            "transform": "none",
+            "bg": "rgb(255, 255, 255)",
+            "color": "rgb(26, 26, 26)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(44, 95, 179)",
+            "outlineWidth": 2,
+            "outlineStyle": "solid",
+            "disabled": false,
+            "current": null,
+            "pressed": null
+          }
+        },
+        {
+          "label": "A16 步间CTA hover/按下/键盘焦点无位移缩放",
+          "passed": true,
+          "details": {
+            "base": {
+              "x": 179,
+              "y": 550.390625,
+              "w": 230.40625,
+              "h": 40,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "hover": {
+              "x": 179,
+              "y": 550.390625,
+              "w": 230.40625,
+              "h": 40,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "pressed": {
+              "x": 179,
+              "y": 550.390625,
+              "w": 230.40625,
+              "h": 40,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "focus": {
+              "x": 179,
+              "y": 550.390625,
+              "w": 230.40625,
+              "h": 40,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            }
+          }
+        },
+        {
+          "label": "A16 步间CTA键盘蓝色焦点可见",
+          "passed": false,
+          "details": {
+            "x": 179,
+            "y": 550.390625,
+            "w": 230.40625,
+            "h": 40,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(255, 255, 255)",
+            "outlineWidth": 3,
+            "outlineStyle": "none",
+            "disabled": false,
+            "current": null,
+            "pressed": null
+          }
+        }
+      ],
+      "passed": false,
+      "error": "A16 步间CTA键盘蓝色焦点可见: {'x': 179, 'y': 550.390625, 'w': 230.40625, 'h': 40, 'transform': 'none', 'bg': 'rgb(26, 26, 26)', 'color': 'rgb(255, 255, 255)', 'border': 'rgb(26, 26, 26)', 'outline': 'rgb(255, 255, 255)', 'outlineWidth': 3, 'outlineStyle': 'none', 'disabled': False, 'current': None, 'pressed': None}",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/interaction_acceptance_support.py\", line 203, in case\n    callback()\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 603, in <lambda>\n    h.case(code,title,lambda callback=callback:callback(h))\n                                               ^^^^^^^^^^^\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 327, in a16\n    _stable(h,_active(h).locator('.metric-next button:visible').first,'步间CTA')\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 316, in _stable\n    h.check('A16 '+label+'键盘蓝色焦点可见',focused['outlineWidth']>=2 and focused['outlineStyle']!='none' and focused['outline'] not in (focused['color'],'rgba(0, 0, 0, 0)'),focused)\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/interaction_acceptance_support.py\", line 193, in check\n    raise AssertionError(label + (\": \" + str(details) if details is not None else \"\"))\nAssertionError: A16 步间CTA键盘蓝色焦点可见: {'x': 179, 'y': 550.390625, 'w': 230.40625, 'h': 40, 'transform': 'none', 'bg': 'rgb(26, 26, 26)', 'color': 'rgb(255, 255, 255)', 'border': 'rgb(26, 26, 26)', 'outline': 'rgb(255, 255, 255)', 'outlineWidth': 3, 'outlineStyle': 'none', 'disabled': False, 'current': None, 'pressed': None}\n",
+      "screenshot": "issues/2026-10-06-interaction-implementation/evidence/A16-failure.png",
+      "seconds": 2.97
+    },
+    {
+      "code": "A17",
+      "title": "真实AI按钮单调用多单元重生成",
+      "assertions": [],
+      "passed": false,
+      "error": "Locator.inner_text: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator(\".workshop.active .step.active\").get_by_role(\"button\", name=\"AI 起草场景细分\", exact=True)\n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/interaction_acceptance_support.py\", line 203, in case\n    callback()\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 603, in <lambda>\n    h.case(code,title,lambda callback=callback:callback(h))\n                                               ^^^^^^^^^^^\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 371, in a17\n    h.check('A17 单调用生成中只有中止',h.page.evaluate('Runner.current && !Runner.current.pausable && !Runner.current.paused') and '生成中' in single.inner_text() and '暂停' not in single.inner_text())\n                                                                                                                                               ^^^^^^^^^^^^^^^^^^^\n  File \"/Users/hesitantmany/vs project/Brand-building/server/.venv/lib/python3.11/site-packages/playwright/sync_api/_generated.py\", line 19446, in inner_text\n    self._sync(self._impl_obj.inner_text(timeout=to_milliseconds(timeout)))\n  File \"/Users/hesitantmany/vs project/Brand-building/server/.venv/lib/python3.11/site-packages/playwright/_impl/_sync_base.py\", line 115, in _sync\n    return task.result()\n           ^^^^^^^^^^^^^\nplaywright._impl._errors.TimeoutError: Locator.inner_text: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator(\".workshop.active .step.active\").get_by_role(\"button\", name=\"AI 起草场景细分\", exact=True)\n\n",
+      "screenshot": "issues/2026-10-06-interaction-implementation/evidence/A17-failure.png",
+      "seconds": 8.59
+    },
+    {
+      "code": "A20",
+      "title": "桌面布局跨断点与局部表滚动",
+      "assertions": [
+        {
+          "label": "A20 1024内容位置dirty保留",
+          "passed": true
+        },
+        {
+          "label": "A20 1024不显示宽度提示",
+          "passed": true
+        },
+        {
+          "label": "A20 1024导航不裁切整页无溢出",
+          "passed": true,
+          "details": {
+            "viewport": 1024,
+            "scroll": 1024,
+            "nav": [
+              {
+                "w": 204.796875,
+                "left": 0,
+                "right": 204.796875,
+                "text": "I.业务价值体系"
+              },
+              {
+                "w": 204.8125,
+                "left": 204.796875,
+                "right": 409.609375,
+                "text": "II.目标市场"
+              },
+              {
+                "w": 204.796875,
+                "left": 409.609375,
+                "right": 614.40625,
+                "text": "III.价值主张"
+              },
+              {
+                "w": 204.796875,
+                "left": 614.40625,
+                "right": 819.203125,
+                "text": "IV.营销组合"
+              },
+              {
+                "w": 204.796875,
+                "left": 819.203125,
+                "right": 1024,
+                "text": "V.策划书"
+              },
+              {
+                "w": 104.46875,
+                "left": 40,
+                "right": 144.46875,
+                "text": "1.SBU"
+              },
+              {
+                "w": 104.609375,
+                "left": 144.46875,
+                "right": 249.078125,
+                "text": "2.环境"
+              },
+              {
+                "w": 136.5,
+                "left": 249.078125,
+                "right": 385.578125,
+                "text": "3.客户画像"
+              },
+              {
+                "w": 199.921875,
+                "left": 385.578125,
+                "right": 585.5,
+                "text": "4.指标体系回填 2"
+              },
+              {
+                "w": 136.53125,
+                "left": 585.5,
+                "right": 722.03125,
+                "text": "5.合成调研"
+              },
+              {
+                "w": 136.53125,
+                "left": 722.03125,
+                "right": 858.5625,
+                "text": "6.数据分析"
+              },
+              {
+                "w": 136.40625,
+                "left": 40,
+                "right": 176.40625,
+                "text": "7.价值框架"
+              },
+              {
+                "w": 104.609375,
+                "left": 176.40625,
+                "right": 281.015625,
+                "text": "8.建议"
+              }
+            ],
+            "cards": []
+          }
+        },
+        {
+          "label": "A20 1024SBU三问保留可读列宽",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A20 1440内容位置dirty保留",
+          "passed": true
+        },
+        {
+          "label": "A20 1440不显示宽度提示",
+          "passed": true
+        },
+        {
+          "label": "A20 1440导航不裁切整页无溢出",
+          "passed": true,
+          "details": {
+            "viewport": 1440,
+            "scroll": 1440,
+            "nav": [
+              {
+                "w": 288,
+                "left": 0,
+                "right": 288,
+                "text": "I.业务价值体系"
+              },
+              {
+                "w": 288,
+                "left": 288,
+                "right": 576,
+                "text": "II.目标市场"
+              },
+              {
+                "w": 288,
+                "left": 576,
+                "right": 864,
+                "text": "III.价值主张"
+              },
+              {
+                "w": 288,
+                "left": 864,
+                "right": 1152,
+                "text": "IV.营销组合"
+              },
+              {
+                "w": 288,
+                "left": 1152,
+                "right": 1440,
+                "text": "V.策划书"
+              },
+              {
+                "w": 100.34375,
+                "left": 146,
+                "right": 246.34375,
+                "text": "1.SBU"
+              },
+              {
+                "w": 103.453125,
+                "left": 246.34375,
+                "right": 349.796875,
+                "text": "2.环境"
+              },
+              {
+                "w": 135.328125,
+                "left": 349.796875,
+                "right": 485.125,
+                "text": "3.客户画像"
+              },
+              {
+                "w": 202.171875,
+                "left": 485.125,
+                "right": 687.296875,
+                "text": "4.指标体系回填 2"
+              },
+              {
+                "w": 135.375,
+                "left": 687.296875,
+                "right": 822.671875,
+                "text": "5.合成调研"
+              },
+              {
+                "w": 135.375,
+                "left": 822.671875,
+                "right": 958.046875,
+                "text": "6.数据分析"
+              },
+              {
+                "w": 135.234375,
+                "left": 958.046875,
+                "right": 1093.28125,
+                "text": "7.价值框架"
+              },
+              {
+                "w": 103.453125,
+                "left": 1093.28125,
+                "right": 1196.734375,
+                "text": "8.建议"
+              }
+            ],
+            "cards": []
+          }
+        },
+        {
+          "label": "A20 1440SBU三问保留可读列宽",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A20 390内容位置dirty保留",
+          "passed": true
+        },
+        {
+          "label": "A20 768内容位置dirty保留",
+          "passed": true
+        },
+        {
+          "label": "A20 1024内容位置dirty保留",
+          "passed": true
+        },
+        {
+          "label": "A20 1024不显示宽度提示",
+          "passed": true
+        },
+        {
+          "label": "A20 1024导航不裁切整页无溢出",
+          "passed": true,
+          "details": {
+            "viewport": 1024,
+            "scroll": 1024,
+            "nav": [
+              {
+                "w": 204.796875,
+                "left": 0,
+                "right": 204.796875,
+                "text": "I.业务价值体系"
+              },
+              {
+                "w": 204.8125,
+                "left": 204.796875,
+                "right": 409.609375,
+                "text": "II.目标市场"
+              },
+              {
+                "w": 204.796875,
+                "left": 409.609375,
+                "right": 614.40625,
+                "text": "III.价值主张"
+              },
+              {
+                "w": 204.796875,
+                "left": 614.40625,
+                "right": 819.203125,
+                "text": "IV.营销组合"
+              },
+              {
+                "w": 204.796875,
+                "left": 819.203125,
+                "right": 1024,
+                "text": "V.策划书"
+              },
+              {
+                "w": 100.34375,
+                "left": 40,
+                "right": 140.34375,
+                "text": "1.SBU"
+              },
+              {
+                "w": 103.453125,
+                "left": 140.34375,
+                "right": 243.796875,
+                "text": "2.环境"
+              },
+              {
+                "w": 135.328125,
+                "left": 243.796875,
+                "right": 379.125,
+                "text": "3.客户画像"
+              },
+              {
+                "w": 202.171875,
+                "left": 379.125,
+                "right": 581.296875,
+                "text": "4.指标体系回填 2"
+              },
+              {
+                "w": 135.375,
+                "left": 581.296875,
+                "right": 716.671875,
+                "text": "5.合成调研"
+              },
+              {
+                "w": 135.375,
+                "left": 716.671875,
+                "right": 852.046875,
+                "text": "6.数据分析"
+              },
+              {
+                "w": 135.234375,
+                "left": 40,
+                "right": 175.234375,
+                "text": "7.价值框架"
+              },
+              {
+                "w": 103.453125,
+                "left": 175.234375,
+                "right": 278.6875,
+                "text": "8.建议"
+              }
+            ],
+            "cards": []
+          }
+        },
+        {
+          "label": "A20 1024SBU三问保留可读列宽",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A20 1440内容位置dirty保留",
+          "passed": true
+        },
+        {
+          "label": "A20 1440不显示宽度提示",
+          "passed": true
+        },
+        {
+          "label": "A20 1440导航不裁切整页无溢出",
+          "passed": true,
+          "details": {
+            "viewport": 1440,
+            "scroll": 1440,
+            "nav": [
+              {
+                "w": 288,
+                "left": 0,
+                "right": 288,
+                "text": "I.业务价值体系"
+              },
+              {
+                "w": 288,
+                "left": 288,
+                "right": 576,
+                "text": "II.目标市场"
+              },
+              {
+                "w": 288,
+                "left": 576,
+                "right": 864,
+                "text": "III.价值主张"
+              },
+              {
+                "w": 288,
+                "left": 864,
+                "right": 1152,
+                "text": "IV.营销组合"
+              },
+              {
+                "w": 288,
+                "left": 1152,
+                "right": 1440,
+                "text": "V.策划书"
+              },
+              {
+                "w": 100.34375,
+                "left": 146,
+                "right": 246.34375,
+                "text": "1.SBU"
+              },
+              {
+                "w": 103.453125,
+                "left": 246.34375,
+                "right": 349.796875,
+                "text": "2.环境"
+              },
+              {
+                "w": 135.328125,
+                "left": 349.796875,
+                "right": 485.125,
+                "text": "3.客户画像"
+              },
+              {
+                "w": 202.171875,
+                "left": 485.125,
+                "right": 687.296875,
+                "text": "4.指标体系回填 2"
+              },
+              {
+                "w": 135.375,
+                "left": 687.296875,
+                "right": 822.671875,
+                "text": "5.合成调研"
+              },
+              {
+                "w": 135.375,
+                "left": 822.671875,
+                "right": 958.046875,
+                "text": "6.数据分析"
+              },
+              {
+                "w": 135.234375,
+                "left": 958.046875,
+                "right": 1093.28125,
+                "text": "7.价值框架"
+              },
+              {
+                "w": 103.453125,
+                "left": 1093.28125,
+                "right": 1196.734375,
+                "text": "8.建议"
+              }
+            ],
+            "cards": []
+          }
+        },
+        {
+          "label": "A20 1440SBU三问保留可读列宽",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A20 密集评分表局部横滚",
+          "passed": true,
+          "details": [
+            {
+              "client": 876,
+              "scroll": 1706,
+              "overflow": "auto",
+              "table": 1705.5
+            },
+            {
+              "client": 876,
+              "scroll": 876,
+              "overflow": "auto",
+              "table": 876
+            }
+          ]
+        },
+        {
+          "label": "A20 表格不造成受支持宽度整页溢出",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 2.65
+    },
+    {
+      "code": "A22",
+      "title": "W1–W5其余风险删除入口",
+      "assertions": [
+        {
+          "label": "A22 W1/sbu无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W1/environment无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W1/personas无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W1/metrics无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W1/survey无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W1/analysis无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W1/values无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W1/recommendations无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W2/framework无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W2/evaluate无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W2/decision无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W3/scenarios无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W3/mining无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W3/candidates无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W3/matrix无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W3/proposition无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W3/identity无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W4/route无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W4/product无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W4/price无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W4/place无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W4/promotion无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 W5/plan无匿名×或误名关闭",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A22 全部23步骤对象入口扫描",
+          "passed": true,
+          "details": [
+            {
+              "work": 1,
+              "step": "sbu",
+              "controls": []
+            },
+            {
+              "work": 1,
+              "step": "environment",
+              "controls": [
+                "删除竞品：竞品甲",
+                "删除竞品：竞品乙",
+                "删除竞品：竞品丙"
+              ]
+            },
+            {
+              "work": 1,
+              "step": "personas",
+              "controls": [
+                "删除场景：日常场景",
+                "删除场景：独立场景",
+                "删除画像：P1",
+                "删除标签：可靠",
+                "删除标签：自营",
+                "删除画像：P2",
+                "删除标签：可靠",
+                "删除标签：自营",
+                "删除画像：P3",
+                "删除标签：可靠",
+                "删除标签：自营"
+              ]
+            },
+            {
+              "work": 1,
+              "step": "metrics",
+              "controls": [
+                "删除测评点：关联测评点",
+                "删除测评点：独立测评点",
+                "删除一级指标：合成一级指标",
+                "删除测评点：保留测评点",
+                "删除一级指标：保留一级指标"
+              ]
+            },
+            {
+              "work": 1,
+              "step": "survey",
+              "controls": [
+                "删除问卷题目：关联生成题",
+                "删除问卷题目：保留生成题",
+                "删除问卷题目：手动开放题",
+                "删除问卷题目：无依赖题目",
+                "重建全部指标生成题",
+                "清空调研回答"
+              ]
+            },
+            {
+              "work": 1,
+              "step": "analysis",
+              "controls": []
+            },
+            {
+              "work": 1,
+              "step": "values",
+              "controls": []
+            },
+            {
+              "work": 1,
+              "step": "recommendations",
+              "controls": []
+            },
+            {
+              "work": 2,
+              "step": "framework",
+              "controls": [
+                "删除候选市场：候选甲",
+                "删除候选市场：候选乙",
+                "删除候选市场：候选丙",
+                "删除筛选标准：合成筛选标准",
+                "删除保留市场：保留甲",
+                "删除保留市场：保留乙",
+                "删除二级指标：吸引力指标",
+                "删除二级指标：独立吸引力指标",
+                "删除一级维度：吸引力维度",
+                "恢复市场吸引力默认模板",
+                "删除二级指标：竞争力指标",
+                "删除一级维度：竞争力维度",
+                "恢复业务竞争力默认模板",
+                "删除招聘视角：合成视角",
+                "删除招聘视角：保留视角"
+              ]
+            },
+            {
+              "work": 2,
+              "step": "evaluate",
+              "controls": []
+            },
+            {
+              "work": 2,
+              "step": "decision",
+              "controls": [
+                "删除里程碑：里程碑甲",
+                "删除里程碑：里程碑乙",
+                "删除观察指标：观察指标甲",
+                "删除观察指标：观察指标乙"
+              ]
+            },
+            {
+              "work": 3,
+              "step": "scenarios",
+              "controls": [
+                "删除场景：卖点场景甲",
+                "删除场景：卖点场景乙"
+              ]
+            },
+            {
+              "work": 3,
+              "step": "mining",
+              "controls": [
+                "删除真实语料：第 1 条",
+                "清空本地真实语料",
+                "清空模拟语料",
+                "删除模拟语料：第 1 条",
+                "删除模拟语料：第 2 条",
+                "删除模拟语料：第 3 条",
+                "删除痛点：关联痛点",
+                "删除痛点：独立痛点"
+              ]
+            },
+            {
+              "work": 3,
+              "step": "candidates",
+              "controls": [
+                "删除备选卖点：关联卖点",
+                "删除备选卖点：保留卖点"
+              ]
+            },
+            {
+              "work": 3,
+              "step": "matrix",
+              "controls": [
+                "删除评分维度：重要性",
+                "删除评分维度：独特性",
+                "删除评分维度：可信性",
+                "删除评分维度：可行性",
+                "删除评分维度：可传播性",
+                "删除评分维度：可持续性"
+              ]
+            },
+            {
+              "work": 3,
+              "step": "proposition",
+              "controls": [
+                "删除价值主张候选：选定合成主张为客户提供可靠可验证的具体利益",
+                "删除价值主张候选：未选定合成主张"
+              ]
+            },
+            {
+              "work": 3,
+              "step": "identity",
+              "controls": [
+                "删除标签：可靠",
+                "删除标签：透明",
+                "删除Slogan：选定口号",
+                "删除Slogan：独立口号"
+              ]
+            },
+            {
+              "work": 4,
+              "step": "route",
+              "controls": []
+            },
+            {
+              "work": 4,
+              "step": "product",
+              "controls": [
+                "清空正文",
+                "删除标签：标签甲",
+                "删除标签：标签乙",
+                "删除标签：标签丙"
+              ]
+            },
+            {
+              "work": 4,
+              "step": "price",
+              "controls": [
+                "删除价格档位：基础档",
+                "删除价格档位：保留档",
+                "删除渠道定价：线上定价",
+                "删除促销节奏：节日节奏"
+              ]
+            },
+            {
+              "work": 4,
+              "step": "place",
+              "controls": [
+                "删除标签：自营标签",
+                "删除关键伙伴：伙伴甲",
+                "删除关键伙伴：伙伴乙",
+                "删除关键伙伴：伙伴丙",
+                "删除二级渠道：渠道甲",
+                "删除二级渠道：渠道乙",
+                "删除二级渠道：渠道丙",
+                "删除二级渠道：线下甲"
+              ]
+            },
+            {
+              "work": 4,
+              "step": "promotion",
+              "controls": [
+                "删除媒介：合成媒介",
+                "删除媒介：保留媒介",
+                "删除公关事件：合成公关",
+                "删除促销手段：合成促销"
+              ]
+            },
+            {
+              "work": 5,
+              "step": "plan",
+              "controls": []
+            }
+          ]
+        },
+        {
+          "label": "A22 场景日常场景确认对象和影响",
+          "passed": true,
+          "details": "×\n删除场景？\n\n将删除场景「日常场景」。2 个画像关联会随该场景一并取消；画像、历史答卷及分析结果保留。 此操作不可撤销。\n\n取消\n删除场景"
+        },
+        {
+          "label": "A22 场景日常场景确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 场景日常场景默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 场景日常场景焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 场景日常场景取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 场景日常场景取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 测评点关联测评点确认对象和影响",
+          "passed": true,
+          "details": "×\n删除测评点？\n\n将删除测评点「关联测评点」。该测评点的量化口径、自评和实测分会删除。1 道关联生成题及其 1 条答案会删除，历史答卷和其它题目保留；相关 1 项统计、0 项开放题主题会清除，实测回填重新计算。综合洞察会清除，请按剩余数据重新生成。 此操作不可撤销。\n\n取消\n删除测评点"
+        },
+        {
+          "label": "A22 测评点关联测评点确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 测评点关联测评点默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 测评点关联测评点焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 测评点关联测评点取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 测评点关联测评点取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 问卷题目关联生成题确认对象和影响",
+          "passed": true,
+          "details": "×\n删除问卷题目？\n\n将删除问卷题目「关联生成题」。该题的 1 条答案、1 项统计和 0 项主题会删除；历史答卷及其它题目的答案保留。测评点实测回填将按剩余关联题重新计算。综合洞察会清除，请按剩余数据重新生成。 此操作不可撤销。\n\n取消\n删除问卷题目"
+        },
+        {
+          "label": "A22 问卷题目关联生成题确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 问卷题目关联生成题默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 问卷题目关联生成题焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 问卷题目关联生成题取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 问卷题目关联生成题取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 筛选标准合成筛选标准确认对象和影响",
+          "passed": true,
+          "details": "×\n删除筛选标准？\n\n将删除筛选标准「合成筛选标准」。该标准及其数据源会删除；2 个已保留市场的筛选依据需要复核。保留市场、评分和三档决策会保留，已完成的应用筛选记录会清除。 此操作不可撤销。\n\n取消\n删除筛选标准"
+        },
+        {
+          "label": "A22 筛选标准合成筛选标准确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 筛选标准合成筛选标准默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 筛选标准合成筛选标准焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 筛选标准合成筛选标准取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 筛选标准合成筛选标准取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 保留市场保留甲确认对象和影响",
+          "passed": true,
+          "details": "×\n删除保留市场？\n\n将删除保留市场「保留甲」。该市场详情和 3 格评分会删除；该市场的矩阵解释会删除。主战场中的该市场关联会清除。矩阵和排名按剩余市场重新计算；候选市场及其它保留市场的评分、决策内容保留。 此操作不可撤销。\n\n取消\n删除保留市场"
+        },
+        {
+          "label": "A22 保留市场保留甲确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 保留市场保留甲默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 保留市场保留甲焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 保留市场保留甲取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 保留市场保留甲取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 一级维度吸引力维度确认对象和影响",
+          "passed": true,
+          "details": "×\n删除一级维度？\n\n将删除一级维度「吸引力维度」。删除「市场吸引力」下的一级维度「吸引力维度」？\n连带删除 2 个二级指标及其高/中/低锚点。\n已打的 4 格评分会删除，矩阵按剩余指标重新计算。\n2 位 persona 的相关赋权引用会清除，旧收敛记录和总结失效；剩余指标与其存储权重保留，需重新收敛。\n这是本轴最后一个一级维度——删完本轴为空，评分表与矩阵无轴可比。\n此操作不可撤销；「恢复默认 4×2 模板」只重建模板文案，你写过的锚点与评分不会回来。 此操作不可撤销。\n\n取消\n删除一级维度"
+        },
+        {
+          "label": "A22 一级维度吸引力维度确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 一级维度吸引力维度默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 一级维度吸引力维度焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 一级维度吸引力维度取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 一级维度吸引力维度取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 二级指标吸引力指标确认对象和影响",
+          "passed": true,
+          "details": "×\n删除二级指标？\n\n将删除二级指标「吸引力指标」。所属轴为「市场吸引力」，将删除该指标的高/中/低锚点、二级权重及 2 格已打评分。2 位 persona 的该指标赋权引用会清除，旧收敛记录和总结失效；其它指标、锚点、评分和存储权重保留，矩阵按剩余指标重新计算，需重新收敛。 此操作不可撤销。\n\n取消\n删除二级指标"
+        },
+        {
+          "label": "A22 二级指标吸引力指标确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 二级指标吸引力指标默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 二级指标吸引力指标焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 二级指标吸引力指标取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 二级指标吸引力指标取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 招聘视角合成视角确认对象和影响",
+          "passed": true,
+          "details": "×\n删除招聘视角？\n\n将删除招聘视角「合成视角」。该视角及其 1 条同名 persona 赋权记录会删除；旧收敛记录、总结及断点会清除。其它视角和赋权保留；当前指标的存储权重和市场评分保留，需重新收敛。 此操作不可撤销。\n\n取消\n删除招聘视角"
+        },
+        {
+          "label": "A22 招聘视角合成视角确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 招聘视角合成视角默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 招聘视角合成视角焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 招聘视角合成视角取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 招聘视角合成视角取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 观察指标观察指标甲确认对象和影响",
+          "passed": true,
+          "details": "×\n删除观察指标？\n\n将删除观察指标「观察指标甲」。该条观察指标会从观察期决策卡和导出中删除；其它观察指标、市场选择与评分保留。 此操作不可撤销。\n\n取消\n删除观察指标"
+        },
+        {
+          "label": "A22 观察指标观察指标甲确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 观察指标观察指标甲默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 观察指标观察指标甲焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 观察指标观察指标甲取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 观察指标观察指标甲取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 场景卖点场景甲确认对象和影响",
+          "passed": true,
+          "details": "×\n删除场景？\n\n将删除场景「卖点场景甲」。将取消 1 条痛点、1 个备选卖点对该场景的关联。场景中的 2 个画像关联随场景删除；痛点、卖点及其已有评分和证据会保留。 此操作不可撤销。\n\n取消\n删除场景"
+        },
+        {
+          "label": "A22 场景卖点场景甲确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 场景卖点场景甲默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 场景卖点场景甲焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 场景卖点场景甲取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 场景卖点场景甲取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 痛点关联痛点确认对象和影响",
+          "passed": true,
+          "details": "×\n删除痛点？\n\n将删除痛点「关联痛点」。将解除 1 个备选卖点对该痛点的绑定。卖点中已有的痛点描述、证据和评分会保留；该痛点不再出现在痛点地图和下游证据中。 此操作不可撤销。\n\n取消\n删除痛点"
+        },
+        {
+          "label": "A22 痛点关联痛点确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 痛点关联痛点默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 痛点关联痛点焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 痛点关联痛点取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 痛点关联痛点取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 备选卖点关联卖点确认对象和影响",
+          "passed": true,
+          "details": "×\n删除备选卖点？\n\n将删除备选卖点「关联卖点」。该卖点已有评分，删除会移除它的评分和矩阵点位；将清理手动入选记录、核心卖点引用、1 条迁移分析和 2 个评分断点。其他卖点及已有主张、定位和正文保留，下游证据按剩余卖点更新。 此操作不可撤销。\n\n取消\n删除备选卖点"
+        },
+        {
+          "label": "A22 备选卖点关联卖点确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 备选卖点关联卖点默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 备选卖点关联卖点焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 备选卖点关联卖点取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 备选卖点关联卖点取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 评分维度重要性确认对象和影响",
+          "passed": true,
+          "details": "×\n删除评分维度？\n\n将删除评分维度「重要性」。这是合意性维度。将删除 2 个卖点中该维度的评分及 persona 子分，移除该维度的来源标记。本轴评分断点、复盘覆盖分和现有迁移分析将失效；矩阵按剩余维度重新计算，另一轴的维度和评分保留。 此操作不可撤销。\n\n取消\n删除评分维度"
+        },
+        {
+          "label": "A22 评分维度重要性确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 评分维度重要性默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 评分维度重要性焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 评分维度重要性取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 评分维度重要性取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 价值主张候选选定合成主张为客户提供可靠可验证的具体利益确认对象和影响",
+          "passed": true,
+          "details": "×\n删除价值主张候选？\n\n将删除价值主张候选「选定合成主张为客户提供可靠可验证的具体利益」。这是已选定的价值主张。删除后将清除选定指针，下游不再将它作为选定主张；已有定位、表单及叙事正文保留。 此操作不可撤销。\n\n取消\n删除价值主张候选"
+        },
+        {
+          "label": "A22 价值主张候选选定合成主张为客户提供可靠可验证的具体利益确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 价值主张候选选定合成主张为客户提供可靠可验证的具体利益默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 价值主张候选选定合成主张为客户提供可靠可验证的具体利益焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 价值主张候选选定合成主张为客户提供可靠可验证的具体利益取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 价值主张候选选定合成主张为客户提供可靠可验证的具体利益取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 Slogan选定口号确认对象和影响",
+          "passed": true,
+          "details": "×\n删除Slogan？\n\n将删除Slogan「选定口号」。这是已选定的 Slogan。删除后将清除选定指针，下游不再将它作为选定 Slogan；已有品牌人格、表单及叙事正文保留。 此操作不可撤销。\n\n取消\n删除SLOGAN"
+        },
+        {
+          "label": "A22 Slogan选定口号确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 Slogan选定口号默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 Slogan选定口号焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 Slogan选定口号取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 Slogan选定口号取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 清空已采纳画像和场景确认对象和影响",
+          "passed": true,
+          "details": "×\n清空采纳？\n\n将清空当前页面全部 3 个已采纳画像和 2 个场景。1 个 Work3 场景会取消画像关联；1 份历史调研答卷保留但会失去画像指向，对应完成记录会清除。1 个 Work3 备选卖点的相关画像子分、旧画像均值缓存和评分断点会清除，人工维度分保留。此操作不可撤销。\n\n取消\n清空画像和场景"
+        },
+        {
+          "label": "A22 清空已采纳画像和场景确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 清空已采纳画像和场景默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 清空已采纳画像和场景焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 清空已采纳画像和场景取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 清空已采纳画像和场景取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 清空调研回答确认对象和影响",
+          "passed": true,
+          "details": "×\n清空回答？\n\n将清空 1 份调研答卷、3 条答案和 3 条已完成记录；分析统计、开放题主题与引文、综合洞察会清空，全部指标实测回填归空。问卷题目、指标自评及调研设置保留。此操作不可撤销。\n\n取消\n清空回答"
+        },
+        {
+          "label": "A22 清空调研回答确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 清空调研回答默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 清空调研回答焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 清空调研回答取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 清空调研回答取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 重建全部指标生成题确认对象和影响",
+          "passed": true,
+          "details": "×\n重建全部指标生成题？\n\n将删除全部 2 道指标生成题，并按当前测评点重建 3 道。2 道手动题及其答案保留。旧指标题的 2 条答案、相关统计/主题会清除，实测回填重新计算；已完成记录和进度会重置，综合洞察如受影响需重新生成。此操作不可撤销。\n\n取消\n重建指标生成题"
+        },
+        {
+          "label": "A22 重建全部指标生成题确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 重建全部指标生成题默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 重建全部指标生成题焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 重建全部指标生成题取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 重建全部指标生成题取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 恢复市场吸引力默认模板确认对象和影响",
+          "passed": true,
+          "details": "×\n恢复「市场吸引力」默认模板？\n\n把「市场吸引力」整轴换回默认 4×2 模板？\n当前 1 个一级维度会被整体替换：你写过的锚点、手改的一级/二级权重与已打的分都不会回来。\n本轴 2 个二级指标和 4 格已打评分会删除；模板不会恢复被删除的自填内容。\n权重需要重定：persona 赋权、收敛记录、总结和断点会重置为未运行。另一轴的指标、锚点、存储权重与评分保留。此操作不可撤销。\n\n取消\n恢复默认模板"
+        },
+        {
+          "label": "A22 恢复市场吸引力默认模板确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 恢复市场吸引力默认模板默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 恢复市场吸引力默认模板焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 恢复市场吸引力默认模板取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 恢复市场吸引力默认模板取消关闭确认",
+          "passed": true
+        }
+      ],
+      "passed": false,
+      "error": "Locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"清空招聘与赋权记录并重新招聘\", exact=True)\n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/interaction_acceptance_support.py\", line 203, in case\n    callback()\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 603, in <lambda>\n    h.case(code,title,lambda callback=callback:callback(h))\n                                               ^^^^^^^^^^^\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 559, in a22\n    _confirm_cancel(h,h.page.get_by_role('button',name=name,exact=True),terms,'A22 '+name)\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 137, in _confirm_cancel\n    locator.click()\n  File \"/Users/hesitantmany/vs project/Brand-building/server/.venv/lib/python3.11/site-packages/playwright/sync_api/_generated.py\", line 17876, in click\n    self._sync(\nplaywright._impl._errors.TimeoutError: Locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"清空招聘与赋权记录并重新招聘\", exact=True)\n\n",
+      "screenshot": "issues/2026-10-06-interaction-implementation/evidence/A22-failure.png",
+      "seconds": 19.21
+    }
+  ],
+  "passed": 2,
+  "failed": 3,
+  "api_requests": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A16"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A16"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A16"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A16"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A16"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A17"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A17"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A20"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A20"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A20"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A20"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A20"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A20"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    }
+  ],
+  "uncaught_errors": []
+}

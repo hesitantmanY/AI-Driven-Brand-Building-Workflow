@@ -46,15 +46,29 @@ const UI = {
     children.flat().forEach(c=>f.appendChild(c));
     return f;
   },
-  tagsInput(initial=[], placeholder='输入后回车添加'){
+  tagsInput(initial=[], placeholder='输入后回车添加', onChange=null){
     const wrap=el('div',{class:'chip-row'});
     const input=el('input',{type:'text',placeholder});
-    let items=[...initial];
+    let items=typeof initial==='function'?null:[...initial];
+    const get=()=>typeof initial==='function'?initial():items;
+    let owner=null;
+    const sync=()=>{ if(typeof onChange==='function') onChange(get().slice()); };
+    const changed=()=>{
+      sync();
+      if(wrap.isConnected===false && owner){
+        const mod=window['Work'+owner.work];
+        if(mod?.rerender)mod.rerender(owner.step);
+      }else render();
+    };
     function render(){
       wrap.innerHTML='';
-      items.forEach((t,i)=>{
+      get().forEach((t,i)=>{
         const chip=el('span',{class:'chip'}, t,
-          el('button',{type:'button',onclick:()=>{items.splice(i,1);render();}}, '×')
+          el('button',Interaction.deleteButton({onclick:e=>{
+            const step=wrap.closest('.step'),work=wrap.closest('.workshop');
+            if(step&&work)owner={work:work.dataset.workshop,step:step.dataset.step};
+            return Interaction.removeItem({list:get,index:i,type:'标签',name:t,trigger:e.currentTarget,onChange:changed});
+          }},'标签',t,i,get), '×')
         );
         wrap.appendChild(chip);
       });
@@ -63,11 +77,14 @@ const UI = {
     input.addEventListener('keydown', e=>{
       if(e.key==='Enter' && input.value.trim()){
         e.preventDefault();
-        items.push(input.value.trim()); input.value=''; render();
+        get().push(input.value.trim()); input.value=''; changed();
       }
     });
     render();
-    return { el:wrap, get:()=>items, set:arr=>{items=[...arr];render();} };
+    return { el:wrap, get:()=>get().slice(), set:arr=>{
+      if(typeof initial==='function')get().splice(0,get().length,...arr);else items=[...arr];
+      changed();
+    } };
   },
   bar(value, max=100, label){
     const w=clamp(Number(value)||0,0,max)/max*100;
@@ -133,8 +150,11 @@ const UI = {
       cfg.note && el('div',{class:'mvo-note'}, cfg.note));
     const card=el('div',{class:'mvo-card'},
       el('div',{class:'mvo-card-head',onclick:()=>card.classList.toggle('collapsed')},
-        el('span',{},'本步最小可交付'), progress, toggle),
+        el('span',{},'本步流程 · 最小可交付'), progress, toggle),
       body);
+    const flowHint=el('div',{class:'mvo-flow-hint'},'先完成下面的检查项；全部完成后，底部会出现下一步入口。');
+    if(typeof body.insertBefore==='function') body.insertBefore(flowHint, body.firstChild);
+    else body.appendChild(flowHint);
     function refresh(){
       let n=0;
       dots.forEach(d=>{

@@ -10,15 +10,18 @@ const SavePanel = {
   open(){
     // BIZ02：案例 = 只读浏览，版本面板一并锁住（旧注释时代用 isDemo 拦保存，
     // 2026-08-26 移除后案例可编辑；现按决策恢复为只读）。
-    if(state?.meta?.isDemo){ showToast('案例浏览中：不可存档'); return; }
+    if(this._busy) return;
+    if(state?.meta?.isDemo || state?.meta?.demoCase){ showToast('案例浏览中：不可存档'); return; }
     $('#savePopup').classList.add('open');
     const inp=$('#saveName');
     inp.value='';
+    this._stage('');
     setTimeout(()=>inp.focus(), 0);
     document.addEventListener('keydown', this._key);
     document.addEventListener('click', this._outside);
   },
   cancel(){
+    if(this._busy) return;
     $('#savePopup').classList.remove('open');
     document.removeEventListener('keydown', this._key);
     document.removeEventListener('click', this._outside);
@@ -31,26 +34,66 @@ const SavePanel = {
     if(pop.contains(e.target) || (e.target.id==='saveBtn')) return;
     SavePanel.cancel();
   },
+  _stage(message){
+    const pop=$('#savePopup');
+    let status=pop.querySelector('.save-stage');
+    if(!status){ status=el('p',{class:'hint save-stage',role:'status'}); pop.appendChild(status); }
+    status.textContent=message; status.hidden=!message;
+  },
+  _setBusy(busy, stage=''){
+    this._busy=busy;
+    const pop=$('#savePopup');
+    pop.querySelectorAll('input, button').forEach(control=>{ control.disabled=busy; });
+    const button=pop.querySelector('button.primary');
+    if(button) button.textContent=busy? stage : '保存';
+  },
   async commit(){
-    if(!$('#savePopup').classList.contains('open')) return;
+    if(this._busy || !$('#savePopup').classList.contains('open')) return;
+    if(state?.meta?.isDemo || state?.meta?.demoCase){ showToast('案例浏览中：不可存档'); return; }
     const name=$('#saveName').value.trim();
-    this.cancel();
+    this._setBusy(true,'保存中…');
+    let stage='保存当前内容';
+    this._stage('保存当前工作区…');
     try{
       const persisted=await saveNow();
-      if(!persisted) return;  // Store.save 已弹出失败提示
-      // 同名版本：先问用户覆盖还是另存（覆盖会替换旧内容，需明确同意）
-      let overwrite=false;
+      if(persisted!==true) throw new Error('当前内容尚未持久化，请重试');
+      stage='创建历史版本';
+      this._stage('创建历史版本…');
+      let overwrite=false, copy=false;
       if(name){
-        try{
-          const snaps=await Archive.list();
-          if(snaps.some(s=>s.type==='named' && s.name===name)){
-            overwrite=confirm('已存在同名版本「'+name+'」。\n确定 → 覆盖该版本（旧内容将被替换）\n取消 → 另存为新版本（自动加后缀）');
+        const snaps=await Archive.list();
+        const targetName=Archive.normalizeName(name);
+        if(snaps.some(s=>s.type==='named' && s.name===targetName)){
+          const action=await Interaction.choose({
+            title:'已存在同名版本',
+            message:'已存在版本「'+targetName+'」。覆盖会替换它的旧内容；另存会保留原版本并生成可用后缀。',
+            actions:[{value:'overwrite',label:'覆盖旧版本',danger:true},{value:'copy',label:'另存为新版本'},{value:null,label:'取消此次操作'}],
+            trigger:$('#savePopup').querySelector('button.primary') || $('#saveName')
+          });
+          if(action!=='overwrite' && action!=='copy'){
+            this._setBusy(false); this.cancel();
+            $('#saveBtn')?.focus();
+            return null;
           }
-        }catch{}
+          overwrite=action==='overwrite'; copy=action==='copy';
+        }
       }
       const snap=await Archive.create({name, overwrite});
-      showToast(name? '已存档 · '+snap.name : '已保存 · '+snap.name);
-    }catch(e){ showToast('存档失败: '+e.message); }
+      if(!Interaction.validSnapshot(snap)) throw new Error('服务端未返回有效版本信息');
+      this._setBusy(false); this.cancel();
+      $('#saveBtn')?.focus();
+      showToast((overwrite? '已覆盖版本：' : copy? '已另存为：' : '已存档：')+snap.name);
+      if(typeof History!=='undefined' && $('#historyModal')?.classList.contains('open')) await History.render();
+      return snap;
+    }catch(e){
+      const message=stage+'失败：'+e.message;
+      this._stage(message+'。保留版本名，可重新保存。');
+      showToast(message);
+      return null;
+    }finally{
+      this._setBusy(false);
+      if($('#savePopup').classList.contains('open')) $('#saveName')?.focus();
+    }
   }
 };
 

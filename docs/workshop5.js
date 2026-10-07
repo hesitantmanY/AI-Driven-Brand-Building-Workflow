@@ -28,7 +28,8 @@ Work5.defaultData = () => ({
              pTable:{ product:{core:'',actions:'',nums:''}, price:{core:'',actions:'',nums:''},
                       place:{core:'',actions:'',nums:''}, promotion:{core:'',actions:'',nums:''} } },
   ch5_outlook:'',
-  lastAggregated:null
+  lastAggregated:null,
+  syncedValues:{}
 });
 
 /* contenteditable 读取：innerText 保留 <br>/块级换行，归一化 CRLF，去尾部空行。
@@ -47,6 +48,13 @@ Work5.renderStep = function(id){
   // 进渲染即清洗（幂等，不受 demo 闸门限制）：SWOT 误输垃圾 + 正文残留 ** 标记
   Work5._entryHeal();
   sec.innerHTML='';
+  if(Work5._syncFailure){
+    const failure=Work5._syncFailure;
+    sec.appendChild(el('div',{class:'warning',id:'w5SyncStatus',role:'status'},
+      failure.applied?'内容已更新但未保存':'未同步最新上游成果',
+      el('span',{},failure.message),
+      el('button',{class:'ghost small',onclick:()=>failure.applied?Interaction.retrySave('w5-sync',()=>{Work5._syncFailure=null;Work5.rerender('plan');}):Work5.autoSync()},failure.applied?'重试保存':'重试同步')));
+  }
   sec.appendChild(Work5.toolbar());
   sec.appendChild(Work5.readinessPanel());
   UI.mountMvo(sec, Work5, id);
@@ -59,7 +67,7 @@ Work5.renderStep = function(id){
     body.appendChild(Work5.provenance(1,'业务概况 · 价值链 · 洞察'));
     body.appendChild(el('div',{class:'ai-actions'},
       el('button',{class:'ghost small',onclick:()=>Work5.aggregateCh1()},(w.ch1_business?'重新汇总':'从 Work 1 汇总')),
-      el('button',{class:'ghost small',onclick:e=>Work5.aiPolish('ch1_business','业务概况',e.currentTarget)},'AI 改写为章节语言')
+      el('button',{class:'ghost small',onclick:e=>Work5.aiPolish('ch1_business','业务概况',e.currentTarget)},(w.ch1_business?'重新生成业务概况':'AI 改写为章节语言'))
     ));
     body.appendChild(el('div',{class:'chapter-text',contenteditable:'true',
       oninput:e=>{state.work5.ch1_business=Work5.readEd(e.target);autosave();}},
@@ -77,7 +85,7 @@ Work5.renderStep = function(id){
   // ---------- 2 环境分析 ----------
   sec.appendChild(Work5.chapter('2','环境分析', body=>{
     const e=state.work5.ch2_environment;
-    body.appendChild(Work5.provenance(1,'PEST（政治/经济/社会/技术）· SWOT'));
+    body.appendChild(Work5.provenance(1,'PEST（政治/经济/社会/技术）· SWOT','environment'));
 
     // 2.1 PEST 2×2（按键贴小节，2026-09-01 用户反馈）
     body.appendChild(Work5.subhead('2.1','PEST · 政治 / 经济 / 社会 / 技术'));
@@ -103,7 +111,7 @@ Work5.renderStep = function(id){
     // 2.2 SWOT 2×2（按键贴小节；手动生成，2026-09-01 二次决策）
     body.appendChild(Work5.subhead('2.2','SWOT · 优势 / 劣势 / 机会 / 威胁'));
     body.appendChild(el('div',{class:'ai-actions'},
-      el('button',{class:'ghost small',onclick:ev=>Work5.aiSwot(ev.currentTarget)},(Work5._swotEmpty()?'AI 生成 SWOT':'重新生成 SWOT'))
+      el('button',{class:'ghost small',onclick:ev=>Work5.aiSwot(ev.currentTarget)},((Work5._swotEmpty() && !state.work5.ch1_business && !state.work5.ch5_outlook) ? 'AI 生成 SWOT' : '重新生成 SWOT'))
     ));
     const swotGrid=el('div',{class:'swot-2x2'});
     [['strengths','S','优势'],['weaknesses','W','劣势'],
@@ -191,7 +199,7 @@ Work5.renderStep = function(id){
     body.appendChild(Work5.subhead('4.2','营销组合 4P'));
     body.appendChild(Work5.subhead('4.2.1','4P 摘要表'));
     body.appendChild(el('div',{class:'ai-actions'},
-      el('button',{class:'ghost small',onclick:e=>Work5.aiSummary4P(e.currentTarget)},(Work5._pTableHas()?'重新生成 4P 表':'AI 总结 4P 表'))
+      el('button',{class:'ghost small',onclick:e=>Work5.aiSummary4P(e.currentTarget)},((Work5._pTableHas()||['product','price','place','promotion'].some(k=>(m[k]||'').trim()))?'重新生成 4P 表':'AI 总结 4P 表'))
     ));
     Work5.fourPTableBlock(body);
 
@@ -257,24 +265,31 @@ Work5.rerender = function(id){
 /* ============================================================
    证据型策划书：来源条 / 证据块 / 同步标
    ============================================================ */
-Work5.provenance = function(work, label){
+Work5.upstreamLink = function(work,step,label){
+  return el('button',{class:'ghost small provenance-go','aria-label':label,title:label,onclick:()=>{
+    if(typeof App!=='undefined'&&App.goWork){App.goWork(work);if(step&&App.goStep)App.goStep(step);}
+  }},label);
+};
+Work5.provenance = function(work, label, step){
   const t=(state&&state.work5&&state.work5.lastAggregated)?(' · 同步 '+new Date(state.work5.lastAggregated).toLocaleTimeString()):'';
   const bar=el('div',{class:'provenance-bar'},
     '来自 Work '+work+' · '+label+t);
   // 2026-09-01 wayfinder T07：来源条可回链到上游工作坊。
   const n=Number(work);
   if(Number.isInteger(n)&&n>=1&&n<=4){
-    bar.appendChild(el('button',{class:'ghost small provenance-go',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(n); }},'去改 →'));
+    const defaults={1:'sbu',2:'decision',3:'proposition',4:'route'};
+    bar.appendChild(Work5.upstreamLink(n,step||defaults[n],'去 Work '+n+' 修改'));
   }
   return bar;
 };
 Work5.syncedBadge = function(work){
-  return el('span',{class:'synced-badge',title:'直接修改共享 state，上游工作坊同步生效'},
-    '已同步到 Work '+work);
+  return el('span',{class:'synced-badge',title:'此处只读引用上游成果；修改请去 Work '+work},
+    '引用 Work '+work+' · 只读');
 };
-Work5.ensureOverwrite = function(hasContent, label){
+Work5.caseLocked = function(){ return !!(state && state.meta && (state.meta.isDemo || state.meta.demoCase)); };
+Work5.ensureOverwrite = async function(hasContent, label){
   if(!hasContent) return true;
-  return confirm('「'+label+'」已有内容，重新导入/汇总将覆盖当前内容。确定？');
+  return Interaction.confirm({title:'覆盖'+label+'？',message:'「'+label+'」已有内容，本次导入/汇总只覆盖这些章节字段，其他策划书内容会保留。覆盖后不能通过临时撤销恢复。',confirmLabel:'导入并覆盖',trigger:document.activeElement});
 };
 
 /* ---------- 核心证据块（wayfinder T05）----------
@@ -292,7 +307,7 @@ Work5.valueSummaryBlock = function(container){
   });
   if(!rows.length){
     container.appendChild(el('div',{class:'warning'},'Work 1 尚未完成指标体系评分。',
-      el('button',{class:'ghost small',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(1); }},'去 Work 1 完成 →')));
+      Work5.upstreamLink(1,'metrics','去品牌指标与评分修改')));
     return;
   }
   const plate=el('section',{class:'plate'});
@@ -322,6 +337,7 @@ Work5.valueSummaryBlock = function(container){
     t));
   container.appendChild(plate);
   container.appendChild(Work5.syncedBadge(1));
+  container.appendChild(Work5.upstreamLink(1,'metrics','去品牌指标与评分修改'));
 };
 
 // W2 市场名解析（2026-09-01 修复）：v2 schema 市场在 retained/candidates 池，
@@ -339,7 +355,7 @@ Work5.decisionCardBlock = function(container){
   const t1=d.tier1||{};
   if(!t1||!t1.marketId){
     container.appendChild(el('div',{class:'warning'},'Work 2 尚未完成三档决策。',
-      el('button',{class:'ghost small',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(2); }},'去 Work 2 完成 →')));
+      Work5.upstreamLink(2,'decision','去三档市场决策修改')));
     return;
   }
   const nameOf=Work5._w2NameOf;
@@ -371,6 +387,7 @@ Work5.decisionCardBlock = function(container){
       el('div',{class:'tbl-caption'},'表 3-1 三档资源决策'),
       t)));
   container.appendChild(Work5.syncedBadge(2));
+  container.appendChild(Work5.upstreamLink(2,'decision','去三档市场决策修改'));
 };
 
 // W3 客户痛点地图：表 3-1（2026-09-01 用户决策：论文式表格，替换 E3 行式流水）
@@ -379,7 +396,7 @@ Work5.painMapBlock = function(container){
   const pains=mg.painMap||[];
   if(!pains.length){
     container.appendChild(el('div',{class:'warning'},'Work 3 尚未完成卖点挖掘（痛点地图）。',
-      el('button',{class:'ghost small',onclick:()=>{ App.goWork(3); App.goStep('mining'); }},'去 Work 3 完成 →')));
+      Work5.upstreamLink(3,'mining','去痛点与语料修改')));
     return;
   }
   const comp=mg.corpusComposition||{real:(mg.documents||[]).length,simulated:(mg.simulatedDocuments||[]).length};
@@ -407,6 +424,7 @@ Work5.painMapBlock = function(container){
     el('div',{class:'tbl-caption'},'表 3-2 客户痛点地图'),
     t));
   container.appendChild(Work5.syncedBadge(3));
+  container.appendChild(Work5.upstreamLink(3,'mining','去痛点与语料修改'));
 };
 
 // W4 渠道结构：G7 树图单载体（结构 + 关键伙伴）+ 树图下执行机制文字
@@ -428,6 +446,8 @@ Work5.partnerSide = function(kp){
 Work5.channelTreeSvg = function(structure, partners){
   const groups = (structure||[]).filter(g => g && typeof g === 'object');
   const byGroup = groups.map(()=>[]);
+  const onlineIdx = groups.findIndex(g => String(g.name||'').trim() === '线上');
+  const offlineIdx = groups.findIndex(g => String(g.name||'').trim() === '线下');
   const unclassified = [];
   const unmounted = [];
   (partners||[]).forEach(kp=>{
@@ -435,10 +455,10 @@ Work5.channelTreeSvg = function(structure, partners){
     if(!name) return;
     const side = Work5.partnerSide(kp);
     if(side === '线上'){
-      if(groups[0]) byGroup[0].push(name);
+      if(onlineIdx >= 0) byGroup[onlineIdx].push(name);
       else unmounted.push(name);
     } else if(side === '线下'){
-      if(groups[1]) byGroup[1].push(name);
+      if(offlineIdx >= 0) byGroup[offlineIdx].push(name);
       else unmounted.push(name);
     } else {
       unclassified.push(name);
@@ -473,19 +493,19 @@ Work5.channelTreeSvg = function(structure, partners){
     const boxH = pns.length
       ? (50 + PARTNER_LINE_H * partnerLines + 10)
       : 34;
-    return { g, kids, pns, partnerBlocks, gh: Math.max(barsH, boxH) };
+    return { g, kids, pns, partnerBlocks, groupTotal: Work5.groupTotal(g), gh: Math.max(barsH, boxH) };
   });
   const height = meta.reduce((acc, m) => acc + m.gh, 20) + meta.length * 8;
   let svg = `<svg class="chart channel-tree-svg" viewBox="0 0 ${TEXT_X + 260} ${height}" role="img" aria-label="渠道结构树">`;
   let y = 20;
   meta.forEach(m=>{
-    const { g, kids, pns, partnerBlocks, gh } = m;
+    const { g, kids, pns, partnerBlocks, groupTotal, gh } = m;
     const gy = y + gh / 2;
-    svg += `<rect x="${GROUP_X}" y="${y}" width="${GROUP_W}" height="${gh}" fill="var(--color-paper-2)" stroke="var(--color-ink)"/>`;
+    svg += `<rect x="${GROUP_X}" y="${y}" width="${GROUP_W}" height="${gh}" fill="var(--color-paper-2)" stroke="var(--color-ink)" data-partners="${esc(pns.join('、'))}"/>`;
     if(pns.length){
       // 有伙伴：标题靠上，伙伴列在下方（框内）；首行 ·、续行缩进
-      svg += `<text x="${GROUP_X + INNER_PAD}" y="${y + 22}" font-family="Playfair Display" font-style="normal" font-size="14" fill="var(--color-ink)">${esc(g.name||'')}</text>`;
-      svg += `<text x="${GROUP_X + INNER_PAD}" y="${y + 42}" font-family="JetBrains Mono" font-size="9" letter-spacing="1" fill="var(--color-ink-2)">伙伴</text>`;
+      svg += `<text x="${GROUP_X + INNER_PAD}" y="${y + 22}" font-family="Playfair Display" font-style="normal" font-size="14" fill="var(--color-ink)">${esc(g.name||'')} ${groupTotal}%</text>`;
+      svg += `<text x="${GROUP_X + INNER_PAD}" y="${y + 42}" font-family="JetBrains Mono" font-size="9" letter-spacing="1" fill="var(--color-ink-2)">◇ 伙伴：${esc(pns.join('、'))}</text>`;
       let li = 0;
       partnerBlocks.forEach(lines => lines.forEach((ln, j)=>{
         const prefix = j === 0 ? '· ' : '   ';
@@ -494,7 +514,7 @@ Work5.channelTreeSvg = function(structure, partners){
       }));
     } else {
       // 无伙伴：标题垂直居中
-      svg += `<text x="${GROUP_X + GROUP_W / 2}" y="${gy + 4}" text-anchor="middle" font-family="Playfair Display" font-style="normal" font-size="14" fill="var(--color-ink)">${esc(g.name||'')}</text>`;
+      svg += `<text x="${GROUP_X + GROUP_W / 2}" y="${gy + 4}" text-anchor="middle" font-family="Playfair Display" font-style="normal" font-size="14" fill="var(--color-ink)">${esc(g.name||'')} ${groupTotal}%</text>`;
     }
     // 2026-09-07（用户要求）：bar 行距按框高 gh 平均分布（spread），
     // 伙伴多时框被撑高，bar 自动均匀散开铺满框高，连接线从框中心 gy 对称发散。
@@ -518,12 +538,12 @@ Work5.channelBlock = function(container){
   const struct=p.structure||[], partners=p.keyPartners||[];
   if(!struct.length&&!partners.length){
     container.appendChild(el('div',{class:'warning'},'Work 4 尚未完成渠道结构。',
-      el('button',{class:'ghost small',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(4); }},'去 Work 4 完成 →')));
+      Work5.upstreamLink(4,'place','去渠道结构与伙伴修改')));
     return;
   }
   if(!struct.length){
     container.appendChild(el('div',{class:'warning'},'渠道结构尚未生成，先去 Work4 完成渠道步',
-      el('button',{class:'ghost small',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(4); }},'去 Work 4 完成 →')));
+      Work5.upstreamLink(4,'place','去渠道结构与伙伴修改')));
     return;
   }
   const plate=el('section',{class:'plate'});
@@ -537,8 +557,10 @@ Work5.channelBlock = function(container){
     const name=Work5.partnerName(kp);
     if(!name) return;
     const side=Work5.partnerSide(kp);
-    if(side==='线上'&&!struct[0]) unmounted.push(name);
-    else if(side==='线下'&&!struct[1]) unmounted.push(name);
+    const online=struct.find(g=>String(g.name||'').trim()==='线上');
+    const offline=struct.find(g=>String(g.name||'').trim()==='线下');
+    if(side==='线上'&&!online) unmounted.push(name);
+    else if(side==='线下'&&!offline) unmounted.push(name);
     else if(!side) unclassified.push(name);
   });
   if(unclassified.length){
@@ -558,6 +580,7 @@ Work5.channelBlock = function(container){
   }
   container.appendChild(plate);
   container.appendChild(Work5.syncedBadge(4));
+  container.appendChild(Work5.upstreamLink(4,'place','去渠道结构与伙伴修改'));
 };
 
 /* ---------- 明细层折叠（wayfinder T06）：默认收起，打印展开，导出全量。 ---------- */
@@ -576,7 +599,8 @@ Work5.weightsBlock=function(container){
     ...inds.map(i=>{
       const w=wts[i.axis]&&wts[i.axis][i.id];
       return el('div',{class:'evidence-line'},'· '+(i.catName||'')+' / '+i.name+'：'+(w!=null?(w*100).toFixed(1)+'%':'—'));
-    })
+    }),
+    Work5.upstreamLink(2,'framework','去指标与收敛权重修改')
   ));
 };
 Work5.topicsBlock=function(container){
@@ -587,11 +611,12 @@ Work5.topicsBlock=function(container){
       const kws=(t.keywords||[]).slice(0,8).map(k=>(k&&k.word)||k).join('、');
       const docs=(t.representative_docs||[]).slice(0,2).map(d=>'「'+String(d).slice(0,40)+'」').join(' ');
       return el('div',{class:'evidence-line'},'· '+(t.label||'主题 '+(t.id+1))+'（'+(t.share||0)+'%）：'+kws+(docs?' · 代表：'+docs:''));
-    })
+    }),
+    Work5.upstreamLink(3,'mining','去语料建模与主题修改')
   ));
 };
 
-// W2 市场矩阵证据块（点选 = 设主战场，共享 state）
+// W2 市场矩阵证据块：只读引用，战略修改去上游。
 // 2026-09-01 修复：v2 schema 无 state.work2.markets（市场在 retained 池），
 // 点位/切分线一律走 Work2.computeMatrix()/matrixCuts() 唯一出口（ADR 0010）。
 Work5.marketMatrixBlock = function(container){
@@ -601,7 +626,7 @@ Work5.marketMatrixBlock = function(container){
   if(!pts.length){
     container.appendChild(el('div',{class:'warning'},
       'Work 2 尚未完成候选市场与评分。',
-      el('button',{class:'ghost small',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(2); }},'去 Work 2 完成 →')
+      Work5.upstreamLink(2,'evaluate','去目标市场评分修改')
     ));
     return;
   }
@@ -611,11 +636,11 @@ Work5.marketMatrixBlock = function(container){
   if(pts.every(p=>!p.x && !p.y)){
     container.appendChild(el('div',{class:'warning'},
       '3.1 显示异常：所有市场评分缺失，散点将全部落在原点。请回 Work 2 完成市场评分（每市场 × 每指标打分）。',
-      el('button',{class:'ghost small',onclick:()=>{ App.goWork(2); App.goStep('evaluate'); }},'去 Work 2 评分 →')));
+      Work5.upstreamLink(2,'evaluate','去目标市场评分修改')));
   }
   const d=state.work2;
   const plate=el('section',{class:'plate'});
-  plate.appendChild(el('span',{class:'plate-label'},'F8 · PLUMB SCATTER · 市场吸引力 × 业务竞争力（点选设为主战场）'));
+  plate.appendChild(el('span',{class:'plate-label'},'F8 · PLUMB SCATTER · 市场吸引力 × 业务竞争力（只读）'));
   const chartWrap=el('div');
   renderMatrix({
     container:chartWrap,
@@ -624,15 +649,15 @@ Work5.marketMatrixBlock = function(container){
     xCut:cuts.xCut, yCut:cuts.yCut,
     selectedId:(d.decision&&d.decision.tier1&&d.decision.tier1.marketId)||null,
     qHighHigh:'明星市场（重点投入）', qHighYLowX:'潜力市场（补能力）',
-    qlowYHighX:'产能市场（选择性收割）', qLowLow:'放弃市场',
-    onSelect:id=>{ if(Work2.setTier1) Work2.setTier1(id); autosave(); Work5.rerender('plan'); }
+    qlowYHighX:'产能市场（选择性收割）', qLowLow:'放弃市场'
   });
   plate.appendChild(chartWrap);
   container.appendChild(plate);
   container.appendChild(Work5.syncedBadge(2));
+  container.appendChild(Work5.upstreamLink(2,'decision','去目标市场修改'));
 };
 
-// W3 卖点矩阵 + 可编辑排名表证据块（分数/勾选直接写共享 state）
+// W3 卖点矩阵及排名表：仅展示上游分数与入选状态。
 Work5.sellingPointBlock = function(container){
   // 2026-09-02：computeMatrix/cuts/逐点辅助全部 try 保护——v1 时代完成的
   // work3 无 dimensions（迁移不补），裸调会炸掉 renderStep 后半页（「看不到矩阵」）。
@@ -643,7 +668,7 @@ Work5.sellingPointBlock = function(container){
   if(!pts.length){
     container.appendChild(el('div',{class:'warning'},
       'Work 3 尚未完成卖点评分与矩阵。',
-      el('button',{class:'ghost small',onclick:()=>{ App.goWork(3); App.goStep('matrix'); }},'去 Work 3 完成 →')
+      Work5.upstreamLink(3,'matrix','去卖点评分与矩阵修改')
     ));
     return;
   }
@@ -653,7 +678,7 @@ Work5.sellingPointBlock = function(container){
   if(pts.every(p=>!p.x && !p.y)){
     container.appendChild(el('div',{class:'warning'},
       '3.4 显示异常：所有卖点维度分缺失，散点将全部落在原点。请回 Work 3 完成卖点评分（合意性 × 可实施性）。',
-      el('button',{class:'ghost small',onclick:()=>{ App.goWork(3); App.goStep('matrix'); }},'去 Work 3 评分 →')));
+      Work5.upstreamLink(3,'matrix','去卖点评分与矩阵修改')));
   }
   const inSectorSafe=(x,y)=>{ try{ return Work3.isInSector(x,y); }catch(_){ return false; } };
   const sugSafe=(x,y)=>{ try{ return Work3.entrySuggestion(x,y); }catch(_){ return {ok:false,text:''}; } };
@@ -685,26 +710,18 @@ Work5.sellingPointBlock = function(container){
     const row=el('tr',{},
       el('td',{},String(i+1)),
       el('td',{style:{'font-style':'normal'}},p.name),
-      el('td',{},el('input',{type:'number',min:0,max:10,step:0.1,value:(p.y??'').toFixed(1)||'',onchange:e=>{const c=(state.work3.candidates||[]).find(x=>x.id===p.id);if(!c)return;c.reviewDes=e.target.value===''?null:parseFloat(e.target.value);autosave();Work5.rerender('plan');}})),
-      el('td',{},el('input',{type:'number',min:0,max:10,step:0.1,value:(p.x??'').toFixed(1)||'',onchange:e=>{const c=(state.work3.candidates||[]).find(x=>x.id===p.id);if(!c)return;c.reviewImp=e.target.value===''?null:parseFloat(e.target.value);autosave();Work5.rerender('plan');}})),
+      el('td',{},Number(p.y||0).toFixed(1)),
+      el('td',{},Number(p.x||0).toFixed(1)),
       el('td',{},el('span',{class:'tag '+(q==='明星'?'maroon':'')},q)),
       el('td',{},w3.matrix.showSector ? (inside?el('span',{class:'tag soft'},'扇面内'):el('span',{class:'tag'},'外')) : el('span',{class:'muted'},'—')),
-      el('td',{},(()=>{const cb=el('input',{type:'checkbox',checked:!!p.selected});cb.style.width='auto';cb.addEventListener('change',()=>{
-        // BIZ01：写回真候选 + manualSelected 覆盖（防自动派生回写覆盖手选）
-        const c=(state.work3.candidates||[]).find(x=>x.id===p.id);if(!c)return;
-        c.selected=cb.checked;
-        const mm=state.work3.matrix;
-        const list=Array.isArray(mm.manualSelected)?mm.manualSelected.slice():[];
-        const i=list.indexOf(p.id);
-        if(cb.checked&&i<0)list.push(p.id);if(!cb.checked&&i>=0)list.splice(i,1);
-        mm.manualSelected=list;
-        autosave();Work5.rerender('plan');});return cb;})()),
+      el('td',{},p.selected?'已入选':'未入选'),
       el('td',{class:'hint',style:{'text-transform':'none','letter-spacing':'0'}},sug.text)
     );
     tb.appendChild(row);
   });
   t.appendChild(tb); tbl.appendChild(t); container.appendChild(tbl);
   container.appendChild(Work5.syncedBadge(3));
+  container.appendChild(Work5.upstreamLink(3,'matrix','去卖点评分与矩阵修改'));
 };
 
 // 导出用的完整排名 Markdown 表（与视图同构）
@@ -781,13 +798,15 @@ Work5.channelMd = function(){
     return lines.join('\n');
   }
   const byGroup = struct.map(()=>[]);
+  const onlineIdx = struct.findIndex(g => String(g.name||'').trim() === '线上');
+  const offlineIdx = struct.findIndex(g => String(g.name||'').trim() === '线下');
   const unclassified=[], unmounted=[];
   (partners||[]).forEach(kp=>{
     const name=Work5.partnerName(kp);
     if(!name) return;
     const side=Work5.partnerSide(kp);
-    if(side==='线上'){ if(struct[0]) byGroup[0].push(name); else unmounted.push(name); }
-    else if(side==='线下'){ if(struct[1]) byGroup[1].push(name); else unmounted.push(name); }
+    if(side==='线上'){ if(onlineIdx>=0) byGroup[onlineIdx].push(name); else unmounted.push(name); }
+    else if(side==='线下'){ if(offlineIdx>=0) byGroup[offlineIdx].push(name); else unmounted.push(name); }
     else unclassified.push(name);
   });
   struct.forEach((g,gi)=>{
@@ -843,8 +862,10 @@ Work5.topicsMd = function(){
 Work5.mediaMd = function(){
   const adv=(((state&&state.work4)||{}).promotion||{}).advertising||[];
   if(!adv.length) return '';
-  const lines=['#### 上游明细 · 媒介预算组合（budgetShare 合计 100）'];
-  adv.forEach(a=>lines.push('- '+(a.media||'')+' '+(a.budgetShare!=null?a.budgetShare:'—')+'% — '+(a.message||'')+'（KPI：'+(a.kpi||'')+'）'));
+  const rows=[...adv].sort((a,b)=>(Number(b.budgetShare)||0)-(Number(a.budgetShare)||0));
+  const total=rows.reduce((sum,a)=>sum+(Number(a.budgetShare)||0),0);
+  const lines=['#### 上游明细 · 媒介预算组合（budgetShare 合计 '+total+'）'];
+  rows.forEach(a=>lines.push('- '+(a.media||'')+' '+(a.budgetShare!=null?a.budgetShare:'—')+'% — '+(a.message||'')+'（KPI：'+(a.kpi||'')+'）'));
   return lines.join('\n');
 };
 
@@ -900,7 +921,7 @@ Work5.readinessPanel=function(){
     el('span',{class:'readiness-name'},it.key),
     it.done
       ? el('span',{class:'muted'},'已完成')
-      : el('button',{class:'ghost small',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(it.n); }},'去完成 →')
+      : el('button',{class:'ghost small','aria-label':'去完成 '+it.key,title:'去完成 '+it.key,onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(it.n); }},'去完成 '+it.key+' →')
   ));
   return el('div',{class:'plate readiness no-print'},
     el('span',{class:'plate-label'},'成稿检查 · 上游工作坊（未完成不卡完成，仅提示）'),
@@ -988,12 +1009,19 @@ Work5.composePositioning=function(){
       +'\nSlogan：'+(id.chosenSlogan||p.chosenSlogan||'');
   }
   // STP 细分承接 Work3 场景细分（市场细分场景），不用 Work1 画像。旧数据无场景时回退画像。
-  const scenarios=w3.scenarios||[];
+  const scenarios=(w3.scenarios||[]).filter(s=>{
+    return String((s&&s.name)||'').trim() || String((s&&s.description)||'').trim();
+  });
   const ordered=[...scenarios.filter(s=>s.selected), ...scenarios.filter(s=>!s.selected)];
-  let segmentation=ordered.map(s=>'· '+s.name+'：'+(s.description||'')).join('\n');
+  let segmentation=ordered.map(s=>{
+    const name=String(s.name||'').trim() || '未命名场景';
+    const desc=String(s.description||'').trim();
+    return '· '+name+(desc?'：'+desc:'');
+  }).join('\n');
   if(!segmentation){
     segmentation=((state&&state.work1&&state.work1.personas)||[])
-      .map(pp=>'· '+pp.name+'（'+pp.age+'，'+pp.occupation+'，'+pp.region+'）：'+pp.painPoints).join('\n');
+      .filter(pp=>String((pp&&pp.name)||'').trim() || String((pp&&pp.painPoints)||'').trim())
+      .map(pp=>'· '+(String(pp.name||'').trim()||'未命名画像')+'（'+pp.age+'，'+pp.occupation+'，'+pp.region+'）：'+pp.painPoints).join('\n');
   }
   return {segmentation,positioning};
 };
@@ -1048,34 +1076,40 @@ Work5.compose4P=function(){
   return out;
 };
 
-Work5.aggregateAll=function(){
+Work5.aggregateAll=async function(){
+  if(Work5.caseLocked()) return false;
   // 2026-09-01 wayfinder map：整组汇总先确认一次，再强制覆盖各章。
   const s=state.work5;
   const touched = !!(s.ch1_business ||
     ['political','economic','social','technological'].some(k=>(s.ch2_environment[k]||'').trim()) ||
     s.ch3_strategy.targeting || s.ch3_strategy.positioning || s.ch4_mix.product);
-  if(touched && !confirm('「从 Work 1–4 汇总」将覆盖已填写的业务/环境/市场/4P 章节。确定？')) return;
-  Work5.aggregateCh1(true);
-  Work5.importPestFromWork1(true, true);
-  Work5.importTargeting(true, true);
-  Work5.importPositioning(true, true);
-  Work5.import4P(true, true);
+  if(touched && !await Work5.ensureOverwrite(true,'业务与市场、PEST、STP、路径与 4P'))return;
+  if(Work5.caseLocked() || s!==state.work5)return false;
+  await Work5.aggregateCh1(true);
+  await Work5.importPestFromWork1(true, true);
+  await Work5.importTargeting(true, true);
+  await Work5.importPositioning(true, true);
+  await Work5.import4P(true, true);
   state.work5.lastAggregated=new Date().toISOString();
   autosave(); Work5.rerender('plan');
   void Work5._auto4C();
   showToast('已从 Work 1–4 汇总');
 };
 
-Work5.aggregateCh1=function(force){
-  if(!force && !Work5.ensureOverwrite(state.work5.ch1_business, '业务与市场')) return;
+Work5.aggregateCh1=async function(force){
+  if(Work5.caseLocked()) return false;
+  if(!force && !await Work5.ensureOverwrite(state.work5.ch1_business, '业务与市场')) return;
+  if(Work5.caseLocked())return false;
   const text=Work5.composeCh1();
   if(!text) return;
   state.work5.ch1_business=text; autosave(); Work5.rerender('plan');
 };
 
-Work5.importPestFromWork1=function(silent, force){
+Work5.importPestFromWork1=async function(silent, force){
+  if(Work5.caseLocked()) return false;
   const e=state.work5.ch2_environment;
-  if(!force && !Work5.ensureOverwrite(['political','economic','social','technological'].some(k=>(e[k]||'').trim()), 'PEST')) return;
+  if(!force && !await Work5.ensureOverwrite(['political','economic','social','technological'].some(k=>(e[k]||'').trim()), 'PEST 四项（政治、经济、社会、技术）')) return;
+  if(Work5.caseLocked() || e!==state.work5.ch2_environment)return false;
   const next=Work5.composePest();
   Object.assign(e,next);
   autosave();
@@ -1084,12 +1118,13 @@ Work5.importPestFromWork1=function(silent, force){
 
 // Wrap a single AI call with global Runner (abort ×) so all AI actions are controllable.
 Work5._run=async function(button, label, fn){
+  if(Work5.caseLocked()){ showToast('案例浏览中，不可用 AI'); return; }
   const task=Runner.start({id:'work5-'+label, label, button, pausable:false});
   if(!task) return;
   try{ await fn(task.controller.signal); }
   catch(e){
     if(!(e && e.name==='AbortError')){ showToast('AI 失败: '+e.message); }
-  }finally{ Runner.finish(); }
+  }finally{ if(Runner.current===task)Runner.finish(); }
 };
 // ai_context（2026-08-27 全局机制）：稳定前缀在前，共享 digest。
 Work5._msgs=function(sys, user, needs){
@@ -1129,6 +1164,7 @@ Work5._swotEmpty=function(){
     !(e[k]||[]).some(it=>!Work5._swotGarbage(it)));
 };
 Work5._genSwot=async function(signal){
+  const workspace=state;
   const env=state.work5.ch2_environment;
   const sys='你是营销战略顾问。基于给定信息生成 SWOT，输出 JSON: {"strengths":[],"weaknesses":[],"opportunities":[],"threats":[]}，每项 3-5 条、每条不超过 20 字的短标签，写具体事实不写空话。'+Work5._humanRule;
   const w1=(state&&state.work1)||{};
@@ -1141,6 +1177,7 @@ Work5._genSwot=async function(signal){
     +'\n\n价值主张：'+(((state.work3||{}).proposition||{}).chosenValueText||'')
     +(pains.length?('\n客户痛点：\n'+pains.slice(0,8).map(p=>'['+(p.type||'')+'] '+(p.pain||'')).join('\n')):'');
   const r=await API.callJson(Work5._msgs(sys, user, ['sbu','positioning']),{signal});
+  if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
   if(r){
     ['strengths','weaknesses','opportunities','threats'].forEach(k=>{
       if(Array.isArray(r[k])) env[k]=r[k];
@@ -1155,8 +1192,10 @@ Work5.aiSwot=async function(button){
   });
 };
 
-Work5.importTargeting=function(silent, force){
-  if(!force && !Work5.ensureOverwrite(state.work5.ch3_strategy.targeting, '目标市场')) return;
+Work5.importTargeting=async function(silent, force){
+  if(Work5.caseLocked()) return false;
+  if(!force && !await Work5.ensureOverwrite(state.work5.ch3_strategy.targeting, 'STP 的目标市场')) return;
+  if(Work5.caseLocked())return false;
   const text=Work5.composeTargeting();
   if(!text){ if(!silent)showToast('Work 2 未选择目标市场'); return; }
   state.work5.ch3_strategy.targeting=text;
@@ -1164,8 +1203,10 @@ Work5.importTargeting=function(silent, force){
   if(!silent){Work5.rerender('plan');showToast('已导入目标市场');}
 };
 
-Work5.importPositioning=function(silent, force){
-  if(!force && !Work5.ensureOverwrite(state.work5.ch3_strategy.positioning, '定位')) return;
+Work5.importPositioning=async function(silent, force){
+  if(Work5.caseLocked()) return false;
+  if(!force && !await Work5.ensureOverwrite(state.work5.ch3_strategy.positioning||state.work5.ch3_strategy.segmentation, 'STP 的细分与定位')) return;
+  if(Work5.caseLocked())return false;
   const next=Work5.composePositioning();
   if(!next.positioning){ if(!silent)showToast('Work 3 尚未完成主张与定位'); return; }
   state.work5.ch3_strategy.positioning=next.positioning;
@@ -1174,8 +1215,10 @@ Work5.importPositioning=function(silent, force){
   if(!silent){Work5.rerender('plan');showToast('已导入定位');}
 };
 
-Work5.import4P=function(silent, force){
-  if(!force && !Work5.ensureOverwrite(state.work5.ch4_mix.product, '营销组合')) return;
+Work5.import4P=async function(silent, force){
+  if(Work5.caseLocked()) return false;
+  if(!force && !await Work5.ensureOverwrite(['route','product','price','place','promotion'].some(k=>state.work5.ch4_mix[k]), '营销组合的路径、产品、价格、渠道、传播')) return;
+  if(Work5.caseLocked())return false;
   const next=Work5.compose4P();
   if(!next || !Object.keys(next).length){ if(!silent)showToast('Work 4 尚未完成 4P'); return; }
   const m=state.work5.ch4_mix;
@@ -1197,14 +1240,17 @@ Work5._pTableHas=function(){
 };
 // 2026-09-01 二次决策：SWOT 改回手动按键生成（进入不再自动调 API）；4C 保持空态自动。
 Work5._auto4C=async function(){
+  if(Work5.caseLocked()) return false;
   try{
     if(!state||!state.work5) return;
     if(state.meta&&state.meta.isDemo) return;
-    if(typeof API==='undefined'||!API.callJson) return;
+    if(typeof API==='undefined'||!API.callJson || state.settings?.manualMode || (state.settings?.api && !state.settings.api.apiKey)) return;
     const m=state.work5.ch4_mix;
     if(Work5._fourCEmpty() && ['product','price','place','promotion'].some(k=>(m[k]||'').trim())){
-      await Work5._gen4C();
-      autosave(); Work5.rerender('plan');
+      const task=Runner.start?Runner.start({id:'work5-auto-4c',label:'4C',button:null,pausable:false}):null;
+      if(Runner.start && !task)return false;
+      try{await Work5._gen4C(task?.controller?.signal,true);autosave();Work5.rerender('plan');}
+      finally{if(task)Runner.finish();}
     }
   }catch(e){ console.warn('[W5 auto 4C]', e); }
 };
@@ -1222,72 +1268,63 @@ Work5._entryHeal=function(){
   }catch(_){}
 };
 
-Work5.autoSync=async function(){
-  if(!state||!state.work5) return false;
-  if(state.meta&&state.meta.isDemo) return false;
-  const w=state.work5;
-  const ch2=w.ch2_environment||(w.ch2_environment={});
-  const s3=w.ch3_strategy||(w.ch3_strategy={});
-  const mix=w.ch4_mix||(w.ch4_mix={});
-  const base={
-    ch1:w.ch1_business||'',
-    pest:{political:ch2.political||'',economic:ch2.economic||'',social:ch2.social||'',technological:ch2.technological||''},
-    targeting:s3.targeting||'',
-    segmentation:s3.segmentation||'',
-    positioning:s3.positioning||'',
-    mix:{route:mix.route||'',product:mix.product||'',price:mix.price||'',place:mix.place||'',promotion:mix.promotion||''}
-  };
+// Plan from current upstream and current user input; no writes before protection succeeds.
+Work5._syncPlan=function(){
+  const w=state.work5, synced=w.syncedValues||{};
   const pos=Work5.composePositioning();
-  const patch={
-    ch1_business:Work5.composeCh1()||null,
-    pest:Work5.composePest(),
-    targeting:Work5.composeTargeting()||null,
-    segmentation:pos.positioning?pos.segmentation:null,
-    positioning:pos.positioning||null,
-    mix:Work5.compose4P()||{}
-  };
-
-  let changed=false;
-  if(patch.ch1_business && patch.ch1_business!==(w.ch1_business||'')) changed=true;
-  if(['political','economic','social','technological'].some(k=>patch.pest[k]!==undefined && patch.pest[k]!==(ch2[k]||''))) changed=true;
-  if(patch.targeting && patch.targeting!==(s3.targeting||'')) changed=true;
-  if(patch.segmentation!==null && patch.segmentation!==(s3.segmentation||'')) changed=true;
-  if(patch.positioning && patch.positioning!==(s3.positioning||'')) changed=true;
-  if(['route','product','price','place','promotion'].some(k=>patch.mix[k]!==undefined && patch.mix[k]!==(mix[k]||''))) changed=true;
-
-  if(changed){
-    // 覆盖前存档（可恢复）：先把当前内存状态落盘，再建一个时间名快照版本。
-    try{ if(typeof saveNow==='function') await saveNow(); }catch(_){}
-    try{ if(typeof Archive!=='undefined'&&typeof Archive.create==='function') await Archive.create({}); }catch(_){}
-
-    // 应用前二次比对：存档期间用户可能已经开始输入，被改动的字段不再覆盖。
-    if(patch.ch1_business && (w.ch1_business||'')===base.ch1) w.ch1_business=patch.ch1_business;
-    ['political','economic','social','technological'].forEach(k=>{
-      if(patch.pest[k]!==undefined && (ch2[k]||'')===base.pest[k]) ch2[k]=patch.pest[k];
-    });
-    if(patch.targeting && (s3.targeting||'')===base.targeting) s3.targeting=patch.targeting;
-    if(patch.segmentation!==null && (s3.segmentation||'')===base.segmentation) s3.segmentation=patch.segmentation;
-    if(patch.positioning && (s3.positioning||'')===base.positioning) s3.positioning=patch.positioning;
-    ['route','product','price','place','promotion'].forEach(k=>{
-      if(patch.mix[k]!==undefined && (mix[k]||'')===base.mix[k]) mix[k]=patch.mix[k];
-    });
-    w.lastAggregated=new Date().toISOString();
-    autosave();
+  const fields=[['ch1_business',Work5.composeCh1()||null],['ch3_strategy.targeting',Work5.composeTargeting()||null],
+    ['ch3_strategy.segmentation',pos.positioning?pos.segmentation:null],['ch3_strategy.positioning',pos.positioning||null]];
+  const pest=Work5.composePest(),mix=Work5.compose4P()||{};
+  ['political','economic','social','technological'].forEach(k=>fields.push(['ch2_environment.'+k,pest[k]]));
+  ['route','product','price','place','promotion'].forEach(k=>fields.push(['ch4_mix.'+k,mix[k]]));
+  return fields.filter(([path,next])=>{
+    const parts=path.split('.'),holder=parts.length===1?w:w[parts[0]];
+    const value=holder?.[parts[parts.length-1]]||'';
+    return next!==null && next!==undefined && next!==value && (!value || value===synced[path]);
+  });
+};
+Work5.autoSync=async function(){
+  if(!state?.work5 || Work5.caseLocked() || Work5._syncPending)return false;
+  if(!Work5._syncPlan().length){
+    Work5._syncFailure=null;
+    Interaction.clearNotice('w5-sync');
+    void Work5._auto4C();
+    return false;
   }
-  void Work5._auto4C();
-  if(changed) Work5.rerender('plan');
-  return changed;
+  Work5._syncPending=true;
+  try{
+    const result=await Interaction.runProtected({key:'w5-sync',retry:()=>Work5.autoSync(),
+      apply:()=>{
+        const fresh=Work5._syncPlan();
+        if(!fresh.length)return false;
+        const w=state.work5,synced=w.syncedValues||(w.syncedValues={});
+        fresh.forEach(([path,next])=>{
+          const parts=path.split('.'),holder=parts.length===1?w:w[parts[0]];
+          holder[parts[parts.length-1]]=next;synced[path]=next;
+        });
+        w.lastAggregated=new Date().toISOString();
+        return true;
+      },
+      refresh:()=>Work5.rerender('plan'),
+      onFailure:failure=>{Work5._syncFailure=failure;Work5.rerender('plan');},
+      onComplete:()=>{Work5._syncFailure=null;Work5.rerender('plan');}
+    });
+    if(result)void Work5._auto4C();
+    return result;
+  }finally{Work5._syncPending=false;}
 };
 
 /* ---------- 4C（2026-09-01 决策 2：进入即预生成 + 手动重生成） ---------- */
-Work5._gen4C=async function(signal){
+Work5._gen4C=async function(signal,onlyEmpty=false){
+  const workspace=state;
   const m=state.work5.ch4_mix;
   const sys='你是营销顾问。把 4P 转为 4C：Customer Value 来自 Product、Customer Cost 来自 Price（含时间/心理成本）、Convenience 来自 Place、Communication 来自 Promotion（双向沟通而非单向推送）。输出 JSON: {"customerValue":"","customerCost":"","convenience":"","communication":""}。每项 3-5 行要点，每行一个要点；不要标题、不要 markdown 装饰、不要编号、不得改变事实与数字。'+Work5._humanRule;
   const user=`Product: ${m.product}\nPrice: ${m.price}\nPlace: ${m.place}\nPromotion: ${m.promotion}`;
   const r=await API.callJson(Work5._msgs(sys, user, ['ch4_mix']),{signal});
+  if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
   if(r){
     ['customerValue','customerCost','convenience','communication'].forEach(k=>{
-      if(r[k]) m[k]=Work5.normalizeBullets(r[k]);
+      if(r[k] && (!onlyEmpty || !String(m[k]||'').trim()))m[k]=Work5.normalizeBullets(r[k]);
     });
   }
   return r;
@@ -1331,7 +1368,7 @@ Work5.reactionBlock=function(container){
   if(!rows.length){
     container.appendChild(el('div',{class:'warning'},
       'Work 1 尚未完成实测调研，先去 Work 1 完成调研后再起草反应机制。',
-      el('button',{class:'ghost small',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(1); }},'去 Work 1 完成 →')));
+      Work5.upstreamLink(1,'survey','去调研与实测修改')));
   } else {
     const plate=el('section',{class:'plate'});
     plate.appendChild(el('span',{class:'plate-label'},'反应机制 · W1 指标 Δ（偏差最大 3 项）'));
@@ -1342,6 +1379,7 @@ Work5.reactionBlock=function(container){
         +'（Δ '+(r.delta>0?'+':'')+r.delta.toFixed(1)+'）'));
     });
     container.appendChild(plate);
+    container.appendChild(Work5.upstreamLink(1,'metrics','去品牌指标与评分修改'));
   }
   const btn=el('button',{class:'ghost small'+(rows.length?'':' is-disabled'),disabled:!rows.length},
     Work5._reactionEmpty() ? 'AI 起草反应机制' : '重新生成反应机制');
@@ -1352,6 +1390,7 @@ Work5.reactionBlock=function(container){
     m.reactionMechanism||'〔点击此处输入或点上方 AI 起草——针对认知断点给出监测与反应机制……〕'));
 };
 Work5._genReaction=async function(signal){
+  const workspace=state;
   const rows=Work5.w1DeltaRows(3);
   if(!rows.length) return null;
   const m=state.work5.ch4_mix;
@@ -1361,6 +1400,7 @@ Work5._genReaction=async function(signal){
     +'\n\n指标 Δ（实测 − 自评，偏差最大 3 项）：\n'
     +rows.map(r=>`- ${r.dim||''} · ${r.name||''}：自评 ${fmt(r.self)} → 实测 ${fmt(r.actual)}（Δ ${r.delta>0?'+':''}${r.delta.toFixed(1)}）`).join('\n');
   const text=await API.call(Work5._msgs(sys,user,['sbu','positioning','metrics']),{signal});
+  if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
   if(text){
     m.reactionMechanism=Work5.normalizeBullets(text);
     return text;
@@ -1423,12 +1463,14 @@ Work5.fourPTableBlock=function(container){
 };
 Work5.aiSummary4P=async function(button){
   return Work5._run(button,'4P摘要', async signal=>{
+    const workspace=state;
     const m=state.work5.ch4_mix;
     const keys=['product','price','place','promotion'].filter(k=>(m[k]||'').trim());
     if(!keys.length){ showToast('请先导入或填写 4P'); return; }
     const sys='你是策划书编辑。把营销组合 4P 各要素总结为表格行，输出 JSON: {"product":{"core":"核心策略一句话（不超过 30 字）","actions":"关键举措，最多 3 行，每行以 · 开头","nums":"关键数字或依据，没有则写 —"},"price":{...},"place":{...},"promotion":{...}} 四个键同构。不得改变事实与数字。'+Work5._humanRule;
     const user=keys.map(k=>k+': '+m[k]).join('\n\n');
     const r=await API.callJson(Work5._msgs(sys, user, ['ch4_mix']),{signal});
+    if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
     if(r){
       const pt=Work5.healPTable();
       ['product','price','place','promotion'].forEach(k=>{
@@ -1459,7 +1501,7 @@ Work5.budgetBarBlock=function(container){
   const adv=(((state&&state.work4)||{}).promotion||{}).advertising||[];
   if(!adv.length){
     container.appendChild(el('div',{class:'warning'},'Work 4 尚未完成媒介预算组合。',
-      el('button',{class:'ghost small',onclick:()=>{ if(typeof App!=='undefined'&&App.goWork) App.goWork(4); }},'去 Work 4 完成 →')));
+      Work5.upstreamLink(4,'promotion','去传播预算与媒介修改')));
     return;
   }
   const max=Math.max(...adv.map(a=>a.budgetShare||0),1);
@@ -1481,11 +1523,25 @@ Work5.budgetBarBlock=function(container){
   });
   container.appendChild(plate);
   container.appendChild(Work5.syncedBadge(4));
+  container.appendChild(Work5.upstreamLink(4,'promotion','去传播预算与媒介修改'));
 };
 
 /* 4P 润色（wayfinder T04 的 C）：逐 P 调 LLM，输出受格式约束，
    normalizeBullets 兜底——不得合并/删除要点、不得引入 markdown。 */
+Work5.retainStructured=function(original, generated){
+  const clean=Work5.normalizeBullets(generated);
+  const originalClean=Work5.normalizeBullets(original);
+  const bullets=x=>String(x||'').split(/\r?\n/).map(v=>v.trim()).filter(v=>/^·\s+/.test(v));
+  const originalBullets=bullets(originalClean), generatedBullets=bullets(clean);
+  if(originalBullets.length>generatedBullets.length) return originalClean;
+  const numbers=x=>(String(x||'').match(/\d+(?:\.\d+)?%?/g)||[]);
+  const generatedNumbers=new Set(generatedBullets.flatMap(numbers));
+  const missing=originalBullets.filter(line=>numbers(line).some(n=>!generatedNumbers.has(n)));
+  return missing.length ? [clean, ...missing].filter(Boolean).join('\n') : clean;
+};
 Work5.aiPolish4P=async function(button){
+  if(Work5.caseLocked())return false;
+  const workspace=state, mix=state.work5.ch4_mix;
   const keys=['product','price','place','promotion'].filter(k=>(state.work5.ch4_mix[k]||'').trim());
   if(!keys.length){ showToast('请先导入或填写 4P'); return; }
   const task=Runner.start({id:'work5-polish-4p',label:'润色 4P',button,total:keys.length,pausable:true,
@@ -1493,20 +1549,22 @@ Work5.aiPolish4P=async function(button){
   if(!task) return;
   const sys='你是策划书编辑。把给定的营销组合要点润色得专业通顺，保持结构不变：每节第一行是主题句，其后每行一个要点（以 · 开头）。不要输出标题、不要 markdown 装饰、不要合并或删除要点、不得改变事实与数字。直接输出润色后的纯文本要点。'+Work5._humanRule;
   for(const k of keys){
-    if(task.aborted) break;
+    if(task.aborted || state!==workspace || Work5.caseLocked()) break;
     try{
-      const text=await API.call([{role:'system',content:sys},{role:'user',content:state.work5.ch4_mix[k]}],{signal:task.controller.signal});
-      if(text){ state.work5.ch4_mix[k]=Work5.normalizeBullets(text); autosave(); }
+      const text=await API.call([{role:'system',content:sys},{role:'user',content:mix[k]}],{signal:task.controller.signal});
+      if(task.aborted || task.controller.signal.aborted || state!==workspace || Work5.caseLocked())break;
+      if(text){ mix[k]=Work5.retainStructured(mix[k], text); autosave(); }
     }catch(e){ if(task.aborted || (e&&e.name==='AbortError')) break; console.warn(e); }
     task.done++; Runner.renderUI();
     try{ await Runner.checkpoint(); }catch{ break; }
   }
-  Runner.finish();
-  Work5.rerender('plan');
+  if(Runner.current===task)Runner.finish();
+  if(state===workspace)Work5.rerender('plan');
 };
 
 Work5.aiOutlook=async function(button){
   return Work5._run(button,'总结展望', async signal=>{
+    const workspace=state;
     const sys='你是品牌战略顾问。基于前四章生成总结与展望 300-500 字，包含核心战略复盘、关键风险与应对、6/12/24 月阶段性目标。'+Work5._humanRule;
     const reEval=(state.work2&&state.work2.decision&&state.work2.decision.tier1&&state.work2.decision.tier1.reEvalTrigger)||'';
     const user='SBU:'+(((state.work1||{}).sbu||{}).name||'')
@@ -1515,23 +1573,29 @@ Work5.aiOutlook=async function(button){
       +'\n产品:'+String(((state.work5.ch4_mix||{}).product||'')).slice(0,200)
       +(reEval?'\n再评估触发:'+reEval:'');
     const text=await API.call(Work5._msgs(sys, user, ['sbu','positioning','ch4_mix']),{signal});
+    if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
     if(text){ state.work5.ch5_outlook=text; autosave(); Work5.rerender('plan'); }
+    else showToast('AI 未返回总结展望，已保留原值');
   });
 };
 
 Work5.aiPolish=async function(field,label,button){
+  const workspace=state;
   const cur=state.work5[field];
   if(!cur){ showToast('请先填写内容'); return; }
   return Work5._run(button,'润色-'+label, async signal=>{
     const text=await API.call([{role:'system',content:`你是策划书编辑。润色给定的${label}章节，保持事实不变，仅让表达更通顺专业。直接输出润色后的文本。`+Work5._humanRule},
       {role:'user',content:cur}],{signal});
-    if(text){ state.work5[field]=text; autosave(); Work5.rerender('plan'); showToast('已润色 '+label); }
+    if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
+    if(text){ state.work5[field]=Work5.retainStructured(cur, text); autosave(); Work5.rerender('plan'); showToast('已润色 '+label); }
   });
 };
 
 // Multi-chapter polish: pausable Runner, one unit per chapter.
 // BIZ06：此前只写死第 1 章——补全 1-5 章全部自由文本章节（嵌套字段走点路径）。
 Work5.aiPolishAll=async function(button){
+  if(Work5.caseLocked())return false;
+  const workspace=state;
   const get=(p)=>p.split('.').reduce((a,k)=>a==null?null:a[k], state.work5);
   const set=(p,v)=>{ const ks=p.split('.'); const o=ks.slice(0,-1).reduce((a,k)=>a&&a[k], state.work5); if(o) o[ks[ks.length-1]]=v; };
   const units=[
@@ -1549,17 +1613,18 @@ Work5.aiPolishAll=async function(button){
     onPause:()=>autosave(), onResume:()=>{}});
   if(!task) return;
   for(const [f,l] of units){
-    if(task.aborted) break;
+    if(task.aborted || state!==workspace || Work5.caseLocked()) break;
     try{
       const text=await API.call([{role:'system',content:`你是策划书编辑。润色给定的${l}章节，保持事实不变，仅让表达更通顺专业。直接输出润色后的文本。`+Work5._humanRule},
         {role:'user',content:get(f)}],{signal:task.controller.signal});
-      if(text){ set(f,text); autosave(); }
+      if(task.aborted || task.controller.signal.aborted || state!==workspace || Work5.caseLocked())break;
+      if(text){ set(f,Work5.retainStructured(get(f), text)); autosave(); }
     }catch(e){ if(task.aborted || (e&&e.name==='AbortError')) break; console.warn(e); }
     task.done++; Runner.renderUI();
     try{ await Runner.checkpoint(); }catch{ break; }
   }
-  Runner.finish();
-  Work5.rerender('plan');
+  if(Runner.current===task)Runner.finish();
+  if(state===workspace)Work5.rerender('plan');
 };
 
 Work5.refreshDynamic=function(){};

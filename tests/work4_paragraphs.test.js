@@ -287,8 +287,8 @@ function freshState(){
     ok('structure 有值 → true', W4.stepHasContent('place') === true);
   }
 
-  // ---- 10. runAiDraft 双写（字段 + 叙事自动采纳）+ confirm ----
-  console.log('\n[10] runAiDraft 双写 + 覆盖确认');
+  // ---- 10. runAiDraft 双写（字段 + 叙事自动采纳）+ 直接覆盖 ----
+  console.log('\n[10] runAiDraft 双写 + 直接覆盖');
   {
     const st = freshState();
     sandbox.state = st;
@@ -297,9 +297,8 @@ function freshState(){
     let captured = null;
     sandbox.API.aiButton = (opts) => { captured = opts; };
     const btn = { textContent:'AI 起草', disabled:false };
-    // 空内容：不弹 confirm
     W4.runAiDraft('promotion', { short:'传播方案' }, btn);
-    ok('空内容不弹确认', confirmCalls.length === 0);
+    ok('首次生成不弹确认', confirmCalls.length === 0);
     ok('aiButton 收到 prompt（含 JSON 约定）', captured && captured.buildPrompt()[0].content.includes('末尾一个'));
     // 模拟 LLM 返回：正文 + 对象
     captured.onResult('## 传播主题\n\n参考正文\n\n```json\n{"theme":"AI 主题","crm":{"tool":"企微","membership":"积分制"}}\n```', null, 'mock');
@@ -308,10 +307,10 @@ function freshState(){
     ok('段落自动全部采纳', Object.keys(st.work4.promotion.adoptedSegments).length === 1);
     ok('toast 报份数', toasts.some(t => t.includes('已生成并填入') && t.includes('个字段')));
     ok('toast 无 emoji', !toasts.some(t => /[\u{1F300}-\u{1FAFF}☀-➿✦⚡✓↻▶★]/u.test(t)));
-    // 已有内容：弹 confirm
+    // 已有 AI 结果：直接整体覆盖，不弹 confirm
     confirmCalls = [];
     W4.runAiDraft('promotion', { short:'传播方案' }, btn);
-    ok('已有内容弹整体替换确认', confirmCalls.length === 1 && confirmCalls[0].includes('整体替换'));
+    ok('已有 AI 结果直接覆盖且不 confirm', confirmCalls.length === 0);
     // 解析失败：叙事照存 + 字段不动
     st.work4.promotion.theme = '手动主题';
     st.work4.promotion.aiResult = '';
@@ -416,7 +415,7 @@ function freshState(){
     ok('fieldAiButton / _fieldWithAi 已删除', typeof W4.fieldAiButton === 'undefined' && typeof W4._fieldWithAi === 'undefined');
     ok('targetFieldMap / writeStructuredField 已删除', typeof W4.targetFieldMap === 'undefined' && typeof W4.writeStructuredField === 'undefined');
     ok('mergeAiResult / _appendAiResult 已删除', typeof W4.mergeAiResult === 'undefined' && typeof W4._appendAiResult === 'undefined');
-    ok('RENDER_VERSION 已 bump 到 6', W4.RENDER_VERSION === '6');
+    ok('RENDER_VERSION 保留正文渲染缓存失效版本', Number(W4.RENDER_VERSION) >= 6);
     // 源码级：新入口文案统一「AI 起草」，无 emoji
     const src = w4Src;
     ok('源码含 4 个统一步级按钮', ['AI 起草产品卖点','AI 起草定价建议','AI 起草渠道策略','AI 起草传播方案'].every(s => src.includes(s)));

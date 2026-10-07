@@ -64,6 +64,12 @@ async function main(){
   ok('rename URL-encodes id', calls[0].url.includes('/api/snapshots/named%201/rename?project_id=default'));
   ok('rename POSTs name/overwrite', calls[0].method === 'POST' && calls[0].body.name === '新名' && calls[0].body.overwrite === true);
 
+  mockFetch(() => res({id:'named_终版(2)', name:'终版(2)', type:'named'}));
+  calls = [];
+  const copied = await Archive.rename('named_source', '终版', {copy:true});
+  ok('rename copy explicitly sends copy and no overwrite', calls[0].body.copy === true && calls[0].body.overwrite === false);
+  ok('rename copy returns the actual server suffix', copied.id === 'named_终版(2)' && copied.name === '终版(2)');
+
   // remove
   mockFetch(() => res({ok:true}));
   calls = [];
@@ -76,18 +82,60 @@ async function main(){
   const st = await Archive.restore('named_v1');
   ok('restore returns state (not envelope)', st && st.work1 && st.work1.sbu.name === 'X');
 
+  mockFetch(() => res({ok:true, state:{work1:{sbu:{name:'Y'}}}, snapshot:{id:'time_2',name:'2026-10-06 12:00:00 (2)',type:'time'}}));
+  const restored = await Archive.restore('time_2', {withMeta:true});
+  ok('restore with metadata returns actual source name and state', restored.snapshot.name.endsWith('(2)') && restored.state.work1.sbu.name === 'Y');
+
+  for(const [label, body, request] of [
+    ['create', {}, () => Archive.create({name:'v'})],
+    ['rename', {id:'named_v',name:''}, () => Archive.rename('named_v', 'v')],
+    ['remove', {}, () => Archive.remove('named_v')],
+    ['restore metadata', {ok:true,state:{work1:{}},snapshot:{}}, () => Archive.restore('named_v',{withMeta:true})],
+    ['restore state', {ok:true,state:null}, () => Archive.restore('named_v')],
+    ['list', {}, () => Archive.list()]
+  ]){
+    mockFetch(() => res(body));
+    let rejected = false;
+    try{ await request(); }catch(_){ rejected = true; }
+    ok(label + ' rejects invalid successful response', rejected);
+  }
+  ok('normalized collision name matches backend sanitizing and cap', Archive.normalizeName('  a/b\n  ') === 'a_b' && Array.from(Archive.normalizeName('😀'.repeat(70))).length === 60);
+
   // error mapping surfaces server detail
   mockFetch(() => res({detail:'Snapshot not found'}, 404));
   let err = null;
   try{ await Archive.remove('missing'); }catch(e){ err = e.message; }
   ok('error surfaces server detail', err === 'Snapshot not found');
 
-  // baseUrl is read live from window.state
-  global.window = { state: { settings: { api: { backendUrl: 'http://localhost:9999/' } } } };
+  mockFetch(() => res({detail:[{msg:'版本名不能为空'}]}, 422));
+  err = null;
+  try{ await Archive.rename('named_v', ''); }catch(e){ err = e.message; }
+  ok('validation error surfaces readable server reason', err === '版本名不能为空');
+
+  // baseUrl is read live from the current top-level state binding; the browser
+  // declares `let state` in the shell, so it is not available as window.state.
+  global.window = {};
+  global.state = { settings: { api: { backendUrl: 'http://localhost:9999/' } } };
   mockFetch(() => res([]));
   calls = [];
   await Archive.list();
-  ok('baseUrl read from window.state', calls[0].url.startsWith('http://localhost:9999/'));
+  ok('baseUrl read from top-level state', calls[0].url.startsWith('http://localhost:9999/'));
+
+  // DEFAULT_SETTINGS is the shell's fallback when state has no API URL.
+  global.state = { settings: { api: {} } };
+  global.DEFAULT_SETTINGS = { backendUrl: 'http://localhost:8888/' };
+  calls = [];
+  await Archive.list();
+  ok('baseUrl falls back to DEFAULT_SETTINGS', calls[0].url.startsWith('http://localhost:8888/'));
+
+  global.state.meta = {demoCase:'synthetic-case'};
+  calls = [];
+  let locked = false;
+  try{ await Archive.rename('named_v', 'new', {copy:true}); }catch(_){ locked = true; }
+  ok('demoCase alone locks direct archive copy before fetch', locked && calls.length === 0);
+
+  delete global.state;
+  delete global.DEFAULT_SETTINGS;
   delete global.window;
 
   // shell no longer has inline snapshot fetches

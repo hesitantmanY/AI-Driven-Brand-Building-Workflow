@@ -70,23 +70,28 @@ Section padding is generous: `xl` between sub-steps, `2xl` between workshops.
 
 - Silent success: AI run completion swaps button label, no toast
 - Hover delay 800 ms · focus delay 0 ms
-- Primary button: instant press `scale(0.98)` on `:active`
+- Buttons: hover emphasizes the border; pressing adds an inset outline. No movement, scaling or expanding underline.
 - Tag chip remove: `color` crossfade 120 ms
 - No bounce, no overshoot, no decorative parallax
 
 ## CTA voice
 
-- Primary: 1 px solid ink, paper fill, mono caps 11px / 0.15em, padding 12px 18px,
-  hover: ink fill + paper text, active: scale(0.98)
-- Accent primary: same shape with accent fill / paper-ink text (used for AI-run / run-state buttons)
-- Ghost: 1 px solid rule, ink-2 text, hover: ink-1 text
+- Primary, AI draft and step/workshop CTA: ink fill with paper text, square corners,
+  mono typography; draft titles use the established display font.
+- Secondary and add: paper fill, ink text and rule border; add labels name the object.
+- Delete, clear and overwrite: warning text and border are visible at rest; labels name the object and range.
+- Selected: ink fill and paper text with `aria-pressed` or current-item semantics; hover retains the selected state.
+- Hover: border emphasis. Focus-visible: blue outline. Press: inset outline, no translate or scale.
+- Disabled: semantic disabled state and reduced emphasis, no hover/press action; explain the reason where needed.
+- AI: a single call can only be stopped; a multi-call task can pause, then only stop. There is no resume action.
+  Other AI controls are disabled while one task runs. Regenerate directly replaces results; pipelines restart the complete group.
 - All buttons square (radius 0), no pill, no shadow
 
 ## Per-page allowances
 
 - App pages (workshop steps): typography + plates + tables, no decorative imagery
 - Demo annotation strip (`demo-note`): allowed everywhere in demo mode
-- AI box: allowed to use accent fill for its run state button only
+- AI box: uses the same ink primary button and explicit task-state text.
 
 ## What pages MUST share
 
@@ -95,7 +100,7 @@ Section padding is generous: `xl` between sub-steps, `2xl` between workshops.
 - The subtab strip (1 px ink rule, ink-2 hover, accent active rule)
 - The accent colour, never repainted
 - The display + body fonts
-- The button voice (square, mono caps, instant press)
+- The button voice (square, stable hierarchy, visible keyboard focus and inset press feedback)
 - The plate / card style (1 px rule, paper fill, no shadow)
 - The table style (mono 12px, ink-2 row heads, no zebra)
 - The chip style (1 px rule, paper-2 fill, 5×10 padding)
@@ -106,6 +111,18 @@ Section padding is generous: `xl` between sub-steps, `2xl` between workshops.
   persona-quote allows 24 px italic, masthead uses 26 px
 - Step body padding (default `lg`, sticky sub-steps get `md`)
 - Plate label (defaults to mono caps 10 px 0.18em, AI box uses step number variant)
+
+## Desktop interaction boundary
+
+The editing workbench supports widths of at least 1024 CSS px. Narrower windows show the width notice
+and retain the full desktop interface with horizontal scrolling. The notice follows the visible viewport;
+it does not create a read-only mode. Tables scroll locally at supported desktop widths. Resizing changes
+presentation only, preserving input, location and save status.
+
+Delete targets are at least 24×24 CSS px on desktop and 44×44 on touch, with no overlapping hit areas.
+Icon actions provide matching object descriptions on hover and keyboard focus. Low-risk deletion offers
+an independent 10-second undo per item; hover/focus pauses its timer and navigation retains it. Successful
+workspace replacement ends prior undo entries. Confirmation focuses Cancel, traps focus and restores it on exit.
 
 ## Exports
 

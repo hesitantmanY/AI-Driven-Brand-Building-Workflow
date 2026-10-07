@@ -36,12 +36,17 @@ const App = {
   posFromUrl(){
     try{
       const p = new URLSearchParams(location.search);
-      const rawW = parseInt(p.get('w')||'', 10);
+      const rawW = p.get('w');
       const rawS = p.get('s')||'';
       const rawCase = p.get('case')||'';
-      if(![1,2,3,4,5].includes(rawW) && !rawS && !rawCase) return null;
+      const validW = /^[1-5]$/.test(rawW||'');
+      if(rawW != null && !validW){
+        // 非法 work 参数连同 step 一起忽略；case 仍按自己的合法性处理。
+        return rawCase ? {work:null, step:null, case:rawCase} : null;
+      }
+      if(!validW && !rawS && !rawCase) return null;
       return {
-        work: [1,2,3,4,5].includes(rawW) ? rawW : null,
+        work: validW ? Number(rawW) : null,
         step: rawS || null,
         case: rawCase || null
       };
@@ -69,6 +74,9 @@ const App = {
     }
   },
   async init(){
+    if(typeof Interaction!=='undefined')Interaction.installTargetTips();
+    this.observeShellLayout();
+    this.observeCaseLock();
     // 1. Backend is mandatory — block with instructions if unreachable.
     const ok = await Backend.health();
     if(!ok){
@@ -138,12 +146,62 @@ const App = {
       }
     });
   },
+  observeShellLayout(){
+    if(typeof ResizeObserver==='undefined')return;
+    const shell=[document.querySelector('.narrow-width-notice'),document.querySelector('.masthead'),document.querySelector('.tabs')];
+    const update=()=>{
+      const names=['--width-notice-height','--masthead-height','--tabs-height'];
+      shell.forEach((node,i)=>document.documentElement.style.setProperty(names[i],(node?.offsetHeight||0)+'px'));
+    };
+    const observer=new ResizeObserver(update);shell.filter(Boolean).forEach(node=>observer.observe(node));update();
+    this._shellObserver=observer;
+  },
+  // 案例仍可选择/复制文本与导航；编辑控件同时在键盘层保持只读。
+  // 保留控件本来的 disabled/readOnly 属性，退出案例后由当前数据正常渲染。
+  syncCaseLock(){
+    const locked=!!(state?.meta?.isDemo || state?.meta?.demoCase);
+    const originals=this._caseControls || (this._caseControls=new WeakMap());
+    for(let n=1;n<=5;n++){
+      const scope=document.getElementById('steps'+n);
+      if(!scope)continue;
+      scope.querySelectorAll('button,input,textarea,select,[contenteditable],[tabindex]').forEach(control=>{
+        if(control.matches('.provenance-go,.metric-next button,[data-readonly-nav]'))return;
+        if(locked){
+          if(!originals.has(control))originals.set(control,{
+            disabled:control.disabled,readOnly:control.readOnly,
+            editable:control.getAttribute('contenteditable'),tabindex:control.getAttribute('tabindex'),
+            ariaReadonly:control.getAttribute('aria-readonly')
+          });
+          if(control.matches('button,select,input[type=checkbox],input[type=radio],input[type=range],input[type=file],input[type=button],input[type=submit]'))control.disabled=true;
+          else if(control.matches('input,textarea')){control.readOnly=true;control.setAttribute('aria-readonly','true');}
+          if(control.hasAttribute('contenteditable')){control.setAttribute('contenteditable','false');control.setAttribute('aria-readonly','true');}
+          if(!control.matches('input,textarea,select,button') && control.hasAttribute('tabindex'))control.setAttribute('tabindex','-1');
+        }else if(originals.has(control)){
+          const original=originals.get(control);
+          if(original.disabled!==undefined)control.disabled=original.disabled;
+          if(original.readOnly!==undefined)control.readOnly=original.readOnly;
+          for(const [attr,key] of [['contenteditable','editable'],['tabindex','tabindex'],['aria-readonly','ariaReadonly']]){
+            if(original[key]===null)control.removeAttribute(attr);else control.setAttribute(attr,original[key]);
+          }
+          originals.delete(control);
+        }
+      });
+    }
+  },
+  observeCaseLock(){
+    if(typeof MutationObserver==='undefined' || this._caseObserver)return;
+    this._caseObserver=new MutationObserver(()=>this.syncCaseLock());
+    [1,2,3,4,5].forEach(n=>{
+      const scope=document.getElementById('steps'+n);
+      if(scope)this._caseObserver.observe(scope,{childList:true,subtree:true});
+    });
+  },
   goWork(n){
     // 切 tab 不写服务器（数据在内存，切换不丢；由 2 分钟周期保存兜底）
     this.currentWork=n;
     state.meta.currentWork = n;
     $$('.workshop').forEach(s=>s.classList.toggle('active', +s.dataset.workshop===n));
-    $$('.tab').forEach(t=>t.classList.toggle('active', +t.dataset.work===n));
+    $$('.tab').forEach(t=>{t.classList.toggle('active', +t.dataset.work===n);t.setAttribute('aria-current',+t.dataset.work===n?'page':'false');});
     this.renderSubtabs(n);
     this.bindSubtabs();
     // default step
@@ -219,30 +277,24 @@ const App = {
     const wEl = document.querySelector(`.workshop[data-workshop="${this.currentWork}"]`);
     if(!wEl) return;
     $$('.step', wEl).forEach(s=>s.classList.toggle('active', s.dataset.step===id));
-    $$('#subtabsBar .subtab').forEach(t=>t.classList.toggle('active', t.dataset.target===id));
+    $$('#subtabsBar .subtab').forEach(t=>{t.classList.toggle('active', t.dataset.target===id);t.setAttribute('aria-current',t.dataset.target===id?'step':'false');});
     // 2026-08-28：切步时重渲染目标步。step 内容依赖上游步状态（evaluate 的
     // 「未保留市场」警告等），只切 .active 会一直显示旧渲染；renderStep 的
     // RENDER_VERSION 缓存路径最终也走全量重渲染，无循环风险。
     try{ if(wMod && wMod.renderStep) wMod.renderStep(id); }
     catch(e){ console.error('[goStep render] W'+this.currentWork+'.'+id+' failed:', e); }
+    if(typeof Runner!=='undefined'&&Runner.renderUI)Runner.renderUI();
+    this.syncCaseLock();
     // scroll to top of step area (below the subtab nav)
     const bar = $('#subtabsBar');
-    const yOffset = bar ? -bar.offsetHeight - 8 : 0;
+    const header=document.querySelector('.masthead'),tabs=document.querySelector('.tabs'),notice=document.querySelector('.narrow-width-notice');
+    const yOffset=-(bar?.offsetHeight||0)-(header?.offsetHeight||0)-(tabs?.offsetHeight||0)-(notice?.offsetHeight||0)-8;
     const top = wEl.getBoundingClientRect().top + window.scrollY + yOffset;
     window.scrollTo({top, behavior:'smooth'});
   },
   renderAll(){
     if(this.healWork2(state)) showToast('Workshop 2 数据已损坏，已重置为空白模板。', 3200);
-    // 2026-08-26: 载入案例 = 可编辑可保存（去掉只读锁）。
-    // 用户导入案例后要基于案例编辑自己的策划，不再锁死 step 面板。
-    // 保留 isDemo 用于横幅显示"当前案例"，但不设 inert。
-    // const locked=!!state.meta.isDemo;
-    // [1,2,3,4,5].forEach(n=>{ const el=$('#steps'+n); if(el) el.inert=locked; });
-    // lock top-bar mode switch in demo read-only mode
-    // const sw=document.getElementById('modeSwitch');
-    // if(sw) sw.querySelectorAll('button').forEach(b=>b.disabled=locked);
-    // const gear=document.getElementById('settingsGear');
-    // if(gear) gear.disabled=locked;
+    // 案例只读锁按控件应用，保留步间 CTA 与证据来源导航。
     if(typeof Settings!=='undefined') Settings.renderModeSwitch();
     [1,2,3,4,5].forEach(n=>{
       const mod={1:Work1,2:Work2,3:Work3,4:Work4,5:Work5}[n];
@@ -309,6 +361,8 @@ const App = {
       el.hidden=false;
     }else if(m?.loadedFrom){
       txt.textContent='当前：'+m.loadedFrom;
+      btn.setAttribute('aria-label','重命名当前档案：'+m.loadedFrom);
+      btn.setAttribute('title','重命名当前档案：'+m.loadedFrom);
       btn.hidden=false;
       btn.onclick=()=>{ if(m.loadedFromId && typeof History!=='undefined') History.rename(m.loadedFromId); };
       el.hidden=false;
@@ -318,20 +372,22 @@ const App = {
   },
   save(manual){ save(manual); },
   async reset(){
-    if(!confirm('确定清空全部内容并重置？当前内容会先自动存档，可在「历史记录」恢复。')) return;
-    // Archive current state before wiping — reset is recoverable via History.
+    if(state?.meta?.isDemo || state?.meta?.demoCase){ showToast('案例浏览中，不可重置'); return; }
+    if(this._resetPending)return;
+    this._resetPending=true;
     try{
-      await saveNow();
-      await Archive.create({name:'重置前存档 '+new Date().toLocaleString()});
-    }catch{}
-    const keepApi=state.settings.api;
-    state=defaultState();
-    state.settings.api=keepApi;
-    await saveNow();
-    this.renderAll();
-    this.updateSummary();
-    this.updateArchiveLabel();
-    showToast('已重置');
+      if(!await Interaction.confirm({title:'重置工作区？',message:'重置将清空当前五个工作坊内容。当前内容会先保存为历史版本，API 设置保留。是否重置？',confirmLabel:'重置工作区',trigger:document.activeElement}))return;
+      const execute=()=>Interaction.runProtected({key:'reset',archiveName:'重置前存档 '+new Date().toLocaleString(),retry:execute,
+        apply:()=>{
+          const keepApi=state.settings.api;
+          state=defaultState();state.settings.api=keepApi;
+          Interaction.invalidateUndo();
+        },
+        refresh:()=>{this.renderAll();this.updateSummary();this.updateArchiveLabel();},
+        onComplete:()=>showToast('已重置工作区')
+      });
+      return await execute();
+    }finally{this._resetPending=false;}
   },
   // —— 案例数据指纹（2026-09-02）——
   // 进入案例时把 5 个 work 的序列化指纹存 meta.caseFp；刷新后重算指纹，
@@ -372,6 +428,7 @@ const App = {
     if(!loaded) return false;
     const fp=this.caseFpMigrated(loaded);
     if(fp === m.caseFp) return false;   // 案例未更新：保留现场（含案例内编辑）
+    if(typeof Interaction!=='undefined')Interaction.invalidateUndo();
     this.applyCaseWorks(st, loaded);
     m.caseFp=fp;
     saveNow();
@@ -380,8 +437,9 @@ const App = {
   async toggleDemo(caseKey){
     // 进入/退出案例 = 沙箱语义（2026-08-26 回归修复）：
     // 进入前 deep-clone 存快照（demoSnapshot）；退出时恢复快照，回到进入前的内容与 step。
-    // 看案例期间仍可编辑可保存（改动存版本后可恢复）；点「退出案例」丢弃案例数据回到自己的工作区。
+    // 看案例期间只读浏览；点「退出案例」回到自己的工作区。
     if(state.meta.demoCase){
+      if(typeof Interaction!=='undefined')Interaction.invalidateUndo();
       // —— 退出案例：恢复进入前的快照 ——
       if(state.meta.demoSnapshot){
         const keepApi=state.settings.api;
@@ -428,6 +486,7 @@ const App = {
       state.meta.caseFp = this.caseFp(loaded);   // 刷新后用于检测案例数据是否更新
       state.meta.demoSnapshot=snap;
       state.meta.isDemo=true;      // BIZ02：案例=只读浏览——保存/AI/编辑控件统一闸门
+      if(typeof Interaction!=='undefined')Interaction.invalidateUndo();
       state.meta.demoCase=caseKey;
       // 2026-08-28：进入案例时清掉档案名（案例自己当档案名驱动导出）。
       state.meta.loadedFrom=null;
@@ -476,9 +535,18 @@ const App = {
     a.click(); URL.revokeObjectURL(a.href);
   },
   importMd(){
+    if(state?.meta?.isDemo || state?.meta?.demoCase){ if(typeof showToast==='function') showToast('案例浏览中，不可导入'); return; }
     const inp=el('input',{type:'file',accept:'.md,.markdown,.txt'});
     inp.addEventListener('change', async ()=>{
       const file=inp.files[0]; if(!file) return;
+      await this._importFile(file);
+    });
+    inp.click();
+  },
+  async _importFile(file, confirmed=false){
+    if(this._importPending || state?.meta?.isDemo || state?.meta?.demoCase)return false;
+    this._importPending=true;
+    try{
       const text=await file.text();
       const parsed = (typeof MarkdownExchange!=='undefined' && MarkdownExchange.parseEmbeddedMarkdown)
         ? MarkdownExchange.parseEmbeddedMarkdown(text)
@@ -488,26 +556,20 @@ const App = {
           : (parsed.reason === 'data block parse failed' ? '数据块解析失败' : '导入失败'));
         return;
       }
-      if(!confirm('导入将覆盖当前全部内容（当前内容会先自动存档）。继续？')) return;
-      try{
-        // Archive current before overwriting — import is recoverable via History.
-        await saveNow();
-        await Archive.create({name:'导入前存档 '+new Date().toLocaleString()});
-        const keepApi=state.settings.api;
-        state=mergeWithDefaults(parsed.state);
-        state.settings.api=keepApi;  // never import API config from a file
-        state.meta.isDemo=false;
-        state.meta.demoCase=null;
-        $('#demoBanner').classList.remove('show');
-        $('#demoBtn').textContent='载入案例 ▼';
-        document.body.classList.remove('is-demo');
-        await saveNow();
-        this.renderAll();
-        this.updateSummary();
-        showToast('导入完成');
-      }catch(e){ showToast('导入失败: '+e.message); }
-    });
-    inp.click();
+      if(!confirmed && !await Interaction.confirm({title:'导入并覆盖当前工作区？',message:'导入「'+file.name+'」将覆盖当前五个工作坊内容。当前内容会先保存为历史版本，API 设置保留。是否导入？',confirmLabel:'导入并覆盖',trigger:document.activeElement}))return false;
+      return await Interaction.runProtected({key:'import',archiveName:'导入前存档 '+new Date().toLocaleString(),retry:()=>this._importFile(file,true),
+        apply:()=>{
+          const keepApi=state.settings.api;
+          state=mergeWithDefaults(parsed.state,{persistMigrations:false});state.settings.api=keepApi;
+          state.meta.isDemo=false;state.meta.demoCase=null;state.meta.demoSnapshot=null;
+          Interaction.invalidateUndo();
+          $('#demoBanner').classList.remove('show');$('#demoBtn').textContent='载入案例 ▼';document.body.classList.remove('is-demo');
+        },
+        refresh:()=>{this.renderAll();this.updateSummary();this.updateArchiveLabel();},
+        onComplete:()=>showToast('导入完成：'+file.name)
+      });
+    }catch(e){showToast('导入失败：'+e.message);return false;}
+    finally{this._importPending=false;}
   }
 };
 

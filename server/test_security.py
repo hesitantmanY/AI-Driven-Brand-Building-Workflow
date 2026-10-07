@@ -23,7 +23,9 @@ from unittest.mock import patch
 
 import config as config_module
 import storage
-from app import _clean_snapshot_name, app
+# Startup cleanup must run against disposable data, including during import.
+with TemporaryDirectory() as startup_dir, patch.object(storage, "DATA_DIR", Path(startup_dir) / "data"):
+    from app import _clean_snapshot_name, app
 from doc_extract import extract_document
 from fastapi.testclient import TestClient
 
@@ -57,6 +59,15 @@ def test_project_id_cannot_escape_data_dir() -> None:
             storage.save_state("default", {"ok": True})
             ok("valid project_id still saves inside data dir",
                (base / "default" / "current.json").exists())
+
+
+def test_missing_data_dir_is_created_on_startup_cleanup() -> None:
+    with TemporaryDirectory() as d:
+        base = Path(d) / "data"
+        with patch.object(storage, "DATA_DIR", base):
+            ok("server/data starts absent", not base.exists())
+            storage.remove_legacy_auto_snapshots()
+            ok("startup cleanup creates missing server/data", base.is_dir())
 
 
 def test_state_api_rejects_traversal_project_id() -> None:
@@ -326,6 +337,7 @@ def test_pdf_endpoint_validation() -> None:
 
 
 test_project_id_cannot_escape_data_dir()
+test_missing_data_dir_is_created_on_startup_cleanup()
 test_state_api_rejects_traversal_project_id()
 test_snapshot_id_is_never_a_path()
 test_api_key_lives_in_env_not_config_or_api_response()

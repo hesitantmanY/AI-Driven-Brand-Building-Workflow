@@ -16,7 +16,7 @@ function ok(name, cond, detail){
 const calls = [];
 function mockFetch(handler){
   global.fetch = async (url, opts = {}) => {
-    calls.push({ url: String(url), method: opts.method || 'GET', body: opts.body });
+    calls.push({ url: String(url), method: opts.method || 'GET', body: opts.body, signal:opts.signal });
     return handler(url, opts);
   };
 }
@@ -51,12 +51,14 @@ global.backendOnline = false;
   // lda
   mockFetch(() => res({topics: []}));
   calls.length = 0;
-  const lda = await Backend.lda(['doc1'], {k: 3});
+  const ldaController=new AbortController();
+  const lda = await Backend.lda(['doc1'], {k: 3},{signal:ldaController.signal});
   ok('lda returns parsed body', Array.isArray(lda.topics));
   const ldaCall = calls[0];
   ok('lda POSTs /api/lda with JSON body', ldaCall.url === 'http://localhost:9999/api/lda' && ldaCall.method === 'POST');
   const ldaBody = JSON.parse(ldaCall.body);
   ok('lda body has documents + params', ldaBody.documents[0] === 'doc1' && ldaBody.k === 3 && ldaBody.passes === 15);
+  ok('lda passes the task abort signal to fetch',ldaCall.signal===ldaController.signal);
 
   // lda error → throws with server text
   mockFetch(() => res({detail:'bad'}, 400, 'boom'));

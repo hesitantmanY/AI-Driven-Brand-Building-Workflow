@@ -27,7 +27,8 @@ var Settings = {
   hasKey: function(){ return !!(state && state.settings && state.settings.api && state.settings.api.apiKey); },
 
   setMode: function(mode){
-    if(Runner.current){ showToast('请先暂停或中止当前 AI 任务'); return; }
+    if(state?.meta?.isDemo || state?.meta?.demoCase){showToast('案例浏览中，不可切换 AI 模式');return;}
+    if(Runner.current){ showToast('请先中止当前 AI 任务'); return; }
     if(mode === 'api' && !this.hasKey()){
       showToast('请先点设置配置 API Key');
       this.renderModeSwitch();
@@ -47,6 +48,7 @@ var Settings = {
       var b = sw.querySelectorAll('button')[i];
       var m = b.dataset.mode;
       b.classList.toggle('active', (m === 'manual') === manual);
+      b.setAttribute('aria-pressed',String((m === 'manual') === manual));
       b.disabled = (m === 'api' && forceManual);
       b.title = (m === 'api' && forceManual) ? '请先点设置配置 API Key' : '';
     }

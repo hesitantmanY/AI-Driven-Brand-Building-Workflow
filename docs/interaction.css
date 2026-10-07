@@ -1,0 +1,69 @@
+/* 2026-10-06 interaction specification, button direction B. Loaded last. */
+button,label.ghost{transform:none!important;transition:border-color 120ms,color 120ms,background-color 120ms;box-shadow:none;border-radius:0}
+button::after,label.ghost::after{content:none!important}
+button:not(:disabled):hover{border-color:var(--color-ink)}
+button:not(:disabled):active{outline:2px solid currentColor;outline-offset:-4px;transform:none!important}
+button:focus-visible,[role=button]:focus-visible{outline:2px solid var(--color-focus);outline-offset:3px}
+button:disabled{opacity:.4;cursor:not-allowed;outline:none}
+button.ghost,button.small:not(.primary):not(.danger),button.icon-btn{background:var(--color-paper);color:var(--color-ink);border:1px solid var(--color-rule)}
+button.ghost:hover,button.icon-btn:hover{background:var(--color-paper);color:var(--color-ink)}
+button.primary,.ai-box.ai-box-step1 button.primary,button.ai-draft-btn{background:var(--color-ink);color:var(--color-paper);border:1px solid var(--color-ink)}
+.ai-draft-btn .ai-draft-title,.ai-draft-btn .ai-draft-sub,.ai-draft-btn .ai-draft-arrow{color:var(--color-paper)}
+.ai-draft-btn:hover,.ai-box.ai-box-step1 button.primary:hover{background:var(--color-ink);color:var(--color-paper)}
+.mode-switch button.active,.mode-switch button.active:hover,
+.sbu-seg.is-on,.sbu-seg.is-on:hover,.yn-pill button.active,.yn-pill button.active:hover,
+.tab.active,.tab.active:hover,.subtab.active,.subtab.active:hover{
+  background:var(--color-ink);color:var(--color-paper);border-color:var(--color-ink);
+}
+.tab.active .tab-num,.subtab.active .sub-num{color:var(--color-paper)}
+button.danger,button.danger:hover,.chip button.danger,.partner-chip button.partner-remove{color:var(--color-warn);border:1px solid var(--color-warn);background:var(--color-paper)}
+button.delete-control,.chip button.delete-control,.partner-chip button.partner-remove{min-width:28px;min-height:28px;width:auto;height:auto;padding:3px 6px;flex:0 0 auto;justify-content:center;line-height:1.3}
+button.abort-btn{min-width:28px;min-height:28px;color:var(--color-warn);border:1px solid var(--color-warn);background:var(--color-paper)}
+.partner-chip .sbu-segmented{flex:0 0 auto}
+.partner-chip .sbu-seg{min-width:28px;min-height:28px}
+.abort-inline{min-width:28px;min-height:28px;display:inline-flex;align-items:center;justify-content:center}
+.archive-rename{min-width:28px;min-height:28px}
+[hidden]{display:none!important}
+.interaction-target-tip{position:fixed;z-index:2500;padding:8px 12px;pointer-events:none;white-space:normal;overflow-wrap:anywhere;background:var(--color-paper);color:var(--color-ink);border:1px solid var(--color-ink);font:13px/1.5 var(--font-mono)}
+.interaction-message{white-space:pre-wrap;overflow-wrap:anywhere;text-transform:none;letter-spacing:0;line-height:1.7}
+.interaction-dialog{z-index:2200}
+.interaction-dialog .modal{transform:none;opacity:1;transition:none;will-change:auto}
+.interaction-dialog .actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end;margin-top:24px}
+.interaction-dialog .modal-close{min-width:28px;min-height:28px}
+.undo-notices{position:fixed;z-index:2100;right:16px;bottom:16px;max-width:min(620px,calc(100vw - 32px));max-height:45vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.undo-notice,.interaction-notice{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;border:1px solid var(--color-ink);background:var(--color-paper);color:var(--color-ink);font:13px/1.6 var(--font-mono);overflow-wrap:anywhere}
+.undo-notice>span:first-child,.interaction-notice>span{flex:1;min-width:150px}
+.undo-countdown{font-size:11px;color:var(--color-ink-2)}
+.interaction-notices{position:relative;z-index:110;margin:16px 0}
+.interaction-notice{border-color:var(--color-warn);margin-bottom:8px}
+.snap-rename-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.snap-rename-wrap input{flex:1;min-width:160px}
+.snap-rename-wrap .hint{flex-basis:100%;letter-spacing:0;text-transform:none}
+
+/* Keep the complete desktop workbench on narrower viewports. */
+body{min-width:1024px}
+.narrow-width-notice{display:none;position:sticky;left:0;top:0;z-index:120;width:100vw;max-width:100vw;box-sizing:border-box;padding:12px 16px;background:var(--color-paper-2);border-bottom:1px solid var(--color-warn);color:var(--color-ink);font:14px/1.6 var(--font-body)}
+.masthead{position:sticky;top:var(--width-notice-height,0px)}
+.masthead-top,.masthead-actions,.summary-bar{min-width:0;flex-wrap:wrap}
+.tabs{position:sticky;top:calc(var(--width-notice-height,0px) + var(--masthead-height,160px));display:flex;flex-wrap:wrap}
+.tab{flex:1 1 170px;white-space:normal;justify-content:center;display:block}
+.subtabs{position:sticky;top:calc(var(--width-notice-height,0px) + var(--masthead-height,160px) + var(--tabs-height,80px));flex-wrap:wrap;overflow:visible;padding:0 16px}
+.subtab{white-space:normal;min-width:0;max-width:100%}
+main{padding:0 24px 96px;min-width:0}
+.workshop.active{padding:0 16px;min-width:0}
+.step.active{padding:32px;min-width:0}
+.sbu-grid{grid-template-columns:repeat(12,minmax(0,1fr))}
+.sbu-field,.sbu-threeq-card,.plate,.cols-2,.cols-3{min-width:0}
+.sbu-verdict{display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px 24px}
+.sbu-verdict .v-label{flex:0 0 auto}
+.sbu-verdict .v-body{flex:1;min-width:240px;flex-wrap:wrap}
+.sbu-verdict .v-text{overflow-wrap:anywhere}
+.table-wrap{max-width:100%;min-width:0;overflow-x:auto}
+.table-wrap table.data{min-width:640px}
+.table-wrap table.data th,.table-wrap table.data td{min-width:90px;overflow-wrap:anywhere}
+.table-wrap table.data td:last-child,.table-wrap table.data th:last-child{min-width:60px}
+.expert-row{flex-wrap:wrap;min-width:0}
+body.is-demo #steps5 .provenance-go{opacity:1;pointer-events:auto;cursor:pointer}
+@media(max-width:1023px){.narrow-width-notice{display:block}}
+@media(pointer:coarse){button,.chip button.delete-control,.partner-chip button.partner-remove,.abort-inline,.archive-rename,.partner-chip .sbu-seg{min-width:44px!important;min-height:44px!important}}
+@media print{body{min-width:0}.narrow-width-notice,.undo-notices,.interaction-notices,.interaction-target-tip{display:none!important}}

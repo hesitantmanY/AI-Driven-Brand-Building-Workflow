@@ -20,19 +20,21 @@ const Store = {
   },
 
   async _doSave(stateObj){
-    stateObj.meta.savedAt = new Date().toISOString();
+    const stamp=new Date().toISOString();
     try{
       const res = await fetch(apiUrl('/api/state'), {
         method:'PUT', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({project_id:this.projectId, state:stateObj})
+        body: JSON.stringify({project_id:this.projectId, state:{...stateObj,meta:{...stateObj.meta,savedAt:stamp}}})
       });
       if(res.ok){
+        stateObj.meta.savedAt=stamp;
         const ss=$('#saveStatus'); if(ss) ss.textContent='已保存 · '+new Date().toLocaleTimeString();
         return true;
       }
       showToast('保存失败: HTTP '+res.status);
+      const ss=$('#saveStatus');if(ss)ss.textContent='未保存 · 保存失败';
       return false;
-    }catch(e){ showToast('保存失败: '+e.message); return false; }
+    }catch(e){ showToast('保存失败: '+e.message);const ss=$('#saveStatus');if(ss)ss.textContent='未保存 · 保存失败';return false; }
   },
 
   async load(){
@@ -64,11 +66,12 @@ const Store = {
           }
         }catch{}
       }
-      const merged = mergeWithDefaults(parsed);
+      const merged = mergeWithDefaults(parsed,{persistMigrations:false});
       // Never persist a plaintext key inside the state file — masked flag only.
       merged.settings.api.apiKey = legacyKey ? '********' : '';
-      await fetch(apiUrl('/api/state'), {method:'PUT', headers:{'Content-Type':'application/json'},
+      const saved=await fetch(apiUrl('/api/state'), {method:'PUT', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({project_id:this.projectId, state:merged})});
+      if(!saved.ok)throw new Error('迁移保存失败: HTTP '+saved.status);
       localStorage.removeItem(STORAGE_KEY);
       return merged;
     }catch(e){ console.error('migration failed', e); return null; }

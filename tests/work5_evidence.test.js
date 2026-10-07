@@ -120,7 +120,7 @@ ok('章节 4 营销组合 / 5 总结与展望', txt.includes('营销组合') && 
 ok('来源条「来自 Work 1」', txt.includes('来自 Work 1'));
 ok('市场矩阵证据块已嵌入', txt.includes('市场吸引力 × 业务竞争力'));
 ok('卖点矩阵证据块已嵌入', txt.includes('客户合意性 × 企业可实施性'));
-ok('已同步到 Work 3 小标', txt.includes('已同步到 Work 3'));
+ok('引用 Work 3 只读标识', txt.includes('引用 Work 3 · 只读'));
 ok('排名表含「如何进入最优」', txt.includes('如何进入最优'));
 
 // 导出 MD：排名表 + 五章重排（2026-09-01 结构决策）

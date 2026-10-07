@@ -113,12 +113,15 @@ const sandbox = {
 };
 sandbox.window = sandbox;
 vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'docs', 'lib', 'interaction.js'), 'utf8'), sandbox, {filename:'interaction.js'});
+sandbox.Interaction.confirm = async ({message}) => { confirmMsgs.push(message); return confirmAnswer; };
 vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'docs', 'workshop1.js'), 'utf8'), sandbox, {filename:'workshop1.js'});
 const W1 = sandbox.Work1;
 // 打桩重绘入口：断言结构性增删走的是 rerender 而不是被守卫吞掉的 renderStep
 W1.rerender = id => { rerenderCalls.push(id); };
 W1.renderStep = id => { renderStepCalls.push(id); };
 
+(async()=>{
 /* ---- state：2 个画像；场景关联第 2 个；调研有第 2 个的答卷 ---- */
 const p1 = { id:'p_a', name:'', gender:'', age:'', occupation:'医生', income:'', region:'', values:['a'], painPoints:'痛1', channels:[], quote:'引1', traits:'' };
 const p2 = { id:'p_b', name:'', gender:'', age:'', occupation:'工程师', income:'', region:'', values:[], painPoints:'痛2', channels:[], quote:'引2', traits:'' };
@@ -143,27 +146,25 @@ ok('有「+ 添加画像」按钮', !!addBtn);
 
 /* ---- 取消删除：什么都不动 ---- */
 confirmAnswer = false; confirmMsgs.length = 0; rerenderCalls.length = 0; renderStepCalls.length = 0;
-delBtns[1].handlers.click();
+await delBtns[1].handlers.click({currentTarget:delBtns[1]});
 ok('取消 → 画像不被删', sandbox.state.work1.personas.length === 2);
 ok('取消 → 场景关联不被清', sandbox.state.work1.scenarios[0].personaIds.join() === 'p_b');
 ok('取消 → 不触发重绘', rerenderCalls.length === 0 && renderStepCalls.length === 0);
-ok('确认框报出场景连带', /1 个场景会取消对它的关联勾选/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
+ok('确认框报出场景连带', /1 个 Work1 场景会取消对它的关联勾选/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
 ok('确认框报出答卷连带', /2 份调研答卷会失去画像指向/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
 ok('确认框提示编号重排', /编号会重排/.test(confirmMsgs[0] || ''), confirmMsgs[0]);
 
 /* ---- 确认删除：状态 + 场景引用 + 重绘三者一致 ---- */
 confirmAnswer = true; confirmMsgs.length = 0;
-delBtns[1].handlers.click();
+await delBtns[1].handlers.click({currentTarget:delBtns[1]});
 ok('确认 → 画像从 state 移除', sandbox.state.work1.personas.length === 1 && sandbox.state.work1.personas[0].id === 'p_a');
 ok('确认 → 场景里的悬空 personaId 被清', sandbox.state.work1.scenarios[0].personaIds.length === 0);
+ok('确认 → 历史答卷保留但 personaId 清空', sandbox.state.work1.survey.responses.length === 2 && sandbox.state.work1.survey.responses.every(r=>r.personaId==null));
 ok('确认 → 走 rerender（界面真的会重建）', rerenderCalls.join() === 'personas', JSON.stringify(rerenderCalls));
 ok('确认 → 不走被守卫吞掉的 renderStep', renderStepCalls.length === 0, JSON.stringify(renderStepCalls));
 ok('删除标脏（autosave 被调）', dirtyCount > 0);
 
-/* ---- 添加画像：同样必须 rerender ----
-   注意：删除会重赋值 state.work1.personas（filter 返回新数组），
-   而添加按钮的闭包捕的是渲染时的旧数组——真实应用里删除后必然 rerender，
-   闭包随之重建；这里桩掉了 rerender，所以要手动重渲染一次再点。 */
+/* ---- 添加画像：同样必须 rerender；重新挂载模拟真实页面结构更新。 ---- */
 rerenderCalls.length = 0; renderStepCalls.length = 0;
 const plate1b = makeNode('div', { class: 'plate' });
 W1.render.personas({ querySelector: s => (s === '.plate' ? plate1b : null) });
@@ -172,16 +173,18 @@ ok('添加 → state 多一个画像', sandbox.state.work1.personas.length === 2
 ok('添加 → 走 rerender 而不是 renderStep', rerenderCalls.join() === 'personas' && renderStepCalls.length === 0,
   'rerender=' + JSON.stringify(rerenderCalls) + ' renderStep=' + JSON.stringify(renderStepCalls));
 
-/* ---- 无连带时确认框不啰嗦 ---- */
+/* ---- 无连带时确认框明确零数量及编号重排 ---- */
 confirmMsgs.length = 0; confirmAnswer = false;
 const lone = sandbox.state.work1.personas[1];
 const plate2 = makeNode('div', { class: 'plate' });
 W1.render.personas({ querySelector: s => (s === '.plate' ? plate2 : null) });
-buttons(plate2, '删除')[1].handlers.click();
-ok('无场景/答卷连带 → 确认框只有编号重排提示',
-  !/场景会取消/.test(confirmMsgs[0] || '') && !/调研答卷/.test(confirmMsgs[0] || '') && /编号会重排/.test(confirmMsgs[0] || ''),
+const loneButton=buttons(plate2, '删除')[1];
+await loneButton.handlers.click({currentTarget:loneButton});
+ok('无场景/答卷连带 → 确认框明确零数量和编号重排',
+  /0 个 Work1 场景/.test(confirmMsgs[0] || '') && /0 份调研答卷/.test(confirmMsgs[0] || '') && /编号会重排/.test(confirmMsgs[0] || ''),
   confirmMsgs[0]);
 ok('lone 画像未被误删', sandbox.state.work1.personas.includes(lone));
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
+})().catch(e=>{console.error(e);process.exit(1);});
