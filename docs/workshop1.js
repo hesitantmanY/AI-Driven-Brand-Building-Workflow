@@ -2571,7 +2571,10 @@ Work1.askPersona = function(persona, questions, fewShot, rag){
   const messages = (typeof AiContext!=='undefined' && AiContext.buildPrompt)
     ? AiContext.buildPrompt({workId:'work1', sections:['sbu','environment'], system:sys, instruction:userParts.join('\n\n')})
     : [{role:'system',content:sys},{role:'user',content:userParts.join('\n\n')}];
-  return API.callJson(messages, {signal: Runner.signal()});
+  // AI03：schema 真正生效后，顶层形状不对会带纠偏说明重试一次（answers 数组是硬要求；
+  // 题目动态，条目不逐字段校验，避免误伤 1-5 的强类型）
+  return API.callJson(messages, {signal: Runner.signal(),
+    schema:{type:'object', required:['answers'], fields:{answers:{type:'array'}}}});
 };
 
 Work1.analyzeResponses = function(){

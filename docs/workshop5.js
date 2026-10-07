@@ -1176,7 +1176,8 @@ Work5._genSwot=async function(signal){
     +'\n选择理由：'+(((state.work2||{}).decision&&state.work2.decision.tier1&&state.work2.decision.tier1.rationale)||'')
     +'\n\n价值主张：'+(((state.work3||{}).proposition||{}).chosenValueText||'')
     +(pains.length?('\n客户痛点：\n'+pains.slice(0,8).map(p=>'['+(p.type||'')+'] '+(p.pain||'')).join('\n')):'');
-  const r=await API.callJson(Work5._msgs(sys, user, ['sbu','positioning']),{signal});
+  const r=await API.callJson(Work5._msgs(sys, user, ['sbu','positioning']),{signal,
+    schema:{type:'object', fields:{strengths:{type:'array'}, weaknesses:{type:'array'}, opportunities:{type:'array'}, threats:{type:'array'}}}});
   if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
   if(r){
     ['strengths','weaknesses','opportunities','threats'].forEach(k=>{
@@ -1320,7 +1321,9 @@ Work5._gen4C=async function(signal,onlyEmpty=false){
   const m=state.work5.ch4_mix;
   const sys='你是营销顾问。把 4P 转为 4C：Customer Value 来自 Product、Customer Cost 来自 Price（含时间/心理成本）、Convenience 来自 Place、Communication 来自 Promotion（双向沟通而非单向推送）。输出 JSON: {"customerValue":"","customerCost":"","convenience":"","communication":""}。每项 3-5 行要点，每行一个要点；不要标题、不要 markdown 装饰、不要编号、不得改变事实与数字。'+Work5._humanRule;
   const user=`Product: ${m.product}\nPrice: ${m.price}\nPlace: ${m.place}\nPromotion: ${m.promotion}`;
-  const r=await API.callJson(Work5._msgs(sys, user, ['ch4_mix']),{signal});
+  const r=await API.callJson(Work5._msgs(sys, user, ['ch4_mix']),{signal,
+    schema:{type:'object', required:['customerValue','customerCost','convenience','communication'],
+      fields:{customerValue:{type:'string'}, customerCost:{type:'string'}, convenience:{type:'string'}, communication:{type:'string'}}}});
   if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
   if(r){
     ['customerValue','customerCost','convenience','communication'].forEach(k=>{
@@ -1469,7 +1472,8 @@ Work5.aiSummary4P=async function(button){
     if(!keys.length){ showToast('请先导入或填写 4P'); return; }
     const sys='你是策划书编辑。把营销组合 4P 各要素总结为表格行，输出 JSON: {"product":{"core":"核心策略一句话（不超过 30 字）","actions":"关键举措，最多 3 行，每行以 · 开头","nums":"关键数字或依据，没有则写 —"},"price":{...},"place":{...},"promotion":{...}} 四个键同构。不得改变事实与数字。'+Work5._humanRule;
     const user=keys.map(k=>k+': '+m[k]).join('\n\n');
-    const r=await API.callJson(Work5._msgs(sys, user, ['ch4_mix']),{signal});
+    const r=await API.callJson(Work5._msgs(sys, user, ['ch4_mix']),{signal,
+      schema:{type:'object', fields:{product:{type:'object'}, price:{type:'object'}, place:{type:'object'}, promotion:{type:'object'}}}});
     if(signal?.aborted || state!==workspace || Work5.caseLocked())return false;
     if(r){
       const pt=Work5.healPTable();

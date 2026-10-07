@@ -781,8 +781,10 @@ Work2.runFrameworkPipeline = function(button, container, cfg){
   const w1 = state.work1;
   const sections = cfg?.sections || ['sbu','environment','personas','competitors'];
   const pick = needs => sections.filter(s=>needs.includes(s));
-  const mk = (key, label, fewShot, needs, system, instruction, onResult) => ({
-    key, label, jsonMode: true,
+  // AI03：schema 随单元交给 aiPipeline → CallJsonStrict，顶层形状不对会带纠偏说明重试一次。
+  // 只约束顶层键与明显类型（动态键/深层条目不校验，避免误伤合法变体）。
+  const mk = (key, label, fewShot, needs, system, instruction, onResult, schema) => ({
+    key, label, jsonMode: true, schema,
     buildPrompt: ()=> AiContext.buildPrompt({workId:'work2', sections:pick(needs), system,
       // 2026-09-01：instruction 支持函数——流水线逐单元执行，下游单元（应用筛选）
       // 必须在执行时读前序单元刚写入的 state；点击时冻结的字符串拿到的是空/旧清单。
@@ -796,13 +798,15 @@ Work2.runFrameworkPipeline = function(button, container, cfg){
       '\n输出: {"candidates": [{"name": "", "reason": "1 句, 含 需求/规模/趋势 之一"}]}',
       r=>{ if(!r || !Array.isArray(r.candidates) || !r.candidates.length) throw new Error('AI 返回缺少候选市场');
         state.work2.candidates = r.candidates.map(c=>({id:uid('cand'),name:c.name||'',reason:c.reason||'',source:'ai'}));
-        state.work2.meta.work1Linked = true; autosave(); }),
+        state.work2.meta.work1Linked = true; autosave(); },
+      {type:'object', required:['candidates'], fields:{candidates:{type:'array'}}}),
     mk('fw:criteria','筛选标准','work2.criteria',['sbu','environment'],
       '你是市场进入策略顾问。基于业务特征，建议 3-5 个可观测、可量化的初筛淘汰标准。每条标准必须能从一个公开数据源查到。',
       '输出: {"criteria": [{"name": "", "source": "数据源名称"}]}',
       r=>{ if(!r || !Array.isArray(r.criteria) || !r.criteria.length) throw new Error('AI 返回缺少评估标准');
         state.work2.screening.criteria = r.criteria.map(c=>({id:uid('crit'),name:c.name||'',source:c.source||'',kind:'ai'}));
-        autosave(); }),
+        autosave(); },
+      {type:'object', required:['criteria'], fields:{criteria:{type:'array'}}}),
     mk('fw:retained','应用筛选','work2.retained',['sbu'],
       '你是市场进入策略顾问。给定 5-10 个候选市场和 3-5 个筛选标准，应用标准淘汰到 3 个保留市场。',
       ()=>'候选: ' + JSON.stringify(state.work2.candidates.map(c=>({name:c.name,reason:c.reason}))) +
@@ -815,7 +819,8 @@ Work2.runFrameworkPipeline = function(button, container, cfg){
         state.work2.scoring = {};
         // 保留市场换了 id：三档决策里的旧 marketId 当场消毒，不留悬空选择
         Work2.pruneStaleTiers();
-        autosave(); }),
+        autosave(); },
+      {type:'object', required:['retained'], fields:{retained:{type:'array'}}}),
     // 2026-09-12：指标拆成两单元。原一单元要两轴共 48 段锚点文本，超长被
     // 截断 → JSON 两次解析失败 → callJson 返回 null，旧 onResult 静默 return
     // 却仍被 markDone，表现为「推导完成」但指标体系没生成（/ 只剩默认空模板）。
@@ -823,11 +828,13 @@ Work2.runFrameworkPipeline = function(button, container, cfg){
     mk('fw:indicators:attractiveness','指标体系 · 市场吸引力','work2.indicators',['sbu','environment'],
       '你是营销研究方法专家。为海外市场选择的「市场吸引力」轴建议指标：严格输出恰好 4 个一级维度，每个一级下恰好 2 个二级指标（不多不少）。一级维度按模板（可微调名称但不得缺失）：经济 / 政治法律 / 社会文化 / 风险。每个二级指标给出 high/mid/low 评分锚点（high=8-10 分长什么样、mid=4-7、low=0-3），锚点要可观测、可查证。',
       '输出: {"categories": [{"name": "一级维度名", "indicators": [{"name": "二级指标名", "rubric": {"high": "", "mid": "", "low": ""}}, {"name": "同个一级下第 2 个二级", "rubric": {"high": "", "mid": "", "low": ""}}]}, {"name": "共恰好 4 个一级", "indicators": [{"name":"","rubric":{"high":"","mid":"","low":""}},{"name":"","rubric":{"high":"","mid":"","low":""}}]}]}',
-      r=>Work2.acceptAxisIndicators('attractiveness', r)),
+      r=>Work2.acceptAxisIndicators('attractiveness', r),
+      {type:'object', required:['categories'], fields:{categories:{type:'array'}}}),
     mk('fw:indicators:competitiveness','指标体系 · 业务竞争力','work2.indicators',['sbu','environment','competitors'],
       '你是营销研究方法专家。为海外市场选择的「业务竞争力」轴建议指标：严格输出恰好 4 个一级维度，每个一级下恰好 2 个二级指标（不多不少）。一级维度按模板（可微调名称但不得缺失）：市场信息 / 营销渠道 / 认证合规 / 产品品牌。每个二级指标给出 high/mid/low 评分锚点（high=8-10 分长什么样、mid=4-7、low=0-3），锚点要可观测、可查证。',
       '输出: {"categories": [{"name": "一级维度名", "indicators": [{"name": "二级指标名", "rubric": {"high": "", "mid": "", "low": ""}}, {"name": "同个一级下第 2 个二级", "rubric": {"high": "", "mid": "", "low": ""}}]}, {"name": "共恰好 4 个一级", "indicators": [{"name":"","rubric":{"high":"","mid":"","low":""}},{"name":"","rubric":{"high":"","mid":"","low":""}}]}]}',
-      r=>Work2.acceptAxisIndicators('competitiveness', r))
+      r=>Work2.acceptAxisIndicators('competitiveness', r),
+      {type:'object', required:['categories'], fields:{categories:{type:'array'}}})
   ];
   API.aiPipeline({button, container, label:'AI 推导评估体系', units, store:Work2.pipeStore,
     onDone: ()=>{ state.work2._frameworkGenerated=true; autosave(); Work2.rerender('framework'); }});
@@ -997,7 +1004,8 @@ Work2.runPersonas = async function(button){
       const messages = [{role:'system',content:sys}];
       if(fs) messages.push({role:'system',content:'格式示例（仅参考格式，勿照抄内容）：\n'+fs});
       messages.push({role:'user',content:user});
-      const r = await API.callJson(messages, {signal:Runner.signal()});
+      const r = await API.callJson(messages, {signal:Runner.signal(),
+        schema:{type:'object', required:['ratings'], fields:{ratings:{type:'object'}, reasoning:{type:'string'}}}});
       Runner.tick(1);
       if(task.aborted) return;
       applyPersona(p, r);
@@ -1095,7 +1103,8 @@ Work2.converge = async function(btn, container){
         '\n输出: {"summary": "<1段>"}',
       fewShot:'delphi.converge'
     });
-    const r = await API.callJson(messages,{signal:task.controller.signal});
+    const r = await API.callJson(messages,{signal:task.controller.signal,
+      schema:{type:'object', required:['summary'], fields:{summary:{type:'string'}}}});
     if(task.aborted || !isCurrent())return false;
     d.summary = r?.summary || '';
   }catch(e){
@@ -1202,7 +1211,8 @@ Work2.aiScore = async function(btn, container, scope, cfg){
       fewShot: cfg?.fewShot
     });
     try{
-      const r = await API.callJson(messages,{signal:task.controller.signal});
+      const r = await API.callJson(messages,{signal:task.controller.signal,
+        schema:{type:'object', required:['scores'], fields:{scores:{type:'object'}, evidence:{type:'object'}, sources:{type:'object'}}}});
       if(task.aborted || !isCurrent())return false;
       if(!work.retained.some(m=>m===mk))continue;
       if(!r || !r.scores || !Object.keys(r.scores).length){

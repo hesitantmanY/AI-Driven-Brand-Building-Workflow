@@ -816,7 +816,8 @@ Work3.generateSimulatedDocs = async function(btn, container, cfg){
       workId:'work3', sections:(cfg?.sections||['sbu','personas','scenarios','valueFramework']),
       system, instruction:user
     });
-    const r = await API.callJson(messages,{signal:task.controller.signal});
+    const r = await API.callJson(messages,{signal:task.controller.signal,
+      schema:{type:'object', required:['documents'], fields:{documents:{type:'array'}}}});
     if(task.aborted || !isCurrent())return false;
     return apply(r);
   }catch(e){
@@ -917,7 +918,8 @@ Work3.runLDA = async function(btn, silent, taskHandle){
 Work3.llmLdaSim = async function(docs, k, signal){
   const sys=`你是 LDA 主题建模模拟器。对给定的 ${docs.length} 条文档，模拟出 ${k} 个主题。输出 JSON: {"stats":{"raw_count":${docs.length},"valid_count":${docs.length},"total_words":0,"vocab_size":0,"coherence":0.5},"topics":[{"id":0,"label":"","share":20,"keywords":[{"word":"","weight":0.02}],"representative_docs":[""]}],"word_freq_top":[{"word":"","count":10}]}`;
   const sample=docs.slice(0,30).map((d,i)=>`${i+1}. ${d.slice(0,150)}`).join('\n');
-  const r=await API.callJson([{role:'system',content:sys},{role:'user',content:sample}],{signal});
+  const r=await API.callJson([{role:'system',content:sys},{role:'user',content:sample}],{signal,
+    schema:{type:'object', required:['topics'], fields:{topics:{type:'array'}, word_freq_top:{type:'array'}}}});
   if(!r) throw new Error('LLM 模拟返回空');
   r.topics=(r.topics||[]).slice(0,k).map((t,i)=>({id:i,label:t.label||'',share:t.share||Math.round(100/k),keywords:(t.keywords||[]).slice(0,12),representative_docs:(t.representative_docs||[]).slice(0,3)}));
   r.word_freq_top=r.word_freq_top||[];
@@ -975,7 +977,8 @@ Work3.runPainPipeline = async function(btn, container, cfg){
       workId:'work3', sections:(cfg?.sections||['sbu','personas','scenarios']),
       system:p.system, instruction:p.user, fewShot:cfg?.fewShot
     });
-    const r = await API.callJson(messages, {signal:Runner.signal()});
+    const r = await API.callJson(messages, {signal:Runner.signal(),
+      schema:{type:'object', required:['pains'], fields:{pains:{type:'array'}, topics:{type:'array'}}}});
     if(task.aborted) return;
     Work3.applyPainResult(r);
     task.done=2; Runner.renderUI();
@@ -1410,10 +1413,12 @@ Work3.runDoubleScoring = async function(button, container, cfg){
     const list=cs.map(c=>'- ['+c.id+'] '+c.name+'：'+(c.description||'')).join('\n');
     const units=[
       {key:'ms:d',label:'合意性评分',jsonMode:true,
+        schema:{type:'object', required:['scores'], fields:{scores:{type:'object'}}},
         buildPrompt:()=>[{role:'system',content:'你是目标客户。对每个卖点在 '+dimsD.map(d=>d.label+'('+d.key+')').join('、')+' 维度打 0-10 分。输出 JSON: {"scores":{"<candidateId>":{"'+dimsD.map(d=>d.key).join('":0,"')+'":0}}}'},
           {role:'user',content:'SBU:'+state.work1.sbu.name+'\n卖点:\n'+list}],
         onResult:r=>{ if(!r?.scores){ showToast('AI 未返回评分，已保留原值'); return; } cs.forEach(c=>{ const sc=r.scores[c.id]; if(!sc) return; dimsD.forEach(d=>{c[d.key]=clamp(Number(sc[d.key])||0,0,10); c['src_'+d.key]='ai';}); c.desirabilitySource='ai'; }); autosave(); }},
       {key:'ms:i',label:'可实施性评分',jsonMode:true,
+        schema:{type:'object', required:['scores'], fields:{scores:{type:'object'}}},
         buildPrompt:()=>[{role:'system',content:'你是企业运营顾问。对每个卖点在 '+dimsI.map(d=>d.label+'('+d.key+')').join('、')+' 维度打 0-10 分。输出 JSON: {"scores":{"<candidateId>":{"'+dimsI.map(d=>d.key).join('":0,"')+'":0}}}'},
           {role:'user',content:'SBU:'+state.work1.sbu.name+'\n卖点:\n'+list}],
         onResult:r=>{ if(!r?.scores){ showToast('AI 未返回评分，已保留原值'); return; } cs.forEach(c=>{ const sc=r.scores[c.id]; if(!sc) return; dimsI.forEach(d=>{c[d.key]=clamp(Number(sc[d.key])||0,0,10); c['src_'+d.key]='ai';}); }); autosave(); }}
@@ -1469,7 +1474,9 @@ Work3._scoreAxis = async function(axis, task,replaceDirect=false){
   const dims=state.work3.dimensions[axis];
   const callOne = async (sys, user)=>{
     const messages = [{role:'system',content:sys},{role:'user',content:user}];
-    return API.callJson(messages,{signal:task.controller.signal});
+    // AI03：维度键随 dims 动态，条目不逐键校验；顶层必须是对象（防返回数组/标量）
+    return API.callJson(messages,{signal:task.controller.signal,
+      schema:{type:'object'}});
   };
   if(axis==='desirability' && hasSurvey && personas.length){
     for(const p of personas){
@@ -1595,6 +1602,7 @@ Work3.render.proposition = function(sec){
     if(generated) state.work3._pipeProp=[];   // 重新生成：清断点，两个单元完整重跑
     const units=[
       {key:'prop:alt',label:'价值主张备选',jsonMode:true,
+        schema:{type:'object', required:['alternatives'], fields:{alternatives:{type:'array'}}},
         buildPrompt:()=>AiContext.buildPrompt({workId:'work3',sections:cfg.sections,
           system:'你是品牌战略顾问。生成 3 个差异化价值主张，每个 20-40 字，说清"为谁、提供什么、有何不同"。',
           instruction:'SBU:'+state.work1.sbu.name+'\n目标市场:'+(state.work3.context.targetMarket||'')+ '\n入选卖点:'+selTxt()+
@@ -1604,6 +1612,7 @@ Work3.render.proposition = function(sec){
         // 覆盖语义：整组替换（首次为空数组等同追加；重生成不叠加旧候选）
         onResult:r=>{ if(!r?.alternatives){ showToast('AI 未返回备选方案，已保留原值'); return; } p.alternatives=r.alternatives.map(a=>({id:uid('alt'),text:a.text||''})); autosave(); }},
       {key:'prop:pos',label:'定位句建议',jsonMode:true,
+        schema:{type:'object', required:['positioning'], fields:{positioning:{type:'object'}}},
         buildPrompt:()=>AiContext.buildPrompt({workId:'work3',sections:cfg.sections,
           system:'你是品牌定位顾问。按四要素（品类/目标客群/差异化卖点/可量化利益）给定位句填空建议。',
           instruction:'SBU:'+state.work1.sbu.name+'\n价值主张候选:'+(p.alternatives.map(a=>a.text).join('；')||selTxt())+
@@ -1714,6 +1723,7 @@ Work3.render.identity = function(sec){
     if(idGenerated) state.work3._pipeIdentity=[];   // 重新生成：清断点完整重跑
     const units=[
       {key:'id:persona',label:'品牌人格',jsonMode:true,
+        schema:{type:'object', required:['mbti'], fields:{mbti:{type:'string'}, traits:{type:'array'}}},
         buildPrompt:()=>AiContext.buildPrompt({workId:'work3',sections:cfg.sections,
           system:'你是品牌人格顾问。根据价值主张与目标客群，推荐一个 MBTI 类型与 3-5 个人格特质关键词。',
           instruction:'SBU:'+state.work1.sbu.name+'\n价值主张:'+(p.chosenValueText||'')+'\n目标客群:'+(p.positioning.audience||'')+
@@ -1721,6 +1731,7 @@ Work3.render.identity = function(sec){
           fewShot:cfg.fewShot}),
         onResult:r=>{ if(!r)return; if(r.mbti) id.mbti=r.mbti; if(Array.isArray(r.traits)) id.personalityTraits=r.traits; autosave(); }},
       {key:'id:slogan',label:'Slogan',jsonMode:true,
+        schema:{type:'object', required:['slogans'], fields:{slogans:{type:'array'}}},
         buildPrompt:()=>AiContext.buildPrompt({workId:'work3',sections:cfg.sections,
           system:'你是品牌文案。创作 5 个中文 12 字内的 slogan，含情感驱动词。',
           instruction:'品牌:'+(p.positioning.brand||state.work1.sbu.name)+'\n价值主张:'+(p.chosenValueText||'')+'\n人格:'+(id.mbti||'')+' '+(id.personalityTraits||[]).join('/')+
