@@ -17,6 +17,46 @@ const App = {
     st.work2 = (typeof Work2!=='undefined' && Work2.defaultData) ? Work2.defaultData() : {};
     return true;
   },
+  // DEBT-2：嵌套毒值兜底（work1/3/4/5 及 work2 嵌套）。healWork2 只治 work2 整片；
+  // 这里按各坊 defaultData() 的容器形状，把「默认是数组/对象而值不是」的字段换回
+  // 默认——嵌套毒值此前无兜底，渲染 TypeError 被 goStep 吞掉 → 步骤区空白。
+  // 与 healWork2 同挂 renderAll（所有 state 替换路径的必经点）。
+  // ponytail: 只挡容器类型错配；数组元素内部字段不校验，真出现写入者再补。
+  _healContainers(node, def){
+    let healed = false;
+    Object.keys(def).forEach(k=>{
+      const dv = def[k], v = node[k];
+      if(v === undefined) return;  // 缺字段归 mergeWithDefaults 补
+      if(Array.isArray(dv) && !Array.isArray(v)){ node[k] = dv; healed = true; }
+      else if(dv && typeof dv === 'object' && !Array.isArray(dv)){
+        if(!v || typeof v !== 'object' || Array.isArray(v)){ node[k] = dv; healed = true; }
+        else if(this._healContainers(v, dv)) healed = true;
+      }
+    });
+    return healed;
+  },
+  healNested(st){
+    if(!st || typeof st !== 'object') return false;
+    const mods = {
+      1: typeof Work1 !== 'undefined' ? Work1 : null,
+      2: typeof Work2 !== 'undefined' ? Work2 : null,
+      3: typeof Work3 !== 'undefined' ? Work3 : null,
+      4: typeof Work4 !== 'undefined' ? Work4 : null,
+      5: typeof Work5 !== 'undefined' ? Work5 : null,
+    };
+    let healed = false;
+    [1,2,3,4,5].forEach(n=>{
+      const key = 'work'+n;
+      const mod = mods[n];
+      const def = mod && typeof mod.defaultData === 'function' ? mod.defaultData() : null;
+      if(!def) return;
+      if(!st[key] || typeof st[key] !== 'object' || Array.isArray(st[key])){
+        st[key] = def;
+        healed = true;
+      } else if(this._healContainers(st[key], def)) healed = true;
+    });
+    return healed;
+  },
   // BIZ14：位置真值 = URL（?w=&s=&case=），state.meta.currentWork/currentStep 只是镜像。
   // syncUrl —— 导航后把当前 work/step/case 写回 URL（replaceState，不污染 history 栈）。
   syncUrl(){
@@ -114,6 +154,9 @@ const App = {
     });
     // 5. 初始保存状态（与服务器数据一致 = 已保存）
     dirty = false;
+    // BIZ03：对账基准 = 本页签载入时服务器上的 savedAt。不播种则首次保存
+    // （lastServerStamp 仍为 null）跳过写前对账，另一页签的恢复会被静默覆盖。
+    if(typeof lastServerStamp!=='undefined') lastServerStamp = (state.meta && state.meta.savedAt) || null;
     const ss0=$('#saveStatus');
     if(ss0 && !state.meta.isDemo) ss0.textContent='已保存';
     // 5.6 案例数据新鲜度（2026-09-02）：「保留现场」只在案例源数据未变时成立；
@@ -294,6 +337,7 @@ const App = {
   },
   renderAll(){
     if(this.healWork2(state)) showToast('Workshop 2 数据已损坏，已重置为空白模板。', 3200);
+    if(this.healNested(state)) showToast('部分工作坊数据已损坏，已回退默认值。', 3200);
     // 案例只读锁按控件应用，保留步间 CTA 与证据来源导航。
     if(typeof Settings!=='undefined') Settings.renderModeSwitch();
     [1,2,3,4,5].forEach(n=>{

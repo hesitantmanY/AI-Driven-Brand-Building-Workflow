@@ -243,7 +243,10 @@ const History = {
       next.meta.loadedFrom=restored.snapshot.name; next.meta.loadedFromId=restored.snapshot.id;
       actualName=restored.snapshot.name;
       state=next; replaced=true;
-      if(typeof lastServerStamp!=='undefined') lastServerStamp=null;
+      // BIZ03：基准 = 恢复刚落盘的 meta.savedAt（restore 原样写入服务器）。
+      // 置 null 会让本次 saveNow 跳过写前对账；播种后既能放行自己这次保存，
+      // 又能拦住恢复与保存之间另一页签的插入写。
+      if(typeof lastServerStamp!=='undefined') lastServerStamp=(next.meta && next.meta.savedAt)||null;
       dirty=false;
       Interaction.invalidateUndo();
       this._draftMap().clear();

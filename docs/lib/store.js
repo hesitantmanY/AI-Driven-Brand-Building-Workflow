@@ -28,6 +28,8 @@ const Store = {
       });
       if(res.ok){
         stateObj.meta.savedAt=stamp;
+        // BIZ03：基准跟随每次落盘（含迁移直写路径），saveNow 的写前对账不误报。
+        if(typeof lastServerStamp!=='undefined') lastServerStamp=stamp;
         const ss=$('#saveStatus'); if(ss) ss.textContent='已保存 · '+new Date().toLocaleTimeString();
         return true;
       }
