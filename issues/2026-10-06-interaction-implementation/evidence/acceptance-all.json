@@ -14,7 +14,7 @@
             "id": "named_指定加载版本",
             "name": "指定加载版本",
             "type": "named",
-            "created_at": 1791376419.105339
+            "created_at": 1791382432.1372063
           }
         },
         {
@@ -39,7 +39,7 @@
           "label": "已保存取消无恢复请求",
           "passed": true,
           "details": [
-            "http://127.0.0.1:65382/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+            "http://127.0.0.1:53135/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
           ]
         },
         {
@@ -54,7 +54,7 @@
           "label": "已保存确认只恢复一次",
           "passed": true,
           "details": [
-            "http://127.0.0.1:65382/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+            "http://127.0.0.1:53135/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
           ]
         },
         {
@@ -106,7 +106,7 @@
           "label": "有未保存取消无恢复请求",
           "passed": true,
           "details": [
-            "http://127.0.0.1:65382/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+            "http://127.0.0.1:53135/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
           ]
         },
         {
@@ -121,7 +121,7 @@
           "label": "有未保存确认只恢复一次",
           "passed": true,
           "details": [
-            "http://127.0.0.1:65382/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+            "http://127.0.0.1:53135/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
           ]
         },
         {
@@ -157,7 +157,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.36
+      "seconds": 3.2
     },
     {
       "code": "A02",
@@ -273,7 +273,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.82
+      "seconds": 4.28
     },
     {
       "code": "A03",
@@ -310,7 +310,7 @@
             "id": "named_行内Enter后实际名字",
             "name": "行内Enter后实际名字",
             "type": "named",
-            "created_at": 1791376424.2229147
+            "created_at": 1791382439.617682
           }
         },
         {
@@ -352,7 +352,7 @@
             "id": "named_顶栏Enter后实际名字",
             "name": "顶栏Enter后实际名字",
             "type": "named",
-            "created_at": 1791376424.2229147
+            "created_at": 1791382439.617682
           }
         },
         {
@@ -381,7 +381,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.73
+      "seconds": 2.81
     },
     {
       "code": "A04",
@@ -407,7 +407,7 @@
               "id": "named_终版",
               "name": "终版",
               "type": "named",
-              "created_at": 1791376427.419244
+              "created_at": 1791382443.5000331
             }
           ]
         },
@@ -434,7 +434,7 @@
               "id": "named_终版(1)",
               "name": "终版(1)",
               "type": "named",
-              "created_at": 1791376428.406638
+              "created_at": 1791382444.5996983
             }
           ]
         },
@@ -490,7 +490,7 @@
               "id": "named_终版",
               "name": "终版",
               "type": "named",
-              "created_at": 1791376430.2050838
+              "created_at": 1791382447.1191232
             }
           ]
         },
@@ -521,7 +521,7 @@
               "id": "named_终版(1)",
               "name": "终版(1)",
               "type": "named",
-              "created_at": 1791376432.2011714
+              "created_at": 1791382450.1819413
             }
           ]
         },
@@ -571,7 +571,7 @@
         }
       ],
       "passed": true,
-      "seconds": 7.2
+      "seconds": 10.51
     },
     {
       "code": "A05",
@@ -688,31 +688,31 @@
               "id": "named_终版(3)",
               "name": "终版(3)",
               "type": "named",
-              "created_at": 1791376437.9378219
+              "created_at": 1791382458.281664
             },
             {
               "id": "named_终版(2)",
               "name": "终版(2)",
               "type": "named",
-              "created_at": 1791376437.3717847
+              "created_at": 1791382457.7360246
             },
             {
               "id": "named_终版(1)",
               "name": "终版(1)",
               "type": "named",
-              "created_at": 1791376436.9382482
+              "created_at": 1791382457.302072
             },
             {
               "id": "named_终版",
               "name": "终版",
               "type": "named",
-              "created_at": 1791376436.5045319
+              "created_at": 1791382456.4674451
             },
             {
               "id": "named_复制源",
               "name": "复制源",
               "type": "named",
-              "created_at": 1791376436.1052797
+              "created_at": 1791382456.0179396
             }
           ]
         },
@@ -737,7 +737,7 @@
         }
       ],
       "passed": true,
-      "seconds": 4.28
+      "seconds": 5.9
     },
     {
       "code": "A12",
@@ -1185,7 +1185,7 @@
         }
       ],
       "passed": true,
-      "seconds": 10.7
+      "seconds": 13.37
     },
     {
       "code": "A13",
@@ -1432,7 +1432,7 @@
         }
       ],
       "passed": true,
-      "seconds": 4.83
+      "seconds": 7.51
     },
     {
       "code": "A14",
@@ -1592,7 +1592,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.77
+      "seconds": 2.75
     },
     {
       "code": "A15",
@@ -1641,7 +1641,7 @@
         }
       ],
       "passed": true,
-      "seconds": 1.73
+      "seconds": 2.32
     },
     {
       "code": "A21",
@@ -1760,7 +1760,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.99
+      "seconds": 3.11
     },
     {
       "code": "A06",
@@ -1920,7 +1920,7 @@
         }
       ],
       "passed": true,
-      "seconds": 1.21
+      "seconds": 2.59
     },
     {
       "code": "A07",
@@ -2126,7 +2126,7 @@
         }
       ],
       "passed": true,
-      "seconds": 1.48
+      "seconds": 2.26
     },
     {
       "code": "A08",
@@ -2592,7 +2592,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.34
+      "seconds": 3.24
     },
     {
       "code": "A09",
@@ -2970,7 +2970,7 @@
         }
       ],
       "passed": true,
-      "seconds": 1.94
+      "seconds": 2.65
     },
     {
       "code": "A10",
@@ -3035,7 +3035,7 @@
         }
       ],
       "passed": true,
-      "seconds": 0.81
+      "seconds": 0.88
     },
     {
       "code": "A11",
@@ -3049,7 +3049,7 @@
           "label": "A11 真实10秒后入口过期",
           "passed": true,
           "details": {
-            "elapsed_seconds": 10.33
+            "elapsed_seconds": 10.34
           }
         },
         {
@@ -3122,7 +3122,7 @@
         }
       ],
       "passed": true,
-      "seconds": 58.05
+      "seconds": 59.79
     },
     {
       "code": "A16",
@@ -3864,7 +3864,7 @@
         }
       ],
       "passed": true,
-      "seconds": 4.38
+      "seconds": 4.91
     },
     {
       "code": "A17",
@@ -3940,7 +3940,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.82
+      "seconds": 3.26
     },
     {
       "code": "A18",
@@ -3967,7 +3967,7 @@
               "w": 32.25,
               "h": 28.796875,
               "x": 252,
-              "y": 619.5625,
+              "y": 624.5625,
               "html": "<button type=\"button\" class=\"ghost small danger delete-control\" aria-label=\"删除标签：自营标签\" title=\"删除标签：自营标签\" data-tooltip=\"删除标签：自营标签\">×</button>"
             },
             {
@@ -3977,7 +3977,7 @@
               "w": 31.703125,
               "h": 28,
               "x": 353.140625,
-              "y": 1326.578125,
+              "y": 1331.578125,
               "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴甲\" title=\"删除关键伙伴：伙伴甲\" data-tooltip=\"删除关键伙伴：伙伴甲\">×</button>"
             },
             {
@@ -3987,7 +3987,7 @@
               "w": 31.703125,
               "h": 28,
               "x": 575.984375,
-              "y": 1326.578125,
+              "y": 1331.578125,
               "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴乙\" title=\"删除关键伙伴：伙伴乙\" data-tooltip=\"删除关键伙伴：伙伴乙\">×</button>"
             },
             {
@@ -3997,7 +3997,7 @@
               "w": 31.703125,
               "h": 28,
               "x": 809.625,
-              "y": 1326.578125,
+              "y": 1331.578125,
               "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴丙\" title=\"删除关键伙伴：伙伴丙\" data-tooltip=\"删除关键伙伴：伙伴丙\">×</button>"
             },
             {
@@ -4007,7 +4007,7 @@
               "w": 28,
               "h": 36,
               "x": 1149.328125,
-              "y": 1714.53125,
+              "y": 1719.53125,
               "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道甲\" title=\"删除二级渠道：渠道甲\" data-tooltip=\"删除二级渠道：渠道甲\">×</button>"
             },
             {
@@ -4017,7 +4017,7 @@
               "w": 28,
               "h": 36,
               "x": 1149.328125,
-              "y": 1775.53125,
+              "y": 1780.53125,
               "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道乙\" title=\"删除二级渠道：渠道乙\" data-tooltip=\"删除二级渠道：渠道乙\">×</button>"
             },
             {
@@ -4027,7 +4027,7 @@
               "w": 28,
               "h": 36,
               "x": 1149.328125,
-              "y": 1836.53125,
+              "y": 1841.53125,
               "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道丙\" title=\"删除二级渠道：渠道丙\" data-tooltip=\"删除二级渠道：渠道丙\">×</button>"
             },
             {
@@ -4037,7 +4037,7 @@
               "w": 28,
               "h": 36,
               "x": 1149.328125,
-              "y": 1897.53125,
+              "y": 1902.53125,
               "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：线下甲\" title=\"删除二级渠道：线下甲\" data-tooltip=\"删除二级渠道：线下甲\">×</button>"
             }
           ]
@@ -4063,7 +4063,7 @@
               "w": 32.25,
               "h": 28.796875,
               "x": 252,
-              "y": 619.5625,
+              "y": 624.5625,
               "html": "<button type=\"button\" class=\"ghost small danger delete-control\" aria-label=\"删除标签：自营标签\" title=\"删除标签：自营标签\" data-tooltip=\"删除标签：自营标签\">×</button>"
             },
             {
@@ -4073,7 +4073,7 @@
               "w": 31.703125,
               "h": 28,
               "x": 353.140625,
-              "y": 1326.578125,
+              "y": 1331.578125,
               "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴甲\" title=\"删除关键伙伴：伙伴甲\" data-tooltip=\"删除关键伙伴：伙伴甲\">×</button>"
             },
             {
@@ -4083,7 +4083,7 @@
               "w": 31.703125,
               "h": 28,
               "x": 575.984375,
-              "y": 1326.578125,
+              "y": 1331.578125,
               "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴乙\" title=\"删除关键伙伴：伙伴乙\" data-tooltip=\"删除关键伙伴：伙伴乙\">×</button>"
             },
             {
@@ -4093,7 +4093,7 @@
               "w": 31.703125,
               "h": 28,
               "x": 809.625,
-              "y": 1326.578125,
+              "y": 1331.578125,
               "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴丙\" title=\"删除关键伙伴：伙伴丙\" data-tooltip=\"删除关键伙伴：伙伴丙\">×</button>"
             },
             {
@@ -4103,7 +4103,7 @@
               "w": 28,
               "h": 36,
               "x": 1149.328125,
-              "y": 1714.53125,
+              "y": 1719.53125,
               "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道甲\" title=\"删除二级渠道：渠道甲\" data-tooltip=\"删除二级渠道：渠道甲\">×</button>"
             },
             {
@@ -4113,7 +4113,7 @@
               "w": 28,
               "h": 36,
               "x": 1149.328125,
-              "y": 1775.53125,
+              "y": 1780.53125,
               "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道乙\" title=\"删除二级渠道：渠道乙\" data-tooltip=\"删除二级渠道：渠道乙\">×</button>"
             },
             {
@@ -4123,7 +4123,7 @@
               "w": 28,
               "h": 36,
               "x": 1149.328125,
-              "y": 1836.53125,
+              "y": 1841.53125,
               "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道丙\" title=\"删除二级渠道：渠道丙\" data-tooltip=\"删除二级渠道：渠道丙\">×</button>"
             },
             {
@@ -4133,7 +4133,7 @@
               "w": 28,
               "h": 36,
               "x": 1149.328125,
-              "y": 1897.53125,
+              "y": 1902.53125,
               "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：线下甲\" title=\"删除二级渠道：线下甲\" data-tooltip=\"删除二级渠道：线下甲\">×</button>"
             }
           ]
@@ -4278,7 +4278,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.63
+      "seconds": 2.82
     },
     {
       "code": "A19",
@@ -4346,7 +4346,7 @@
         }
       ],
       "passed": true,
-      "seconds": 1.19
+      "seconds": 1.47
     },
     {
       "code": "A20",
@@ -4398,51 +4398,51 @@
                 "text": "V.策划书"
               },
               {
-                "w": 100.34375,
+                "w": 104.46875,
                 "left": 40,
-                "right": 140.34375,
+                "right": 144.46875,
                 "text": "1.SBU"
               },
               {
-                "w": 103.453125,
-                "left": 140.34375,
-                "right": 243.796875,
+                "w": 104.609375,
+                "left": 144.46875,
+                "right": 249.078125,
                 "text": "2.环境"
               },
               {
-                "w": 135.328125,
-                "left": 243.796875,
-                "right": 379.125,
+                "w": 136.5,
+                "left": 249.078125,
+                "right": 385.578125,
                 "text": "3.客户画像"
               },
               {
-                "w": 202.171875,
-                "left": 379.125,
-                "right": 581.296875,
+                "w": 199.921875,
+                "left": 385.578125,
+                "right": 585.5,
                 "text": "4.指标体系回填 2"
               },
               {
-                "w": 135.375,
-                "left": 581.296875,
-                "right": 716.671875,
+                "w": 136.53125,
+                "left": 585.5,
+                "right": 722.03125,
                 "text": "5.合成调研"
               },
               {
-                "w": 135.375,
-                "left": 716.671875,
-                "right": 852.046875,
+                "w": 136.53125,
+                "left": 722.03125,
+                "right": 858.5625,
                 "text": "6.数据分析"
               },
               {
-                "w": 135.234375,
+                "w": 136.40625,
                 "left": 40,
-                "right": 175.234375,
+                "right": 176.40625,
                 "text": "7.价值框架"
               },
               {
-                "w": 103.453125,
-                "left": 175.234375,
-                "right": 278.6875,
+                "w": 104.609375,
+                "left": 176.40625,
+                "right": 281.015625,
                 "text": "8.建议"
               }
             ],
@@ -4796,7 +4796,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.32
+      "seconds": 2.69
     },
     {
       "code": "A22",
@@ -5972,7 +5972,7 @@
         }
       ],
       "passed": true,
-      "seconds": 22.84
+      "seconds": 28.92
     }
   ],
   "passed": 22,

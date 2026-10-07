@@ -1,8 +1,1283 @@
 {
   "group": "workshops",
   "isolation": "Temporary server source and empty data; no real archives or provider keys",
-  "browser": "154.0.8037.95",
+  "browser": "154.0.8037.98",
   "cases": [
+    {
+      "code": "A06",
+      "title": "真实1模拟3分来源清空",
+      "assertions": [
+        {
+          "label": "A06 不存在混合来源全清入口",
+          "passed": true
+        },
+        {
+          "label": "A06 库存持续标注真实1模拟3",
+          "passed": true
+        },
+        {
+          "label": "清空本地真实语料确认对象和影响",
+          "passed": true,
+          "details": "×\n清空本地真实语料？\n\n将删除当前 Work3 手动添加或导入的 1 条真实语料。3 条模拟语料会保留，当前仍参与建模；Work1 开放题/主题不会删除，仍按各自勾选状态参与建模。 旧 LDA 结果将失效，主题关联将清除；此操作不可撤销。\n\n取消\n清空本地真实语料"
+        },
+        {
+          "label": "清空本地真实语料确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "清空本地真实语料默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "清空本地真实语料焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "清空本地真实语料取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "清空本地真实语料取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A06 real 清空后来源准确",
+          "passed": true,
+          "details": {
+            "real": [],
+            "sim": [
+              "模拟反馈甲",
+              "模拟负面反馈乙",
+              "模拟反馈丙"
+            ],
+            "lda": null,
+            "topics": [],
+            "link": null
+          }
+        },
+        {
+          "label": "A06 清空使旧LDA与主题绑定失效",
+          "passed": true,
+          "details": {
+            "real": [],
+            "sim": [
+              "模拟反馈甲",
+              "模拟负面反馈乙",
+              "模拟反馈丙"
+            ],
+            "lda": null,
+            "topics": [],
+            "link": null
+          }
+        },
+        {
+          "label": "A06 来源反馈和模拟状态准确",
+          "passed": true,
+          "details": "已清空本地真实语料 1 条。剩余本地真实 0 条、模拟 3 条；模拟语料仍参与建模。WORK1 开放题/主题保留，仍按各自勾选状态参与建模。"
+        },
+        {
+          "label": "A06 来源清空真实API持久化",
+          "passed": true,
+          "details": {
+            "actual": [],
+            "expected": []
+          }
+        },
+        {
+          "label": "A06 不存在混合来源全清入口",
+          "passed": true
+        },
+        {
+          "label": "A06 库存持续标注真实1模拟3",
+          "passed": true
+        },
+        {
+          "label": "清空模拟语料确认对象和影响",
+          "passed": true,
+          "details": "×\n清空模拟语料？\n\n将删除 3 条模拟语料；1 条本地真实语料会保留。Work1 开放题/主题不会删除，仍按各自勾选状态参与建模。 旧 LDA 结果将失效，主题关联将清除；此操作不可撤销。\n\n取消\n清空模拟语料"
+        },
+        {
+          "label": "清空模拟语料确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "清空模拟语料默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "清空模拟语料焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "清空模拟语料取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "清空模拟语料取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A06 simulated 清空后来源准确",
+          "passed": true,
+          "details": {
+            "real": [
+              "本地真实原文"
+            ],
+            "sim": [],
+            "lda": null,
+            "topics": [],
+            "link": null
+          }
+        },
+        {
+          "label": "A06 清空使旧LDA与主题绑定失效",
+          "passed": true,
+          "details": {
+            "real": [
+              "本地真实原文"
+            ],
+            "sim": [],
+            "lda": null,
+            "topics": [],
+            "link": null
+          }
+        },
+        {
+          "label": "A06 来源反馈和模拟状态准确",
+          "passed": true,
+          "details": "已清空模拟语料 3 条。剩余本地真实 1 条、模拟 0 条；当前无模拟语料。WORK1 开放题/主题保留，仍按各自勾选状态参与建模。"
+        },
+        {
+          "label": "A06 来源清空真实API持久化",
+          "passed": true,
+          "details": {
+            "actual": [],
+            "expected": []
+          }
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 2.27
+    },
+    {
+      "code": "A07",
+      "title": "模拟纳入与Work1勾选保留",
+      "assertions": [
+        {
+          "label": "A07 存储与实际纳入数量分开",
+          "passed": true,
+          "details": {
+            "localReal": 1,
+            "simulated": 3,
+            "openAvailable": 2,
+            "themesAvailable": 1,
+            "openUsed": 2,
+            "themesUsed": 0,
+            "realUsed": 3,
+            "simulatedUsed": 3,
+            "total": 6
+          }
+        },
+        {
+          "label": "A07 Work1来源按各自勾选显示",
+          "passed": true,
+          "details": "3.2\n卖点挖掘（LDA + 痛点地图）\n\n粘贴或导入评论文本，运行 LDA 主题建模，再让 AI 归纳痛点地图（痛点必须解决，痒点是加分项）。\n\n语料输入\n本地真实 1 条 + 模拟 3 条（模拟语料仍参与建模）\n\nWORK1 上游真实来源：开放题 2 条（按勾选纳入 2 条）；主题 1 条（未纳入）。当前实际纳入真实 3 条 + 模拟 3 条，共 6 条。\n\n#1\n本地真实原文\n×\n添加到语料\n导入 EXCEL/CSV\n清空本地真实语料\n重新生成模拟语料\n语料包含负面反馈/抱怨（默认勾选，支撑痛点证据）\n消息设置（发送前可查看/调整）\n模拟语料（画像生成 3 条）\n模拟\n建模时包含模拟语料（默认勾选，可取消）\n清空模拟语料\n#1\n模拟反馈甲\n×\n#2\n模拟负面反馈乙\n×\n#3\n模拟反馈丙\n×\n包含 Work 1 开放题答案\n包含 Work 1 主题文本\nLDA 高级参数\nAI 起草痛点地图\n消息设置（发送前可查看/调整）\n痛点地图\n痛点/痒点\t证据\t频次\t类型\t场景\t对应需求\t\n\t\t\n高\n中\n低\n\t\n痛点\n痒点\n\t\n—\n卖点场景甲\n卖点场景乙\n\t\n\t×\n\t\t\n高\n中\n低\n\t\n痛点\n痒点\n\t\n—\n卖点场景甲\n卖点场景乙\n\t\n\t×\n+ 添加痛点\n本步流程 · 最小可交付\n0/2\n收起\n先完成下面的检查项；全部完成后，底部会出现下一步入口。\n✓\n已有主题（真实 LDA 或模拟）\n✓\n痛点地图至少 5 条（含痛点和痒点）\n没有真实语料（评论、访谈、客服记录）时，可生成模拟语料补足建模，产出会标注「模拟」；尽量补充真实资料。"
+        },
+        {
+          "label": "A07模拟纳入True确认对象和影响",
+          "passed": true,
+          "details": "×\n清空本地真实语料？\n\n将删除当前 Work3 手动添加或导入的 1 条真实语料。3 条模拟语料会保留，当前仍参与建模；Work1 开放题/主题不会删除，仍按各自勾选状态参与建模。 旧 LDA 结果将失效，主题关联将清除；此操作不可撤销。\n\n取消\n清空本地真实语料"
+        },
+        {
+          "label": "A07模拟纳入True确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A07模拟纳入True默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A07模拟纳入True焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A07模拟纳入True取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A07模拟纳入True取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A07 取消不使LDA失效",
+          "passed": true
+        },
+        {
+          "label": "A07 清空不改勾选或上游文本",
+          "passed": true,
+          "details": {
+            "sim": true,
+            "open": true,
+            "themes": false,
+            "upstream": [
+              {
+                "questionId": "q-open",
+                "question": "手动开放题",
+                "texts": [
+                  "上游原文一",
+                  "上游原文二"
+                ],
+                "themes": [
+                  {
+                    "label": "上游主题",
+                    "count": 2
+                  }
+                ],
+                "quotes": [
+                  "上游原文一"
+                ]
+              }
+            ],
+            "counts": {
+              "localReal": 0,
+              "simulated": 3,
+              "openAvailable": 2,
+              "themesAvailable": 1,
+              "openUsed": 2,
+              "themesUsed": 0,
+              "realUsed": 2,
+              "simulatedUsed": 3,
+              "total": 5
+            }
+          }
+        },
+        {
+          "label": "A07 剩余模拟参与状态准确",
+          "passed": true,
+          "details": "已清空本地真实语料 1 条。剩余本地真实 0 条、模拟 3 条；模拟语料仍参与建模。WORK1 开放题/主题保留，仍按各自勾选状态参与建模。"
+        },
+        {
+          "label": "A07 清空模拟也保留三项勾选",
+          "passed": true
+        },
+        {
+          "label": "A07 存储与实际纳入数量分开",
+          "passed": true,
+          "details": {
+            "localReal": 1,
+            "simulated": 3,
+            "openAvailable": 2,
+            "themesAvailable": 1,
+            "openUsed": 2,
+            "themesUsed": 0,
+            "realUsed": 3,
+            "simulatedUsed": 0,
+            "total": 3
+          }
+        },
+        {
+          "label": "A07 Work1来源按各自勾选显示",
+          "passed": true,
+          "details": "3.2\n卖点挖掘（LDA + 痛点地图）\n\n粘贴或导入评论文本，运行 LDA 主题建模，再让 AI 归纳痛点地图（痛点必须解决，痒点是加分项）。\n\n语料输入\n本地真实 1 条 + 模拟 3 条（模拟语料未参与建模）\n\nWORK1 上游真实来源：开放题 2 条（按勾选纳入 2 条）；主题 1 条（未纳入）。当前实际纳入真实 3 条 + 模拟 0 条，共 3 条。\n\n#1\n本地真实原文\n×\n添加到语料\n导入 EXCEL/CSV\n清空本地真实语料\n重新生成模拟语料\n语料包含负面反馈/抱怨（默认勾选，支撑痛点证据）\n消息设置（发送前可查看/调整）\n模拟语料（画像生成 3 条）\n模拟\n建模时包含模拟语料（默认勾选，可取消）\n清空模拟语料\n#1\n模拟反馈甲\n×\n#2\n模拟负面反馈乙\n×\n#3\n模拟反馈丙\n×\n包含 Work 1 开放题答案\n包含 Work 1 主题文本\nLDA 高级参数\nAI 起草痛点地图\n消息设置（发送前可查看/调整）\n痛点地图\n痛点/痒点\t证据\t频次\t类型\t场景\t对应需求\t\n\t\t\n高\n中\n低\n\t\n痛点\n痒点\n\t\n—\n卖点场景甲\n卖点场景乙\n\t\n\t×\n\t\t\n高\n中\n低\n\t\n痛点\n痒点\n\t\n—\n卖点场景甲\n卖点场景乙\n\t\n\t×\n+ 添加痛点\n本步流程 · 最小可交付\n0/2\n收起\n先完成下面的检查项；全部完成后，底部会出现下一步入口。\n✓\n已有主题（真实 LDA 或模拟）\n✓\n痛点地图至少 5 条（含痛点和痒点）\n没有真实语料（评论、访谈、客服记录）时，可生成模拟语料补足建模，产出会标注「模拟」；尽量补充真实资料。"
+        },
+        {
+          "label": "A07模拟纳入False确认对象和影响",
+          "passed": true,
+          "details": "×\n清空本地真实语料？\n\n将删除当前 Work3 手动添加或导入的 1 条真实语料。3 条模拟语料会保留，当前未参与建模；Work1 开放题/主题不会删除，仍按各自勾选状态参与建模。 旧 LDA 结果将失效，主题关联将清除；此操作不可撤销。\n\n取消\n清空本地真实语料"
+        },
+        {
+          "label": "A07模拟纳入False确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A07模拟纳入False默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A07模拟纳入False焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A07模拟纳入False取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A07模拟纳入False取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A07 取消不使LDA失效",
+          "passed": true
+        },
+        {
+          "label": "A07 清空不改勾选或上游文本",
+          "passed": true,
+          "details": {
+            "sim": false,
+            "open": true,
+            "themes": false,
+            "upstream": [
+              {
+                "questionId": "q-open",
+                "question": "手动开放题",
+                "texts": [
+                  "上游原文一",
+                  "上游原文二"
+                ],
+                "themes": [
+                  {
+                    "label": "上游主题",
+                    "count": 2
+                  }
+                ],
+                "quotes": [
+                  "上游原文一"
+                ]
+              }
+            ],
+            "counts": {
+              "localReal": 0,
+              "simulated": 3,
+              "openAvailable": 2,
+              "themesAvailable": 1,
+              "openUsed": 2,
+              "themesUsed": 0,
+              "realUsed": 2,
+              "simulatedUsed": 0,
+              "total": 2
+            }
+          }
+        },
+        {
+          "label": "A07 剩余模拟参与状态准确",
+          "passed": true,
+          "details": "已清空本地真实语料 1 条。剩余本地真实 0 条、模拟 3 条；模拟语料未参与建模。WORK1 开放题/主题保留，仍按各自勾选状态参与建模。"
+        },
+        {
+          "label": "A07 清空模拟也保留三项勾选",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 1.68
+    },
+    {
+      "code": "A08",
+      "title": "语料指标画像依赖删除",
+      "assertions": [
+        {
+          "label": "真实语料确认对象和影响",
+          "passed": true,
+          "details": "×\n删除真实语料？\n\n将删除真实语料「第 1 条」。来源：Work3 手动添加/导入的本地真实语料。文本摘要：「本地真实原文」。删除 1 条后旧 LDA 结果将失效，痛点的主题关联将清除；其他语料来源及其纳入勾选保留。 此操作不可撤销。\n\n取消\n删除真实语料"
+        },
+        {
+          "label": "真实语料确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "真实语料默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "真实语料焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "真实语料取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "真实语料取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A08 单语料确认后结果和关系清理",
+          "passed": true
+        },
+        {
+          "label": "A08 单语料另一来源保留",
+          "passed": true
+        },
+        {
+          "label": "模拟语料确认对象和影响",
+          "passed": true,
+          "details": "×\n删除模拟语料？\n\n将删除模拟语料「第 1 条」。来源：画像生成的模拟语料。文本摘要：「模拟反馈甲」。删除 1 条后旧 LDA 结果将失效，痛点的主题关联将清除；其他语料来源及其纳入勾选保留。 此操作不可撤销。\n\n取消\n删除模拟语料"
+        },
+        {
+          "label": "模拟语料确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "模拟语料默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "模拟语料焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "模拟语料取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "模拟语料取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A08 单语料确认后结果和关系清理",
+          "passed": true
+        },
+        {
+          "label": "A08 单语料另一来源保留",
+          "passed": true
+        },
+        {
+          "label": "A08画像确认对象和影响",
+          "passed": true,
+          "details": "×\n删除画像？\n\n将删除画像「P1」。1 个 Work1 场景会取消对它的关联勾选；1 个 Work3 场景会取消关联。已完成的 1 份调研答卷会失去画像指向（历史答卷及答案保留，不重跑）。对应完成记录会清除；1 个 Work3 备选卖点的该画像子分、旧画像均值缓存及相关评分断点会清除，其它画像子分和人工维度分保留。剩余画像编号会重排（P1、P2…）。 此操作不可撤销。\n\n取消\n删除画像"
+        },
+        {
+          "label": "A08画像确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A08画像默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A08画像焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A08画像取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A08画像取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A08 画像关联清理答卷原文保留",
+          "passed": true,
+          "details": {
+            "personas": [
+              {
+                "id": "p-b",
+                "name": "P1",
+                "gender": "女",
+                "age": "28",
+                "occupation": "合成职业",
+                "income": "合成收入",
+                "region": "国内",
+                "painPoints": "稳定可验证的合成客户痛点",
+                "values": [
+                  "可靠"
+                ],
+                "channels": [
+                  "自营"
+                ],
+                "quote": "合成原话",
+                "traits": []
+              },
+              {
+                "id": "p-c",
+                "name": "P2",
+                "gender": "女",
+                "age": "28",
+                "occupation": "合成职业",
+                "income": "合成收入",
+                "region": "国内",
+                "painPoints": "稳定可验证的合成客户痛点",
+                "values": [
+                  "可靠"
+                ],
+                "channels": [
+                  "自营"
+                ],
+                "quote": "合成原话",
+                "traits": []
+              }
+            ],
+            "ws": [
+              "p-b"
+            ],
+            "sc": [
+              "p-b"
+            ],
+            "r": {
+              "personaId": null,
+              "answers": [
+                {
+                  "questionId": "q-a",
+                  "value": 4,
+                  "raw": "同意"
+                },
+                {
+                  "questionId": "q-b",
+                  "value": 3,
+                  "raw": "一般"
+                },
+                {
+                  "questionId": "q-open",
+                  "value": "上游原文一",
+                  "raw": "上游原文一"
+                }
+              ]
+            },
+            "c": {
+              "id": "c-a",
+              "name": "关联卖点",
+              "pain": "关联痛点",
+              "painId": "pain-a",
+              "description": "合成方案",
+              "evidence": "合成证据",
+              "scenarioId": "s-a",
+              "selected": true,
+              "importance": 8,
+              "uniqueness": 7,
+              "credibility": 6,
+              "feasibility": 8,
+              "communicability": 7,
+              "sustainability": 6,
+              "src_importance": "user",
+              "desirabilityScores": {
+                "p-b": {
+                  "importance": 5,
+                  "uniqueness": 6,
+                  "credibility": 7
+                }
+              },
+              "extraDims": {}
+            },
+            "done": [
+              "i:c-a"
+            ],
+            "sd": []
+          }
+        },
+        {
+          "label": "A08 仅移除目标画像子分与断点",
+          "passed": true,
+          "details": {
+            "personas": [
+              {
+                "id": "p-b",
+                "name": "P1",
+                "gender": "女",
+                "age": "28",
+                "occupation": "合成职业",
+                "income": "合成收入",
+                "region": "国内",
+                "painPoints": "稳定可验证的合成客户痛点",
+                "values": [
+                  "可靠"
+                ],
+                "channels": [
+                  "自营"
+                ],
+                "quote": "合成原话",
+                "traits": []
+              },
+              {
+                "id": "p-c",
+                "name": "P2",
+                "gender": "女",
+                "age": "28",
+                "occupation": "合成职业",
+                "income": "合成收入",
+                "region": "国内",
+                "painPoints": "稳定可验证的合成客户痛点",
+                "values": [
+                  "可靠"
+                ],
+                "channels": [
+                  "自营"
+                ],
+                "quote": "合成原话",
+                "traits": []
+              }
+            ],
+            "ws": [
+              "p-b"
+            ],
+            "sc": [
+              "p-b"
+            ],
+            "r": {
+              "personaId": null,
+              "answers": [
+                {
+                  "questionId": "q-a",
+                  "value": 4,
+                  "raw": "同意"
+                },
+                {
+                  "questionId": "q-b",
+                  "value": 3,
+                  "raw": "一般"
+                },
+                {
+                  "questionId": "q-open",
+                  "value": "上游原文一",
+                  "raw": "上游原文一"
+                }
+              ]
+            },
+            "c": {
+              "id": "c-a",
+              "name": "关联卖点",
+              "pain": "关联痛点",
+              "painId": "pain-a",
+              "description": "合成方案",
+              "evidence": "合成证据",
+              "scenarioId": "s-a",
+              "selected": true,
+              "importance": 8,
+              "uniqueness": 7,
+              "credibility": 6,
+              "feasibility": 8,
+              "communicability": 7,
+              "sustainability": 6,
+              "src_importance": "user",
+              "desirabilityScores": {
+                "p-b": {
+                  "importance": 5,
+                  "uniqueness": 6,
+                  "credibility": 7
+                }
+              },
+              "extraDims": {}
+            },
+            "done": [
+              "i:c-a"
+            ],
+            "sd": []
+          }
+        },
+        {
+          "label": "A08 剩余画像id保留编号重排",
+          "passed": true,
+          "details": [
+            {
+              "id": "p-b",
+              "name": "P1",
+              "gender": "女",
+              "age": "28",
+              "occupation": "合成职业",
+              "income": "合成收入",
+              "region": "国内",
+              "painPoints": "稳定可验证的合成客户痛点",
+              "values": [
+                "可靠"
+              ],
+              "channels": [
+                "自营"
+              ],
+              "quote": "合成原话",
+              "traits": []
+            },
+            {
+              "id": "p-c",
+              "name": "P2",
+              "gender": "女",
+              "age": "28",
+              "occupation": "合成职业",
+              "income": "合成收入",
+              "region": "国内",
+              "painPoints": "稳定可验证的合成客户痛点",
+              "values": [
+                "可靠"
+              ],
+              "channels": [
+                "自营"
+              ],
+              "quote": "合成原话",
+              "traits": []
+            }
+          ]
+        },
+        {
+          "label": "A08一级指标确认对象和影响",
+          "passed": true,
+          "details": "×\n删除一级指标？\n\n将删除一级指标「合成一级指标」。2 个下级测评点的量化口径、自评和实测分会删除。1 道关联生成题及其 1 条答案会删除，历史答卷和其它题目保留；相关 1 项统计、0 项开放题主题会清除，实测回填重新计算。综合洞察会清除，请按剩余数据重新生成。 此操作不可撤销。\n\n取消\n删除一级指标"
+        },
+        {
+          "label": "A08一级指标确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A08一级指标默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A08一级指标焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A08一级指标取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A08一级指标取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A08 一级指标删除精确清理题目答案统计",
+          "passed": true,
+          "details": {
+            "dims": [
+              {
+                "id": "md-b",
+                "name": "保留一级指标",
+                "secondaries": [
+                  {
+                    "selfScore": 5,
+                    "actual": 6,
+                    "measure": "保留口径",
+                    "id": "mi-c",
+                    "name": "保留测评点",
+                    "actualN": 1
+                  }
+                ]
+              }
+            ],
+            "questions": [
+              {
+                "id": "q-b",
+                "type": "likert",
+                "text": "保留生成题",
+                "sourceIndicatorId": "mi-c",
+                "anchors": [
+                  "1",
+                  "2",
+                  "3",
+                  "4",
+                  "5"
+                ]
+              },
+              {
+                "id": "q-open",
+                "type": "likert",
+                "text": "手动开放题",
+                "sourceIndicatorId": null,
+                "anchors": [
+                  "非常不同意",
+                  "不同意",
+                  "一般",
+                  "同意",
+                  "非常同意"
+                ]
+              },
+              {
+                "id": "q-free",
+                "type": "likert",
+                "text": "无依赖题目",
+                "sourceIndicatorId": null,
+                "anchors": [
+                  "非常不同意",
+                  "不同意",
+                  "一般",
+                  "同意",
+                  "非常同意"
+                ]
+              }
+            ],
+            "answers": [
+              {
+                "questionId": "q-b",
+                "value": 3,
+                "raw": "一般"
+              },
+              {
+                "questionId": "q-open",
+                "value": "上游原文一",
+                "raw": "上游原文一"
+              }
+            ],
+            "stats": {
+              "q-b": {
+                "mean": 3,
+                "sd": 0,
+                "n": 1,
+                "dist": [
+                  0,
+                  0,
+                  1,
+                  0,
+                  0
+                ]
+              }
+            },
+            "insights": ""
+          }
+        },
+        {
+          "label": "A08 指标删除真实API持久化",
+          "passed": true,
+          "details": {
+            "actual": "md-b",
+            "expected": "md-b"
+          }
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 3.5
+    },
+    {
+      "code": "A09",
+      "title": "候选渠道标签伙伴删除撤销",
+      "assertions": [
+        {
+          "label": "A09 候选市场直接删除不确认",
+          "passed": true
+        },
+        {
+          "label": "A09 候选市场独立撤销可访问",
+          "passed": true
+        },
+        {
+          "label": "A09 候选市场恢复全部字段id原位置",
+          "passed": true,
+          "details": {
+            "original": [
+              {
+                "id": "mk-a",
+                "name": "候选甲",
+                "reason": "甲理由",
+                "source": "user"
+              },
+              {
+                "id": "mk-b",
+                "name": "候选乙",
+                "reason": "乙理由",
+                "source": "user"
+              },
+              {
+                "id": "mk-c",
+                "name": "候选丙",
+                "reason": "丙理由",
+                "source": "user"
+              }
+            ],
+            "restored": [
+              {
+                "id": "mk-a",
+                "name": "候选甲",
+                "reason": "甲理由",
+                "source": "user"
+              },
+              {
+                "id": "mk-b",
+                "name": "候选乙",
+                "reason": "乙理由",
+                "source": "user"
+              },
+              {
+                "id": "mk-c",
+                "name": "候选丙",
+                "reason": "丙理由",
+                "source": "user"
+              }
+            ]
+          }
+        },
+        {
+          "label": "A09 候选市场重挂载恢复删除入口",
+          "passed": true
+        },
+        {
+          "label": "A09 候选市场恢复API持久化",
+          "passed": true,
+          "details": {
+            "actual": [
+              {
+                "id": "mk-a",
+                "name": "候选甲",
+                "reason": "甲理由",
+                "source": "user"
+              },
+              {
+                "id": "mk-b",
+                "name": "候选乙",
+                "reason": "乙理由",
+                "source": "user"
+              },
+              {
+                "id": "mk-c",
+                "name": "候选丙",
+                "reason": "丙理由",
+                "source": "user"
+              }
+            ],
+            "expected": [
+              {
+                "id": "mk-a",
+                "name": "候选甲",
+                "reason": "甲理由",
+                "source": "user"
+              },
+              {
+                "id": "mk-b",
+                "name": "候选乙",
+                "reason": "乙理由",
+                "source": "user"
+              },
+              {
+                "id": "mk-c",
+                "name": "候选丙",
+                "reason": "丙理由",
+                "source": "user"
+              }
+            ]
+          }
+        },
+        {
+          "label": "A09 二级渠道直接删除不确认",
+          "passed": true
+        },
+        {
+          "label": "A09 二级渠道独立撤销可访问",
+          "passed": true
+        },
+        {
+          "label": "A09 二级渠道恢复全部字段id原位置",
+          "passed": true,
+          "details": {
+            "original": [
+              {
+                "id": "ch-a",
+                "name": "渠道甲",
+                "share": 23
+              },
+              {
+                "id": "ch-b",
+                "name": "渠道乙",
+                "share": 37
+              },
+              {
+                "id": "ch-c",
+                "name": "渠道丙",
+                "share": 40
+              }
+            ],
+            "restored": [
+              {
+                "id": "ch-a",
+                "name": "渠道甲",
+                "share": 23
+              },
+              {
+                "id": "ch-b",
+                "name": "渠道乙",
+                "share": 37
+              },
+              {
+                "id": "ch-c",
+                "name": "渠道丙",
+                "share": 40
+              }
+            ]
+          }
+        },
+        {
+          "label": "A09 二级渠道重挂载恢复删除入口",
+          "passed": true
+        },
+        {
+          "label": "A09 二级渠道恢复API持久化",
+          "passed": true,
+          "details": {
+            "actual": [
+              {
+                "id": "grp-a",
+                "name": "线上",
+                "children": [
+                  {
+                    "id": "ch-a",
+                    "name": "渠道甲",
+                    "share": 23
+                  },
+                  {
+                    "id": "ch-b",
+                    "name": "渠道乙",
+                    "share": 37
+                  },
+                  {
+                    "id": "ch-c",
+                    "name": "渠道丙",
+                    "share": 40
+                  }
+                ]
+              },
+              {
+                "id": "grp-b",
+                "name": "线下",
+                "children": [
+                  {
+                    "id": "ch-d",
+                    "name": "线下甲",
+                    "share": 100
+                  }
+                ]
+              }
+            ],
+            "expected": [
+              {
+                "id": "grp-a",
+                "name": "线上",
+                "children": [
+                  {
+                    "id": "ch-a",
+                    "name": "渠道甲",
+                    "share": 23
+                  },
+                  {
+                    "id": "ch-b",
+                    "name": "渠道乙",
+                    "share": 37
+                  },
+                  {
+                    "id": "ch-c",
+                    "name": "渠道丙",
+                    "share": 40
+                  }
+                ]
+              },
+              {
+                "id": "grp-b",
+                "name": "线下",
+                "children": [
+                  {
+                    "id": "ch-d",
+                    "name": "线下甲",
+                    "share": 100
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "label": "A09 标签直接删除不确认",
+          "passed": true
+        },
+        {
+          "label": "A09 标签独立撤销可访问",
+          "passed": true
+        },
+        {
+          "label": "A09 标签恢复全部字段id原位置",
+          "passed": true,
+          "details": {
+            "original": [
+              "标签甲",
+              "标签乙",
+              "标签丙"
+            ],
+            "restored": [
+              "标签甲",
+              "标签乙",
+              "标签丙"
+            ]
+          }
+        },
+        {
+          "label": "A09 标签重挂载恢复删除入口",
+          "passed": true
+        },
+        {
+          "label": "A09 标签恢复API持久化",
+          "passed": true,
+          "details": {
+            "actual": [
+              "标签甲",
+              "标签乙",
+              "标签丙"
+            ],
+            "expected": [
+              "标签甲",
+              "标签乙",
+              "标签丙"
+            ]
+          }
+        },
+        {
+          "label": "A09 关键伙伴直接删除不确认",
+          "passed": true
+        },
+        {
+          "label": "A09 关键伙伴独立撤销可访问",
+          "passed": true
+        },
+        {
+          "label": "A09 关键伙伴恢复全部字段id原位置",
+          "passed": true,
+          "details": {
+            "original": [
+              {
+                "id": "kp-a",
+                "name": "伙伴甲",
+                "side": "线上"
+              },
+              {
+                "id": "kp-b",
+                "name": "伙伴乙",
+                "side": "线下"
+              },
+              {
+                "id": "kp-c",
+                "name": "伙伴丙",
+                "side": ""
+              }
+            ],
+            "restored": [
+              {
+                "id": "kp-a",
+                "name": "伙伴甲",
+                "side": "线上"
+              },
+              {
+                "id": "kp-b",
+                "name": "伙伴乙",
+                "side": "线下"
+              },
+              {
+                "id": "kp-c",
+                "name": "伙伴丙",
+                "side": ""
+              }
+            ]
+          }
+        },
+        {
+          "label": "A09 关键伙伴重挂载恢复删除入口",
+          "passed": true
+        },
+        {
+          "label": "A09 关键伙伴恢复API持久化",
+          "passed": true,
+          "details": {
+            "actual": [
+              {
+                "id": "kp-a",
+                "name": "伙伴甲",
+                "side": "线上"
+              },
+              {
+                "id": "kp-b",
+                "name": "伙伴乙",
+                "side": "线下"
+              },
+              {
+                "id": "kp-c",
+                "name": "伙伴丙",
+                "side": ""
+              }
+            ],
+            "expected": [
+              {
+                "id": "kp-a",
+                "name": "伙伴甲",
+                "side": "线上"
+              },
+              {
+                "id": "kp-b",
+                "name": "伙伴乙",
+                "side": "线下"
+              },
+              {
+                "id": "kp-c",
+                "name": "伙伴丙",
+                "side": ""
+              }
+            ]
+          }
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 2.97
+    },
+    {
+      "code": "A10",
+      "title": "三次连续独立撤销保留新编辑",
+      "assertions": [
+        {
+          "label": "A10 连删三项独立有效入口",
+          "passed": true
+        },
+        {
+          "label": "A10 伙伴乙撤销不覆盖新编辑",
+          "passed": true
+        },
+        {
+          "label": "A10 伙伴甲撤销不覆盖新编辑",
+          "passed": true
+        },
+        {
+          "label": "A10 伙伴丙撤销不覆盖新编辑",
+          "passed": true
+        },
+        {
+          "label": "A10 原三项顺序id归属完整恢复",
+          "passed": true,
+          "details": [
+            {
+              "id": "kp-a",
+              "name": "伙伴甲",
+              "side": "线上"
+            },
+            {
+              "id": "kp-b",
+              "name": "伙伴乙",
+              "side": "线下"
+            },
+            {
+              "id": "kp-c",
+              "name": "伙伴丙",
+              "side": ""
+            },
+            {
+              "name": "后来新增伙伴",
+              "side": ""
+            }
+          ]
+        },
+        {
+          "label": "A10 导航重新挂载保持恢复结果",
+          "passed": true
+        },
+        {
+          "label": "A10 无关新编辑API持久化",
+          "passed": true,
+          "details": {
+            "actual": "删除后独立新编辑",
+            "expected": "删除后独立新编辑"
+          }
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 1.22
+    },
     {
       "code": "A11",
       "title": "真实10秒暂停导航替换撤销",
@@ -15,7 +1290,7 @@
           "label": "A11 真实10秒后入口过期",
           "passed": true,
           "details": {
-            "elapsed_seconds": 10.31
+            "elapsed_seconds": 10.34
           }
         },
         {
@@ -59,12 +1334,36 @@
           "passed": true
         },
         {
+          "label": "A11 历史加载取消保留撤销",
+          "passed": true
+        },
+        {
+          "label": "A11 成功历史加载撤销失效",
+          "passed": true
+        },
+        {
+          "label": "A11 导入取消保留撤销",
+          "passed": true
+        },
+        {
+          "label": "A11 成功导入撤销失效",
+          "passed": true
+        },
+        {
+          "label": "A11 成功进入案例旧撤销失效",
+          "passed": true
+        },
+        {
+          "label": "A11 退出案例不复活旧撤销",
+          "passed": true
+        },
+        {
           "label": "No uncaught browser errors",
           "passed": true
         }
       ],
       "passed": true,
-      "seconds": 56.65
+      "seconds": 59.68
     },
     {
       "code": "A16",
@@ -551,9 +1850,9 @@
               "bg": "rgb(26, 26, 26)",
               "color": "rgb(255, 255, 255)",
               "border": "rgb(26, 26, 26)",
-              "outline": "rgb(255, 255, 255)",
-              "outlineWidth": 3,
-              "outlineStyle": "none",
+              "outline": "rgb(44, 95, 179)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
               "disabled": false,
               "current": null,
               "pressed": null
@@ -562,7 +1861,7 @@
         },
         {
           "label": "A16 步间CTA键盘蓝色焦点可见",
-          "passed": false,
+          "passed": true,
           "details": {
             "x": 179,
             "y": 550.390625,
@@ -572,30 +1871,723 @@
             "bg": "rgb(26, 26, 26)",
             "color": "rgb(255, 255, 255)",
             "border": "rgb(26, 26, 26)",
-            "outline": "rgb(255, 255, 255)",
-            "outlineWidth": 3,
-            "outlineStyle": "none",
+            "outline": "rgb(44, 95, 179)",
+            "outlineWidth": 2,
+            "outlineStyle": "solid",
             "disabled": false,
             "current": null,
             "pressed": null
           }
+        },
+        {
+          "label": "A16 危险重置 hover/按下/键盘焦点无位移缩放",
+          "passed": true,
+          "details": {
+            "base": {
+              "x": 1060.28125,
+              "y": 46.984375,
+              "w": 106.703125,
+              "h": 41,
+              "transform": "none",
+              "bg": "rgb(255, 255, 255)",
+              "color": "rgb(139, 58, 26)",
+              "border": "rgb(139, 58, 26)",
+              "outline": "rgb(139, 58, 26)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "hover": {
+              "x": 1060.28125,
+              "y": 46.984375,
+              "w": 106.703125,
+              "h": 41,
+              "transform": "none",
+              "bg": "rgb(255, 255, 255)",
+              "color": "rgb(139, 58, 26)",
+              "border": "rgb(139, 58, 26)",
+              "outline": "rgb(139, 58, 26)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "pressed": {
+              "x": 1060.28125,
+              "y": 46.984375,
+              "w": 106.703125,
+              "h": 41,
+              "transform": "none",
+              "bg": "rgb(255, 255, 255)",
+              "color": "rgb(139, 58, 26)",
+              "border": "rgb(139, 58, 26)",
+              "outline": "rgb(139, 58, 26)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "focus": {
+              "x": 1060.28125,
+              "y": 46.984375,
+              "w": 106.703125,
+              "h": 41,
+              "transform": "none",
+              "bg": "rgb(255, 255, 255)",
+              "color": "rgb(139, 58, 26)",
+              "border": "rgb(139, 58, 26)",
+              "outline": "rgb(44, 95, 179)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            }
+          }
+        },
+        {
+          "label": "A16 危险重置键盘蓝色焦点可见",
+          "passed": true,
+          "details": {
+            "x": 1060.28125,
+            "y": 46.984375,
+            "w": 106.703125,
+            "h": 41,
+            "transform": "none",
+            "bg": "rgb(255, 255, 255)",
+            "color": "rgb(139, 58, 26)",
+            "border": "rgb(139, 58, 26)",
+            "outline": "rgb(44, 95, 179)",
+            "outlineWidth": 2,
+            "outlineStyle": "solid",
+            "disabled": false,
+            "current": null,
+            "pressed": null
+          }
+        },
+        {
+          "label": "A16 静态危险有文字描边和色彩",
+          "passed": true,
+          "details": {
+            "x": 1060.28125,
+            "y": 46.984375,
+            "w": 106.703125,
+            "h": 41,
+            "transform": "none",
+            "bg": "rgb(255, 255, 255)",
+            "color": "rgb(139, 58, 26)",
+            "border": "rgb(139, 58, 26)",
+            "outline": "rgb(44, 95, 179)",
+            "outlineWidth": 2,
+            "outlineStyle": "solid",
+            "disabled": false,
+            "current": null,
+            "pressed": null
+          }
+        },
+        {
+          "label": "A16 AI主操作 hover/按下/键盘焦点无位移缩放",
+          "passed": true,
+          "details": {
+            "base": {
+              "x": 179,
+              "y": 773.625,
+              "w": 1082,
+              "h": 47,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "hover": {
+              "x": 179,
+              "y": 773.625,
+              "w": 1082,
+              "h": 47,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 3,
+              "outlineStyle": "none",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "pressed": {
+              "x": 179,
+              "y": 773.625,
+              "w": 1082,
+              "h": 47,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(255, 255, 255)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            },
+            "focus": {
+              "x": 179,
+              "y": 773.625,
+              "w": 1082,
+              "h": 47,
+              "transform": "none",
+              "bg": "rgb(26, 26, 26)",
+              "color": "rgb(255, 255, 255)",
+              "border": "rgb(26, 26, 26)",
+              "outline": "rgb(44, 95, 179)",
+              "outlineWidth": 2,
+              "outlineStyle": "solid",
+              "disabled": false,
+              "current": null,
+              "pressed": null
+            }
+          }
+        },
+        {
+          "label": "A16 AI主操作键盘蓝色焦点可见",
+          "passed": true,
+          "details": {
+            "x": 179,
+            "y": 773.625,
+            "w": 1082,
+            "h": 47,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(44, 95, 179)",
+            "outlineWidth": 2,
+            "outlineStyle": "solid",
+            "disabled": false,
+            "current": null,
+            "pressed": null
+          }
+        },
+        {
+          "label": "A16 disabled禁止动作且无hover按下反馈",
+          "passed": true,
+          "details": {
+            "x": 179,
+            "y": 773.625,
+            "w": 1082,
+            "h": 47,
+            "transform": "none",
+            "bg": "rgb(26, 26, 26)",
+            "color": "rgb(255, 255, 255)",
+            "border": "rgb(26, 26, 26)",
+            "outline": "rgb(255, 255, 255)",
+            "outlineWidth": 3,
+            "outlineStyle": "none",
+            "disabled": true,
+            "current": null,
+            "pressed": null
+          }
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
         }
       ],
-      "passed": false,
-      "error": "A16 步间CTA键盘蓝色焦点可见: {'x': 179, 'y': 550.390625, 'w': 230.40625, 'h': 40, 'transform': 'none', 'bg': 'rgb(26, 26, 26)', 'color': 'rgb(255, 255, 255)', 'border': 'rgb(26, 26, 26)', 'outline': 'rgb(255, 255, 255)', 'outlineWidth': 3, 'outlineStyle': 'none', 'disabled': False, 'current': None, 'pressed': None}",
-      "traceback": "Traceback (most recent call last):\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/interaction_acceptance_support.py\", line 203, in case\n    callback()\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 603, in <lambda>\n    h.case(code,title,lambda callback=callback:callback(h))\n                                               ^^^^^^^^^^^\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 327, in a16\n    _stable(h,_active(h).locator('.metric-next button:visible').first,'步间CTA')\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 316, in _stable\n    h.check('A16 '+label+'键盘蓝色焦点可见',focused['outlineWidth']>=2 and focused['outlineStyle']!='none' and focused['outline'] not in (focused['color'],'rgba(0, 0, 0, 0)'),focused)\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/interaction_acceptance_support.py\", line 193, in check\n    raise AssertionError(label + (\": \" + str(details) if details is not None else \"\"))\nAssertionError: A16 步间CTA键盘蓝色焦点可见: {'x': 179, 'y': 550.390625, 'w': 230.40625, 'h': 40, 'transform': 'none', 'bg': 'rgb(26, 26, 26)', 'color': 'rgb(255, 255, 255)', 'border': 'rgb(26, 26, 26)', 'outline': 'rgb(255, 255, 255)', 'outlineWidth': 3, 'outlineStyle': 'none', 'disabled': False, 'current': None, 'pressed': None}\n",
-      "screenshot": "issues/2026-10-06-interaction-implementation/evidence/A16-failure.png",
-      "seconds": 2.97
+      "passed": true,
+      "seconds": 4.39
     },
     {
       "code": "A17",
       "title": "真实AI按钮单调用多单元重生成",
-      "assertions": [],
-      "passed": false,
-      "error": "Locator.inner_text: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator(\".workshop.active .step.active\").get_by_role(\"button\", name=\"AI 起草场景细分\", exact=True)\n",
-      "traceback": "Traceback (most recent call last):\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/interaction_acceptance_support.py\", line 203, in case\n    callback()\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 603, in <lambda>\n    h.case(code,title,lambda callback=callback:callback(h))\n                                               ^^^^^^^^^^^\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 371, in a17\n    h.check('A17 单调用生成中只有中止',h.page.evaluate('Runner.current && !Runner.current.pausable && !Runner.current.paused') and '生成中' in single.inner_text() and '暂停' not in single.inner_text())\n                                                                                                                                               ^^^^^^^^^^^^^^^^^^^\n  File \"/Users/hesitantmany/vs project/Brand-building/server/.venv/lib/python3.11/site-packages/playwright/sync_api/_generated.py\", line 19446, in inner_text\n    self._sync(self._impl_obj.inner_text(timeout=to_milliseconds(timeout)))\n  File \"/Users/hesitantmany/vs project/Brand-building/server/.venv/lib/python3.11/site-packages/playwright/_impl/_sync_base.py\", line 115, in _sync\n    return task.result()\n           ^^^^^^^^^^^^^\nplaywright._impl._errors.TimeoutError: Locator.inner_text: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator(\".workshop.active .step.active\").get_by_role(\"button\", name=\"AI 起草场景细分\", exact=True)\n\n",
-      "screenshot": "issues/2026-10-06-interaction-implementation/evidence/A17-failure.png",
-      "seconds": 8.59
+      "assertions": [
+        {
+          "label": "A17 单调用生成中只有中止",
+          "passed": true
+        },
+        {
+          "label": "A17 跨步骤其他AI全局互斥",
+          "passed": true
+        },
+        {
+          "label": "A17 disabled键盘不发第二任务",
+          "passed": true
+        },
+        {
+          "label": "A17 键盘中止不写未完成单元",
+          "passed": true
+        },
+        {
+          "label": "A17 重新生成直接发起无确认",
+          "passed": true
+        },
+        {
+          "label": "A17 单调用重新生成覆盖旧数组",
+          "passed": true
+        },
+        {
+          "label": "A17 重新生成人格清旧断点整组跑",
+          "passed": true
+        },
+        {
+          "label": "A17 多单元键盘暂停状态",
+          "passed": true
+        },
+        {
+          "label": "A17 当前调用完成后停在边界",
+          "passed": true
+        },
+        {
+          "label": "A17 已暂停只有中止且保留完成单元",
+          "passed": true
+        },
+        {
+          "label": "A17 人格Slogan两单元完整重跑不追加",
+          "passed": true
+        },
+        {
+          "label": "A17 主张重生成清旧断点",
+          "passed": true
+        },
+        {
+          "label": "A17 主张定位两单元整组覆盖",
+          "passed": true
+        },
+        {
+          "label": "A17 双维评分清旧断点",
+          "passed": true
+        },
+        {
+          "label": "A17 双维两轴全卖点重跑",
+          "passed": true,
+          "details": {
+            "calls": 8,
+            "expected": 8
+          }
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 4.18
+    },
+    {
+      "code": "A18",
+      "title": "名称热区键盘触屏",
+      "assertions": [
+        {
+          "label": "A18 桌面删除目标至少24x24",
+          "passed": true,
+          "details": [
+            {
+              "name": "重置工作区",
+              "title": null,
+              "tooltip": null,
+              "w": 106.703125,
+              "h": 41,
+              "x": 1064.5,
+              "y": 46.984375,
+              "html": "<button class=\"ghost danger\" onclick=\"App.reset()\">重置工作区</button>"
+            },
+            {
+              "name": "删除标签：自营标签",
+              "title": "删除标签：自营标签",
+              "tooltip": "删除标签：自营标签",
+              "w": 32.25,
+              "h": 28.796875,
+              "x": 252,
+              "y": 624.5625,
+              "html": "<button type=\"button\" class=\"ghost small danger delete-control\" aria-label=\"删除标签：自营标签\" title=\"删除标签：自营标签\" data-tooltip=\"删除标签：自营标签\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴甲",
+              "title": "删除关键伙伴：伙伴甲",
+              "tooltip": "删除关键伙伴：伙伴甲",
+              "w": 31.703125,
+              "h": 28,
+              "x": 353.140625,
+              "y": 1331.578125,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴甲\" title=\"删除关键伙伴：伙伴甲\" data-tooltip=\"删除关键伙伴：伙伴甲\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴乙",
+              "title": "删除关键伙伴：伙伴乙",
+              "tooltip": "删除关键伙伴：伙伴乙",
+              "w": 31.703125,
+              "h": 28,
+              "x": 575.984375,
+              "y": 1331.578125,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴乙\" title=\"删除关键伙伴：伙伴乙\" data-tooltip=\"删除关键伙伴：伙伴乙\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴丙",
+              "title": "删除关键伙伴：伙伴丙",
+              "tooltip": "删除关键伙伴：伙伴丙",
+              "w": 31.703125,
+              "h": 28,
+              "x": 809.625,
+              "y": 1331.578125,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴丙\" title=\"删除关键伙伴：伙伴丙\" data-tooltip=\"删除关键伙伴：伙伴丙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道甲",
+              "title": "删除二级渠道：渠道甲",
+              "tooltip": "删除二级渠道：渠道甲",
+              "w": 28,
+              "h": 36,
+              "x": 1149.328125,
+              "y": 1719.53125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道甲\" title=\"删除二级渠道：渠道甲\" data-tooltip=\"删除二级渠道：渠道甲\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道乙",
+              "title": "删除二级渠道：渠道乙",
+              "tooltip": "删除二级渠道：渠道乙",
+              "w": 28,
+              "h": 36,
+              "x": 1149.328125,
+              "y": 1780.53125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道乙\" title=\"删除二级渠道：渠道乙\" data-tooltip=\"删除二级渠道：渠道乙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道丙",
+              "title": "删除二级渠道：渠道丙",
+              "tooltip": "删除二级渠道：渠道丙",
+              "w": 28,
+              "h": 36,
+              "x": 1149.328125,
+              "y": 1841.53125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道丙\" title=\"删除二级渠道：渠道丙\" data-tooltip=\"删除二级渠道：渠道丙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：线下甲",
+              "title": "删除二级渠道：线下甲",
+              "tooltip": "删除二级渠道：线下甲",
+              "w": 28,
+              "h": 36,
+              "x": 1149.328125,
+              "y": 1902.53125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：线下甲\" title=\"删除二级渠道：线下甲\" data-tooltip=\"删除二级渠道：线下甲\">×</button>"
+            }
+          ]
+        },
+        {
+          "label": "A18 删除名称包含类型对象",
+          "passed": true,
+          "details": [
+            {
+              "name": "重置工作区",
+              "title": null,
+              "tooltip": null,
+              "w": 106.703125,
+              "h": 41,
+              "x": 1064.5,
+              "y": 46.984375,
+              "html": "<button class=\"ghost danger\" onclick=\"App.reset()\">重置工作区</button>"
+            },
+            {
+              "name": "删除标签：自营标签",
+              "title": "删除标签：自营标签",
+              "tooltip": "删除标签：自营标签",
+              "w": 32.25,
+              "h": 28.796875,
+              "x": 252,
+              "y": 624.5625,
+              "html": "<button type=\"button\" class=\"ghost small danger delete-control\" aria-label=\"删除标签：自营标签\" title=\"删除标签：自营标签\" data-tooltip=\"删除标签：自营标签\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴甲",
+              "title": "删除关键伙伴：伙伴甲",
+              "tooltip": "删除关键伙伴：伙伴甲",
+              "w": 31.703125,
+              "h": 28,
+              "x": 353.140625,
+              "y": 1331.578125,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴甲\" title=\"删除关键伙伴：伙伴甲\" data-tooltip=\"删除关键伙伴：伙伴甲\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴乙",
+              "title": "删除关键伙伴：伙伴乙",
+              "tooltip": "删除关键伙伴：伙伴乙",
+              "w": 31.703125,
+              "h": 28,
+              "x": 575.984375,
+              "y": 1331.578125,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴乙\" title=\"删除关键伙伴：伙伴乙\" data-tooltip=\"删除关键伙伴：伙伴乙\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴丙",
+              "title": "删除关键伙伴：伙伴丙",
+              "tooltip": "删除关键伙伴：伙伴丙",
+              "w": 31.703125,
+              "h": 28,
+              "x": 809.625,
+              "y": 1331.578125,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴丙\" title=\"删除关键伙伴：伙伴丙\" data-tooltip=\"删除关键伙伴：伙伴丙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道甲",
+              "title": "删除二级渠道：渠道甲",
+              "tooltip": "删除二级渠道：渠道甲",
+              "w": 28,
+              "h": 36,
+              "x": 1149.328125,
+              "y": 1719.53125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道甲\" title=\"删除二级渠道：渠道甲\" data-tooltip=\"删除二级渠道：渠道甲\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道乙",
+              "title": "删除二级渠道：渠道乙",
+              "tooltip": "删除二级渠道：渠道乙",
+              "w": 28,
+              "h": 36,
+              "x": 1149.328125,
+              "y": 1780.53125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道乙\" title=\"删除二级渠道：渠道乙\" data-tooltip=\"删除二级渠道：渠道乙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道丙",
+              "title": "删除二级渠道：渠道丙",
+              "tooltip": "删除二级渠道：渠道丙",
+              "w": 28,
+              "h": 36,
+              "x": 1149.328125,
+              "y": 1841.53125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道丙\" title=\"删除二级渠道：渠道丙\" data-tooltip=\"删除二级渠道：渠道丙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：线下甲",
+              "title": "删除二级渠道：线下甲",
+              "tooltip": "删除二级渠道：线下甲",
+              "w": 28,
+              "h": 36,
+              "x": 1149.328125,
+              "y": 1902.53125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：线下甲\" title=\"删除二级渠道：线下甲\" data-tooltip=\"删除二级渠道：线下甲\">×</button>"
+            }
+          ]
+        },
+        {
+          "label": "A18 hover与键盘focus目标说明一致",
+          "passed": true,
+          "details": {
+            "hover": "删除关键伙伴：伙伴乙",
+            "focus": "删除关键伙伴：伙伴乙"
+          }
+        },
+        {
+          "label": "A18 伙伴删除与归属切换热区不重叠",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A18 桌面键盘删除即时提供撤销",
+          "passed": true
+        },
+        {
+          "label": "A18 桌面键盘撤销恢复归属",
+          "passed": true
+        },
+        {
+          "label": "A18 触屏上下文真实coarse pointer",
+          "passed": true
+        },
+        {
+          "label": "A18 触屏删除目标至少44x44",
+          "passed": true,
+          "details": [
+            {
+              "name": "重置工作区",
+              "title": null,
+              "tooltip": null,
+              "w": 106.703125,
+              "h": 44,
+              "x": 536.640625,
+              "y": 182.984375,
+              "html": "<button class=\"ghost danger\" onclick=\"App.reset()\">重置工作区</button>"
+            },
+            {
+              "name": "删除标签：自营标签",
+              "title": "删除标签：自营标签",
+              "tooltip": "删除标签：自营标签",
+              "w": 44,
+              "h": 44,
+              "x": 146,
+              "y": 812.140625,
+              "html": "<button type=\"button\" class=\"ghost small danger delete-control\" aria-label=\"删除标签：自营标签\" title=\"删除标签：自营标签\" data-tooltip=\"删除标签：自营标签\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴甲",
+              "title": "删除关键伙伴：伙伴甲",
+              "tooltip": "删除关键伙伴：伙伴甲",
+              "w": 44,
+              "h": 44,
+              "x": 250.609375,
+              "y": 1534.359375,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴甲\" title=\"删除关键伙伴：伙伴甲\" data-tooltip=\"删除关键伙伴：伙伴甲\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴乙",
+              "title": "删除关键伙伴：伙伴乙",
+              "tooltip": "删除关键伙伴：伙伴乙",
+              "w": 44,
+              "h": 44,
+              "x": 489.21875,
+              "y": 1534.359375,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴乙\" title=\"删除关键伙伴：伙伴乙\" data-tooltip=\"删除关键伙伴：伙伴乙\">×</button>"
+            },
+            {
+              "name": "删除关键伙伴：伙伴丙",
+              "title": "删除关键伙伴：伙伴丙",
+              "tooltip": "删除关键伙伴：伙伴丙",
+              "w": 44,
+              "h": 44,
+              "x": 738.625,
+              "y": 1534.359375,
+              "html": "<button class=\"partner-remove danger delete-control\" type=\"button\" aria-label=\"删除关键伙伴：伙伴丙\" title=\"删除关键伙伴：伙伴丙\" data-tooltip=\"删除关键伙伴：伙伴丙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道甲",
+              "title": "删除二级渠道：渠道甲",
+              "tooltip": "删除二级渠道：渠道甲",
+              "w": 44,
+              "h": 44,
+              "x": 848.140625,
+              "y": 1938.3125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道甲\" title=\"删除二级渠道：渠道甲\" data-tooltip=\"删除二级渠道：渠道甲\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道乙",
+              "title": "删除二级渠道：渠道乙",
+              "tooltip": "删除二级渠道：渠道乙",
+              "w": 44,
+              "h": 44,
+              "x": 848.140625,
+              "y": 2007.3125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道乙\" title=\"删除二级渠道：渠道乙\" data-tooltip=\"删除二级渠道：渠道乙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：渠道丙",
+              "title": "删除二级渠道：渠道丙",
+              "tooltip": "删除二级渠道：渠道丙",
+              "w": 44,
+              "h": 44,
+              "x": 848.140625,
+              "y": 2076.3125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：渠道丙\" title=\"删除二级渠道：渠道丙\" data-tooltip=\"删除二级渠道：渠道丙\">×</button>"
+            },
+            {
+              "name": "删除二级渠道：线下甲",
+              "title": "删除二级渠道：线下甲",
+              "tooltip": "删除二级渠道：线下甲",
+              "w": 44,
+              "h": 44,
+              "x": 848.140625,
+              "y": 2145.3125,
+              "html": "<button class=\"ghost small danger delete-control\" type=\"button\" aria-label=\"删除二级渠道：线下甲\" title=\"删除二级渠道：线下甲\" data-tooltip=\"删除二级渠道：线下甲\">×</button>"
+            }
+          ]
+        },
+        {
+          "label": "A18 触屏伙伴热区不重叠",
+          "passed": true,
+          "details": []
+        },
+        {
+          "label": "A18 触屏删除及撤销可用",
+          "passed": true
+        },
+        {
+          "label": "A18 触屏撤销恢复归属",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 4.07
+    },
+    {
+      "code": "A19",
+      "title": "390及768窄屏提示横滚编辑",
+      "assertions": [
+        {
+          "label": "A19 390窄屏提示按可见视口排版",
+          "passed": true,
+          "details": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 69.78125
+          }
+        },
+        {
+          "label": "A19 390保留完整桌面横滚",
+          "passed": true
+        },
+        {
+          "label": "A19 390无误加编辑锁",
+          "passed": true
+        },
+        {
+          "label": "A19 390横滚提示不移出视口",
+          "passed": true,
+          "details": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 69.78125
+          }
+        },
+        {
+          "label": "A19 768窄屏提示按可见视口排版",
+          "passed": true,
+          "details": {
+            "x": 0,
+            "y": 0,
+            "width": 768,
+            "height": 47.390625
+          }
+        },
+        {
+          "label": "A19 768保留完整桌面横滚",
+          "passed": true
+        },
+        {
+          "label": "A19 768无误加编辑锁",
+          "passed": true
+        },
+        {
+          "label": "A19 768横滚提示不移出视口",
+          "passed": true,
+          "details": {
+            "x": 0,
+            "y": 0,
+            "width": 768,
+            "height": 47.390625
+          }
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "seconds": 1.42
     },
     {
       "code": "A20",
@@ -1045,7 +3037,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.65
+      "seconds": 3.09
     },
     {
       "code": "A22",
@@ -1865,17 +3857,367 @@
         {
           "label": "A22 恢复市场吸引力默认模板取消关闭确认",
           "passed": true
+        },
+        {
+          "label": "A22 清空招聘与赋权记录并重新招聘确认对象和影响",
+          "passed": true,
+          "details": "×\n清空招聘与赋权记录？\n\n将清空 2 个招聘视角和 2 条 persona 赋权记录，以及旧收敛记录、总结和断点。当前两级指标、存储权重及市场评分保留，后续需重新招聘、赋权和收敛。此操作不可撤销。\n\n取消\n清空并重新招聘"
+        },
+        {
+          "label": "A22 清空招聘与赋权记录并重新招聘确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 清空招聘与赋权记录并重新招聘默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 清空招聘与赋权记录并重新招聘焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 清空招聘与赋权记录并重新招聘取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 清空招聘与赋权记录并重新招聘取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 清空正文确认对象和影响",
+          "passed": true,
+          "details": "×\n清空叙事正文？\n\n清空 AI 起草的叙事正文？表单内容不受影响。此操作不可撤销。\n\n取消\n清空正文"
+        },
+        {
+          "label": "A22 清空正文确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 清空正文默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 清空正文焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 清空正文取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 清空正文取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 问卷题目实际清理范围",
+          "passed": true
+        },
+        {
+          "label": "A22 保留市场实际清理范围",
+          "passed": true
+        },
+        {
+          "label": "A22 二级指标实际清理范围",
+          "passed": true
+        },
+        {
+          "label": "A22 场景实际清理范围",
+          "passed": true
+        },
+        {
+          "label": "A22 痛点实际清理范围",
+          "passed": true
+        },
+        {
+          "label": "A22 备选卖点实际清理范围",
+          "passed": true
+        },
+        {
+          "label": "A22 价值主张候选实际清理范围",
+          "passed": true
+        },
+        {
+          "label": "A22 Slogan实际清理范围",
+          "passed": true
+        },
+        {
+          "label": "A22 清回答实际清除答案完成记录分析实测",
+          "passed": true
+        },
+        {
+          "label": "A22 重建指标题实际保留手动题及答案",
+          "passed": true
+        },
+        {
+          "label": "A22 恢复模板实际替换本轴保留另一轴",
+          "passed": true
+        },
+        {
+          "label": "A22 W3评分维度实际清理目标轴子分断点",
+          "passed": true
+        },
+        {
+          "label": "A22 价格档位单行直接删除撤销",
+          "passed": true
+        },
+        {
+          "label": "A22 价格档位全部字段原位置恢复",
+          "passed": true
+        },
+        {
+          "label": "A22 渠道定价单行直接删除撤销",
+          "passed": true
+        },
+        {
+          "label": "A22 渠道定价全部字段原位置恢复",
+          "passed": true
+        },
+        {
+          "label": "A22 促销节奏单行直接删除撤销",
+          "passed": true
+        },
+        {
+          "label": "A22 促销节奏全部字段原位置恢复",
+          "passed": true
+        },
+        {
+          "label": "A22 媒介单行直接删除撤销",
+          "passed": true
+        },
+        {
+          "label": "A22 媒介全部字段原位置恢复",
+          "passed": true
+        },
+        {
+          "label": "A22 公关事件单行直接删除撤销",
+          "passed": true
+        },
+        {
+          "label": "A22 公关事件全部字段原位置恢复",
+          "passed": true
+        },
+        {
+          "label": "A22 促销手段单行直接删除撤销",
+          "passed": true
+        },
+        {
+          "label": "A22 促销手段全部字段原位置恢复",
+          "passed": true
+        },
+        {
+          "label": "A22 清正文仅删除叙事表单导出保留",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新汇总确认对象和影响",
+          "passed": true,
+          "details": "×\n覆盖业务与市场？\n\n「业务与市场」已有内容，本次导入/汇总只覆盖这些章节字段，其他策划书内容会保留。覆盖后不能通过临时撤销恢复。\n\n取消\n导入并覆盖"
+        },
+        {
+          "label": "A22 W5 重新汇总确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新汇总默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新汇总焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新汇总取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新汇总取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入 PEST确认对象和影响",
+          "passed": true,
+          "details": "×\n覆盖PEST 四项（政治、经济、社会、技术）？\n\n「PEST 四项（政治、经济、社会、技术）」已有内容，本次导入/汇总只覆盖这些章节字段，其他策划书内容会保留。覆盖后不能通过临时撤销恢复。\n\n取消\n导入并覆盖"
+        },
+        {
+          "label": "A22 W5 重新导入 PEST确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入 PEST默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入 PEST焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入 PEST取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入 PEST取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入目标市场确认对象和影响",
+          "passed": true,
+          "details": "×\n覆盖STP 的目标市场？\n\n「STP 的目标市场」已有内容，本次导入/汇总只覆盖这些章节字段，其他策划书内容会保留。覆盖后不能通过临时撤销恢复。\n\n取消\n导入并覆盖"
+        },
+        {
+          "label": "A22 W5 重新导入目标市场确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入目标市场默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入目标市场焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入目标市场取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入目标市场取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入细分与定位确认对象和影响",
+          "passed": true,
+          "details": "×\n覆盖STP 的细分与定位？\n\n「STP 的细分与定位」已有内容，本次导入/汇总只覆盖这些章节字段，其他策划书内容会保留。覆盖后不能通过临时撤销恢复。\n\n取消\n导入并覆盖"
+        },
+        {
+          "label": "A22 W5 重新导入细分与定位确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入细分与定位默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入细分与定位焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入细分与定位取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入细分与定位取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入确认对象和影响",
+          "passed": true,
+          "details": "×\n覆盖营销组合的路径、产品、价格、渠道、传播？\n\n「营销组合的路径、产品、价格、渠道、传播」已有内容，本次导入/汇总只覆盖这些章节字段，其他策划书内容会保留。覆盖后不能通过临时撤销恢复。\n\n取消\n导入并覆盖"
+        },
+        {
+          "label": "A22 W5 重新导入确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 重新导入取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 从 Work 1–4 一键汇总确认对象和影响",
+          "passed": true,
+          "details": "×\n覆盖业务与市场、PEST、STP、路径与 4P？\n\n「业务与市场、PEST、STP、路径与 4P」已有内容，本次导入/汇总只覆盖这些章节字段，其他策划书内容会保留。覆盖后不能通过临时撤销恢复。\n\n取消\n导入并覆盖"
+        },
+        {
+          "label": "A22 W5 从 Work 1–4 一键汇总确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 从 Work 1–4 一键汇总默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 从 Work 1–4 一键汇总焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 从 Work 1–4 一键汇总取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22 W5 从 Work 1–4 一键汇总取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 W5实际PEST导入范围准确",
+          "passed": true,
+          "details": {
+            "outlook": "手工展望",
+            "stp": {
+              "segmentation": "手工细分",
+              "targeting": "手工目标市场",
+              "positioning": "手工定位"
+            },
+            "swot": [
+              "手工优势"
+            ],
+            "pest": "合成政治环境来源及可复核的市场准入事实。"
+          }
+        },
+        {
+          "label": "A22 W5证据块无删除入口",
+          "passed": true
+        },
+        {
+          "label": "A22历史版本确认对象和影响",
+          "passed": true,
+          "details": "×\n删除历史版本？\n\n将删除历史版本「A22合成删除版本」。此操作不可恢复；只删除这一份历史快照，不删除当前工作区内容。\n\n取消\n删除历史版本"
+        },
+        {
+          "label": "A22历史版本确认前未变更",
+          "passed": true
+        },
+        {
+          "label": "A22历史版本默认焦点为取消",
+          "passed": true
+        },
+        {
+          "label": "A22历史版本焦点限制在确认内",
+          "passed": true
+        },
+        {
+          "label": "A22历史版本取消保留工作坊内容",
+          "passed": true
+        },
+        {
+          "label": "A22历史版本取消关闭确认",
+          "passed": true
+        },
+        {
+          "label": "A22 历史实际删除不影响工作区",
+          "passed": true
+        },
+        {
+          "label": "No uncaught browser errors",
+          "passed": true
         }
       ],
-      "passed": false,
-      "error": "Locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"清空招聘与赋权记录并重新招聘\", exact=True)\n",
-      "traceback": "Traceback (most recent call last):\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/interaction_acceptance_support.py\", line 203, in case\n    callback()\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 603, in <lambda>\n    h.case(code,title,lambda callback=callback:callback(h))\n                                               ^^^^^^^^^^^\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 559, in a22\n    _confirm_cancel(h,h.page.get_by_role('button',name=name,exact=True),terms,'A22 '+name)\n  File \"/Users/hesitantmany/vs project/Brand-building/scripts/ui_interaction_acceptance_workshops.py\", line 137, in _confirm_cancel\n    locator.click()\n  File \"/Users/hesitantmany/vs project/Brand-building/server/.venv/lib/python3.11/site-packages/playwright/sync_api/_generated.py\", line 17876, in click\n    self._sync(\nplaywright._impl._errors.TimeoutError: Locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"清空招聘与赋权记录并重新招聘\", exact=True)\n\n",
-      "screenshot": "issues/2026-10-06-interaction-implementation/evidence/A22-failure.png",
-      "seconds": 19.21
+      "passed": true,
+      "seconds": 34.5
     }
   ],
-  "passed": 2,
-  "failed": 3,
+  "passed": 12,
+  "failed": 0,
   "api_requests": [
     {
       "method": "GET",
@@ -1895,6 +4237,471 @@
     {
       "method": "GET",
       "path": "/api/health",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A06"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A06"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A06"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A06"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A06"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A06"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A07"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A07"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A07"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A07"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A07"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A07"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A07"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A07"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A07"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A07"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A07"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A07"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A08"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A08"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A09"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A10"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A10"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A10"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A10"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A10"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A10"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A10"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A10"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
       "case": "A11"
     },
     {
@@ -1905,6 +4712,11 @@
     {
       "method": "GET",
       "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
       "case": "A11"
     },
     {
@@ -2035,6 +4847,166 @@
     {
       "method": "GET",
       "path": "/api/health",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots/named_A11%E5%90%88%E6%88%90%E6%9B%BF%E6%8D%A2%E7%89%88%E6%9C%AC/restore?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A11"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A11"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
       "case": "A16"
     },
     {
@@ -2048,6 +5020,11 @@
       "case": "A16"
     },
     {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A16"
+    },
+    {
       "method": "GET",
       "path": "/api/state?project_id=default",
       "case": "A16"
@@ -2090,6 +5067,186 @@
     {
       "method": "GET",
       "path": "/api/health",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A17"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A17"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A17"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A17"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A17"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A17"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A17"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A18"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A18"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A18"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A18"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A18"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A18"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A18"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A18"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A18"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A18"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A18"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A18"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A19"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A19"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A19"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A19"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A19"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A19"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
       "case": "A20"
     },
     {
@@ -2745,6 +5902,881 @@
     {
       "method": "PUT",
       "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/state?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/state",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "POST",
+      "path": "/api/snapshots",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/snapshots/named_A22%E5%90%88%E6%88%90%E5%88%A0%E9%99%A4%E7%89%88%E6%9C%AC?project_id=default",
+      "case": "A22"
+    },
+    {
+      "method": "GET",
+      "path": "/api/snapshots?project_id=default",
       "case": "A22"
     }
   ],

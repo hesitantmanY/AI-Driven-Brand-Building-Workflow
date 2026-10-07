@@ -1,7 +1,7 @@
 {
   "group": "archives",
   "isolation": "Temporary server source and empty data; no real archives or provider keys",
-  "browser": "154.0.8037.95",
+  "browser": "154.0.8037.98",
   "cases": [
     {
       "code": "A01",
@@ -14,7 +14,7 @@
             "id": "named_指定加载版本",
             "name": "指定加载版本",
             "type": "named",
-            "created_at": 1791257051.4337547
+            "created_at": 1791381613.4068484
           }
         },
         {
@@ -39,7 +39,7 @@
           "label": "已保存取消无恢复请求",
           "passed": true,
           "details": [
-            "http://127.0.0.1:57403/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+            "http://127.0.0.1:49836/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
           ]
         },
         {
@@ -54,7 +54,7 @@
           "label": "已保存确认只恢复一次",
           "passed": true,
           "details": [
-            "http://127.0.0.1:57403/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+            "http://127.0.0.1:49836/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
           ]
         },
         {
@@ -106,7 +106,7 @@
           "label": "有未保存取消无恢复请求",
           "passed": true,
           "details": [
-            "http://127.0.0.1:57403/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+            "http://127.0.0.1:49836/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
           ]
         },
         {
@@ -121,7 +121,7 @@
           "label": "有未保存确认只恢复一次",
           "passed": true,
           "details": [
-            "http://127.0.0.1:57403/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
+            "http://127.0.0.1:49836/api/snapshots/named_%E6%8C%87%E5%AE%9A%E5%8A%A0%E8%BD%BD%E7%89%88%E6%9C%AC/restore?project_id=default"
           ]
         },
         {
@@ -157,7 +157,7 @@
         }
       ],
       "passed": true,
-      "seconds": 2.57
+      "seconds": 2.64
     },
     {
       "code": "A02",
@@ -273,7 +273,7 @@
         }
       ],
       "passed": true,
-      "seconds": 3.1
+      "seconds": 3.36
     },
     {
       "code": "A03",
@@ -310,7 +310,7 @@
             "id": "named_行内Enter后实际名字",
             "name": "行内Enter后实际名字",
             "type": "named",
-            "created_at": 1791257057.4671617
+            "created_at": 1791381619.8213325
           }
         },
         {
@@ -352,7 +352,7 @@
             "id": "named_顶栏Enter后实际名字",
             "name": "顶栏Enter后实际名字",
             "type": "named",
-            "created_at": 1791257057.4671617
+            "created_at": 1791381619.8213325
           }
         },
         {
@@ -381,7 +381,7 @@
         }
       ],
       "passed": true,
-      "seconds": 3.28
+      "seconds": 3.09
     },
     {
       "code": "A04",
@@ -407,7 +407,7 @@
               "id": "named_终版",
               "name": "终版",
               "type": "named",
-              "created_at": 1791257060.881036
+              "created_at": 1791381622.9194908
             }
           ]
         },
@@ -434,7 +434,7 @@
               "id": "named_终版(1)",
               "name": "终版(1)",
               "type": "named",
-              "created_at": 1791257061.9159477
+              "created_at": 1791381624.401685
             }
           ]
         },
@@ -490,7 +490,7 @@
               "id": "named_终版",
               "name": "终版",
               "type": "named",
-              "created_at": 1791257063.8687167
+              "created_at": 1791381626.3716633
             }
           ]
         },
@@ -521,7 +521,7 @@
               "id": "named_终版(1)",
               "name": "终版(1)",
               "type": "named",
-              "created_at": 1791257066.0154068
+              "created_at": 1791381629.050644
             }
           ]
         },
@@ -571,7 +571,7 @@
         }
       ],
       "passed": true,
-      "seconds": 7.78
+      "seconds": 8.68
     },
     {
       "code": "A05",
@@ -688,31 +688,31 @@
               "id": "named_终版(3)",
               "name": "终版(3)",
               "type": "named",
-              "created_at": 1791257072.2325037
+              "created_at": 1791381635.9183578
             },
             {
               "id": "named_终版(2)",
               "name": "终版(2)",
               "type": "named",
-              "created_at": 1791257071.6166604
+              "created_at": 1791381635.3900778
             },
             {
               "id": "named_终版(1)",
               "name": "终版(1)",
               "type": "named",
-              "created_at": 1791257071.085593
+              "created_at": 1791381634.9545383
             },
             {
               "id": "named_终版",
               "name": "终版",
               "type": "named",
-              "created_at": 1791257070.618671
+              "created_at": 1791381634.1213415
             },
             {
               "id": "named_复制源",
               "name": "复制源",
               "type": "named",
-              "created_at": 1791257070.1530814
+              "created_at": 1791381633.6899493
             }
           ]
         },
@@ -737,7 +737,7 @@
         }
       ],
       "passed": true,
-      "seconds": 4.68
+      "seconds": 5.26
     },
     {
       "code": "A12",
@@ -1185,7 +1185,7 @@
         }
       ],
       "passed": true,
-      "seconds": 11.32
+      "seconds": 16.14
     },
     {
       "code": "A13",
@@ -1432,7 +1432,7 @@
         }
       ],
       "passed": true,
-      "seconds": 5.36
+      "seconds": 7.93
     },
     {
       "code": "A14",
@@ -1641,7 +1641,7 @@
         }
       ],
       "passed": true,
-      "seconds": 1.73
+      "seconds": 2.76
     },
     {
       "code": "A21",
@@ -1760,7 +1760,7 @@
         }
       ],
       "passed": true,
-      "seconds": 3.06
+      "seconds": 2.74
     }
   ],
   "passed": 10,
